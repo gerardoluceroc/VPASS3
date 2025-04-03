@@ -56,7 +56,7 @@ namespace VPASS3_backend.Services
                 throw new KeyNotFoundException("Rol no encontrado con el ID proporcionado.");
             }
 
-            // Crear un nuevo usuario con los datos del DTO
+            // Se crea un nuevo usuario con los datos del DTO
             var user = new User
             {
                 Email = userDTO.Email,

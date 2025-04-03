@@ -88,7 +88,7 @@ namespace VPASS3_backend.Controllers
                 // Llama al servicio para crear el usuario
                 var createdUser = await _userService.CreateUserAsync(userDTO);
 
-                // Si todo está bien, devuelve un código 201 Created
+                // Si todo está bien, se retorna un código 201 Created
                 return CreatedAtAction("GetUser", new { id = createdUser.Id }, createdUser);
             }
             catch (InvalidOperationException ex)
