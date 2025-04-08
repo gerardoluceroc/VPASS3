@@ -1,0 +1,6 @@
+@VPASS3_backend_HostAddress = http://localhost:5113
+
+GET {{VPASS3_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
