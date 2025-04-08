@@ -24,6 +24,7 @@ namespace VPASS3_backend.Services
         {
             try
             {
+
                 // Se comprueba si ya existe un usuario con el correo electrónico
                 var existingUser = await _userManager.FindByEmailAsync(userDto.Email);
                 if (existingUser != null)

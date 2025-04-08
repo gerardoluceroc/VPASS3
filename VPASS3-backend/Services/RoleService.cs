@@ -14,6 +14,7 @@ namespace VPASS3_backend.Services
             _roleManager = roleManager;
         }
 
+
         // Crear rol
         public async Task<ResponseDto> CreateRoleAsync(RoleDto roleDto)
         {
@@ -29,6 +30,7 @@ namespace VPASS3_backend.Services
                 {
                     Name = roleDto.Name
                 };
+
 
                 // Crea el rol usando el RoleManager
                 var result = await _roleManager.CreateAsync(newRole);
