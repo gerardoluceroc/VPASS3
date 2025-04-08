@@ -46,7 +46,7 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "TuClaveSuperSecreta123"))
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "e3c4bde1e9f47c2193a4b8d914b1d7898cd1f58d79e5a3a6f0f747b65e6d3ea9"))
     };
 });
 
@@ -104,6 +104,7 @@ builder.Services.AddSwaggerGen(options =>
 // Registrar el UserService para inyección de dependencias
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<AuthService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 
@@ -124,6 +125,25 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Esto se encargará de atrapar cualquier excepción global que no se haya podido capturar dentro de un controlador.
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        context.Response.ContentType = "application/json";
+
+        var response = new
+        {
+            StatusCode = 500,
+            Message = "Ocurrió un error inesperado en el servidor."
+        };
+
+        await context.Response.WriteAsJsonAsync(response);
+    });
+});
+
 
 // Importante: primero autenticación, luego autorización
 app.UseAuthentication();
