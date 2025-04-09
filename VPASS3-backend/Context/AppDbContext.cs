@@ -12,20 +12,20 @@ namespace VPASS3_backend.Context
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
+        // Registrar la entidad Establishment
+        public DbSet<Establishment> Establishments { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            //// Relación entre User y Roles por medio de tabla intermedia (ya lo hace Identity, pero lo ponemos explícito)
-            //modelBuilder.Entity<User>()
-            //    .HasMany<IdentityUserRole<string>>()
-            //    .WithOne()
-            //    .HasForeignKey(ur => ur.UserId)
-            //    .IsRequired();
+            // Configuración explícita de la relación uno a muchos (opcional)
+            modelBuilder.Entity<Establishment>()
+                .HasMany(e => e.Users)
+                .WithOne() // No se especifica propiedad de navegación en User
+                .HasForeignKey("EstablishmentId") // Se define la FK shadow property
+                .OnDelete(DeleteBehavior.SetNull); // Opcional: qué hacer si se borra un Establishment
         }
-
-        // Si tienes otras entidades, mantenlas
-        //public DbSet<Person> Persons { get; set; }
     }
 }
 

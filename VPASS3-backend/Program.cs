@@ -5,7 +5,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
 using VPASS3_backend.Context;
+using VPASS3_backend.DTOs;
+using VPASS3_backend.Middlewares;
 using VPASS3_backend.Models;
 using VPASS3_backend.Services;
 
@@ -28,27 +31,79 @@ builder.Services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Configuración de autenticación JWT
+// Configuración de la autenticación JWT
 builder.Services.AddAuthentication(options =>
 {
+    // Se configura el esquema predeterminado de autenticación como JWT
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
+    // Desactivar la validación de HTTPS en el entorno local (para pruebas, en producción siempre debe estar en true)
     options.RequireHttpsMetadata = false;
+
+    // Indicar que se debe guardar el token en la respuesta
     options.SaveToken = true;
 
+    // Configuración de los parámetros de validación del token
     options.TokenValidationParameters = new TokenValidationParameters
     {
+        // No se valida el emisor del token (idealmente en producción se debería validar)
         ValidateIssuer = false,
+
+        // No se valida el público (audience) del token (en producción, sí se debería hacer)
         ValidateAudience = false,
+
+        // Se valida la fecha de expiración del token
         ValidateLifetime = true,
+
+        // Se valida la clave con la que fue firmado el token
         ValidateIssuerSigningKey = true,
+
+        // Se especifica la clave secreta utilizada para firmar el token (debe estar segura)
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "e3c4bde1e9f47c2193a4b8d914b1d7898cd1f58d79e5a3a6f0f747b65e6d3ea9"))
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "clave-secreta")) // Aquí se toma la clave de la configuración
+    };
+
+    // Aquí se configuran los eventos relacionados con el proceso de autenticación
+    options.Events = new JwtBearerEvents
+    {
+        // Este evento se ejecuta cuando el token no es válido o no está presente
+        OnChallenge = async context =>
+        {
+            // Se maneja la respuesta y se impide que la respuesta predeterminada de 401 se envíe
+            context.HandleResponse();
+
+            // Se establece el código de estado HTTP como 401 (No autorizado)
+            context.Response.StatusCode = 401;
+            context.Response.ContentType = "application/json"; // Se especifica el tipo de respuesta como JSON
+
+            // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
+            var response = new ResponseDto(401, message: "No autorizado. El token es inválido o no fue proporcionado.");
+
+            // Se convierte el objeto a JSON y se escribe en la respuesta
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
+        },
+
+        // Este evento se ejecuta cuando se recibe una solicitud con un token, pero no tiene los permisos suficientes
+        OnForbidden = async context =>
+        {
+            // Se establece el código de estado HTTP como 403 (Prohibido)
+            context.Response.StatusCode = 403;
+            context.Response.ContentType = "application/json"; // Se especifica el tipo de respuesta como JSON
+
+            // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
+            var response = new ResponseDto(403, message: "Acceso denegado. No tienes permiso para realizar esta acción.");
+
+            // Se convierte el objeto a JSON y se escribe en la respuesta
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
+        }
     };
 });
+
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -147,6 +202,7 @@ app.UseExceptionHandler(errorApp =>
 
 // Importante: primero autenticación, luego autorización
 app.UseAuthentication();
+//app.UseMiddleware<CustomUnauthorizedMiddleware>(); //Se agregan el middleware para las peticiones a rutas protegidas que se hagan sin token de autorización
 app.UseAuthorization();
 
 app.MapControllers();

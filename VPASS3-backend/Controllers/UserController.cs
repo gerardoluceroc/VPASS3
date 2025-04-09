@@ -3,6 +3,7 @@ using VPASS3_backend.Models;
 using VPASS3_backend.Services;
 using System.Threading.Tasks;
 using VPASS3_backend.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VPASS3_backend.Controllers
 {
@@ -37,6 +38,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
+        //[Authorize]
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {

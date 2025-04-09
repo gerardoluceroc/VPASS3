@@ -181,30 +181,62 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                // Se busca al usuario en la base de datos utilizando el correo electrónico proporcionado.
                 var existingUser = await _userManager.FindByEmailAsync(userDto.Email);
+
+                // Si no se encuentra el usuario, se devuelve un mensaje de error indicando que no se encontró el usuario.
                 if (existingUser == null)
                     return new ResponseDto(404, message: "Usuario no encontrado.");
 
+                // Se actualiza el nombre de usuario con el correo electrónico proporcionado en el DTO.
                 existingUser.UserName = userDto.Email;
 
+                // Aquí se mantiene el rol original del usuario si no se proporciona un nuevo RoleId o si el RoleId es inválido.
+                if (!string.IsNullOrEmpty(userDto.RoleId))
+                {
+                    // Se valida si el RoleId proporcionado existe en la base de datos.
+                    var role = await _roleManager.FindByIdAsync(userDto.RoleId);
+
+                    // Si el rol es válido, se asigna al usuario.
+                    if (role != null)
+                    {
+                        // Primero se eliminan los roles actuales para evitar asignaciones múltiples.
+                        var currentRoles = await _userManager.GetRolesAsync(existingUser);
+                        await _userManager.RemoveFromRolesAsync(existingUser, currentRoles);
+
+                        // Se asigna el nuevo rol al usuario.
+                        await _userManager.AddToRoleAsync(existingUser, role.Name);
+                    }
+                    // Si el rol no existe, el rol del usuario no se cambia.
+                }
+
+                // Se genera un token de restablecimiento de contraseña para actualizar la contraseña del usuario.
                 var resetToken = await _userManager.GeneratePasswordResetTokenAsync(existingUser);
+
+                // Se intenta restablecer la contraseña con el token generado y la nueva contraseña proporcionada en el DTO.
                 var passwordResult = await _userManager.ResetPasswordAsync(existingUser, resetToken, userDto.Password);
 
+                // Si la actualización de la contraseña falla, se devuelve un mensaje de error.
                 if (!passwordResult.Succeeded)
                     return new ResponseDto(400, message: "No se pudo actualizar la contraseña. Intente nuevamente.");
 
+                // Se intenta actualizar la información del usuario en la base de datos.
                 var updateResult = await _userManager.UpdateAsync(existingUser);
 
+                // Si la actualización es exitosa, se devuelve un mensaje de éxito.
                 return updateResult.Succeeded
                     ? new ResponseDto(200, message: "Usuario actualizado con éxito.")
                     : new ResponseDto(400, message: "No se pudo actualizar el usuario. Intente nuevamente.");
             }
             catch (Exception ex)
             {
+                // Si ocurre un error inesperado, se captura y se devuelve un mensaje de error genérico con el código 500.
                 Console.WriteLine("Error en UpdateUserAsync: " + ex.Message);
                 return new ResponseDto(500, message: "Error en el servidor.");
             }
         }
+
+
 
         // Eliminar usuario
         public async Task<ResponseDto> DeleteUserAsync(string userId)
