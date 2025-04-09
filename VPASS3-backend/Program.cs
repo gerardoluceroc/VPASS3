@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using VPASS3_backend.Context;
 using VPASS3_backend.DTOs;
-using VPASS3_backend.Middlewares;
+using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
 using VPASS3_backend.Services;
 
@@ -160,6 +160,7 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 
