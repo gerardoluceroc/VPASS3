@@ -4,7 +4,7 @@ using VPASS3_backend.Services;
 
 namespace VPASS3_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

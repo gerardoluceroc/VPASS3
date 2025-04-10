@@ -14,17 +14,24 @@ namespace VPASS3_backend.Context
 
         // Registrar la entidad Establishment
         public DbSet<Establishment> Establishments { get; set; }
+        public DbSet<Zone> Zones { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configuración explícita de la relación uno a muchos (opcional)
-            modelBuilder.Entity<Establishment>()
-                .HasMany(e => e.Users)
-                .WithOne() // No se especifica propiedad de navegación en User
-                .HasForeignKey("EstablishmentId") // Se define la FK shadow property
-                .OnDelete(DeleteBehavior.SetNull); // Opcional: qué hacer si se borra un Establishment
+            modelBuilder.Entity<User>()
+            .HasOne(u => u.establishment) // la propiedad de navegación en User
+            .WithMany(e => e.Users)       // la colección en Establishment
+            .HasForeignKey(u => u.EstablishmentId) // clave foránea
+            .OnDelete(DeleteBehavior.SetNull);
+
+            // Relación entre Zone y Establishment (uno a muchos)
+            modelBuilder.Entity<Zone>()
+                .HasOne(z => z.Establishment) // propiedad de navegación en Zone
+                .WithMany(e => e.Zones)       // colección en Establishment
+                .HasForeignKey(z => z.EstablishmentId) // clave foránea
+                .OnDelete(DeleteBehavior.Cascade); // En este caso, si un Establishment se elimina, todas las zonas asociadas también se eliminarán
         }
     }
 }

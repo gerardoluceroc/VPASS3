@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace VPASS3_backend.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace VPASS3_backend.Controllers
             _userService = userService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -39,7 +39,7 @@ namespace VPASS3_backend.Controllers
         }
 
         //[Authorize]
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
             var responseDto = await _userService.GetAllUsersAsync();
@@ -53,7 +53,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        [HttpPut]
+        [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] CreateUserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -70,7 +70,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var responseDto = await _userService.DeleteUserAsync(id);

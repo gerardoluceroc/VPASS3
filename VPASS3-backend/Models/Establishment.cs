@@ -12,5 +12,8 @@ namespace VPASS3_backend.Models
 
         // Relación uno a muchos: un establecimiento tiene muchos usuarios
         public ICollection<User> Users { get; set; }
+
+        // Relación de uno a muchos: Un Establishment tiene muchas Zonas
+        public ICollection<Zone> Zones { get; set; } = new List<Zone>();
     }
 }

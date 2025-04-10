@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Text.Json.Serialization;
 
 namespace VPASS3_backend.Models
 {
     public class User : IdentityUser
     {
-        // Relación muchos a muchos con los roles
-        //public ICollection<IdentityUserRole<string>> UserRoles { get; set; }
+        public int? EstablishmentId { get; set; }
+
+        [JsonIgnore]
+        public Establishment establishment { get; set; }
     }
 }

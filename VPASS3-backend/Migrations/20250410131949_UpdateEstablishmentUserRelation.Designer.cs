@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VPASS3_backend.Context;
 
@@ -11,9 +12,11 @@ using VPASS3_backend.Context;
 namespace VPASS3_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250410131949_UpdateEstablishmentUserRelation")]
+    partial class UpdateEstablishmentUserRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -242,28 +245,6 @@ namespace VPASS3_backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EstablishmentId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EstablishmentId");
-
-                    b.ToTable("Zones");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("VPASS3_backend.Models.Role", null)
@@ -325,22 +306,9 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("establishment");
                 });
 
-            modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
-                {
-                    b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
-                        .WithMany("Zones")
-                        .HasForeignKey("EstablishmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Establishment");
-                });
-
             modelBuilder.Entity("VPASS3_backend.Models.Establishment", b =>
                 {
                     b.Navigation("Users");
-
-                    b.Navigation("Zones");
                 });
 #pragma warning restore 612, 618
         }

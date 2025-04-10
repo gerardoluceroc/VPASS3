@@ -6,7 +6,7 @@ namespace VPASS3_backend.Controllers
 {
     // Controlador para roles
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class RoleController : ControllerBase
     {
         private readonly RoleService _roleService;
@@ -16,7 +16,7 @@ namespace VPASS3_backend.Controllers
             _roleService = roleService;
         }
 
-        [HttpPost]
+        [HttpPost("create")]
         public async Task<IActionResult> CreateRole([FromBody] RoleDto roleDto)
         {
             if (!ModelState.IsValid)
@@ -31,7 +31,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllRoles()
         {
             var response = await _roleService.GetAllRolesAsync();
@@ -45,7 +45,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleDto roleDto)
         {
             if (!ModelState.IsValid)
@@ -60,7 +60,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteRole(string id)
         {
             var response = await _roleService.DeleteRoleAsync(id);
