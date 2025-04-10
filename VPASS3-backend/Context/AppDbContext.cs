@@ -1,10 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Emit;
-using System;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace VPASS3_backend.Context
 {
@@ -15,6 +11,7 @@ namespace VPASS3_backend.Context
         // Registrar la entidad Establishment
         public DbSet<Establishment> Establishments { get; set; }
         public DbSet<Zone> Zones { get; set; }
+        public DbSet<Visitor> Visitors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
