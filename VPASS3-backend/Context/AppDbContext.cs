@@ -13,10 +13,13 @@ namespace VPASS3_backend.Context
         public DbSet<Zone> Zones { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
 
+        public DbSet<Visit> Visits { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // Relación User - Establishment
             modelBuilder.Entity<User>()
             .HasOne(u => u.establishment) // la propiedad de navegación en User
             .WithMany(e => e.Users)       // la colección en Establishment
@@ -29,6 +32,27 @@ namespace VPASS3_backend.Context
                 .WithMany(e => e.Zones)       // colección en Establishment
                 .HasForeignKey(z => z.EstablishmentId) // clave foránea
                 .OnDelete(DeleteBehavior.Cascade); // En este caso, si un Establishment se elimina, todas las zonas asociadas también se eliminarán
+
+            // Relación Visit - Establishment uno es a muchos
+            modelBuilder.Entity<Visit>()
+                .HasOne(v => v.Establishment)
+                .WithMany(e => e.Visits)
+                .HasForeignKey(v => v.EstablishmentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Visit - Visitor uno es a muchos
+            modelBuilder.Entity<Visit>()
+                .HasOne(v => v.Visitor)
+                .WithMany(vis => vis.Visits)
+                .HasForeignKey(v => v.VisitorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Visit - Zone uno es a muchos
+            modelBuilder.Entity<Visit>()
+                .HasOne(v => v.Zone)
+                .WithMany(z => z.Visits)
+                .HasForeignKey(v => v.ZoneId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

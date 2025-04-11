@@ -16,5 +16,10 @@ namespace VPASS3_backend.Models
 
         [Required]
         public string IdentificationNumber { get; set; }
+
+        // Relación de uno es a muchos. Un visitante tiene muchas visitas.
+        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
     }
+
+
 }

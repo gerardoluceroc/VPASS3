@@ -163,6 +163,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<IZoneService, ZoneService>();
 builder.Services.AddScoped<IVisitorService, VisitorService>();
+builder.Services.AddScoped<IVisitService, VisitService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 
