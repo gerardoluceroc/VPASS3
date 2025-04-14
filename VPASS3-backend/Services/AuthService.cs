@@ -23,6 +23,9 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                // Forzar error 500 manualmente para pruebas
+                //throw new Exception("Error interno simulado desde AuthService.LoginAsync");
+
                 // Buscar al usuario por email
                 var user = await _userManager.FindByEmailAsync(email);
 

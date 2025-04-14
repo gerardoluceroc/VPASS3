@@ -156,6 +156,17 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+//Configuracion de politica CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // Cambia esto por la URL de tu React app
+              .AllowAnyHeader()
+              .AllowAnyMethod(); // Permite GET, POST, PUT, DELETE, etc.
+    });
+});
+
 // Registrar el UserService para inyección de dependencias
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
@@ -203,6 +214,7 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
+app.UseCors("PermitirFrontend");
 
 // Importante: primero autenticación, luego autorización
 app.UseAuthentication();
