@@ -1,0 +1,59 @@
+#ContainerLogin {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    min-width: 100vw;
+    background-color: aquamarine;
+}
+
+#BoxLogin {
+    padding: 30px;
+    width: 30%; /* Ancho como porcentaje del viewport */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    box-shadow: 0px 4px 16px 5px rgba(0, 0, 0, 0.1);
+    gap: 10px;
+    background-color: white;
+  }
+
+    @media (max-width: 1175px) {
+    #BoxLogin {
+        width: 70%;
+    }
+    }
+
+    /* Media query para pantallas pequeñas (por debajo de 600px) */
+    @media (max-width: 660px) {
+    #BoxLogin {
+        width: 80%;
+        padding: 20px;
+    }
+    }
+
+#HeaderLogin{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+
+}
+
+#CredentialsLogin{
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 85%;
+}
+
+#BoxLoginButton{
+    margin: auto;
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
