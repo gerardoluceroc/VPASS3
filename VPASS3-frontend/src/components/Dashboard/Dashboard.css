@@ -1,0 +1,52 @@
+#ContainerDashboard {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 60px;
+    background-color: #eaeef7;
+    padding: 5px 5px 15px 5px;
+    border-radius: 15px;
+}
+
+.ItemDashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0px 10px 10px 10px !important; 
+    border-radius: 20px !important;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    width: 25%;
+}
+
+.ItemDashboard:hover {
+    background-color:#d6dbdf;
+    transform: scale(1.03);
+    cursor: pointer;
+}
+
+@media (max-width: 1040px) {
+    .ItemDashboard {
+        width: 45%;
+    }
+}
+
+
+@media (max-width: 818px) {
+    .ItemDashboard {
+        width: 100%;
+    }
+}
+
+.ImagenNuevaVisitaDashboard{
+    height: 20vh;
+    width: 100%;
+    object-fit: contain;
+}
+
+.TituloItemDashboard{
+    font-size: 25px;
+    font-weight: bold;
+    color: black;
+}
