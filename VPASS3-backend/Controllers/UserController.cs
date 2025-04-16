@@ -38,7 +38,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
