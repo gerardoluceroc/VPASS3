@@ -7,38 +7,20 @@ const authSlice = createSlice(
         {
             authenticated: false,
             token: null,
-            expiracion : null,
-            idEmpresa: null,
-            usuario: null,
-            correo: null,
-            idPersona: null,
-            rol: null,
             rememberMe: false,
         },
         reducers:
         {
             setUser: (state, action) => {
-                state.authenticated = action.payload;
-                state.token = action.payload;
-                state.expiracion = action.payload;
-                state.idEmpresa = action.payload;
-                state.usuario = action.payload;
-                state.correo = action.payload;
-                state.idPersona = action.payload;
-                state.rol = action.payload;
-                state.rememberMe = action.payload;
+                state.authenticated = action.payload.authenticated;
+                state.token = action.payload.token;
+                state.rememberMe = action.payload.rememberMe;
             },
-            disconnect: (state, action) => {
-                state.authenticated = action.payload;
-                state.token = action.payload;
-                state.expiracion = action.payload;
-                state.idEmpresa = action.payload;
-                state.usuario = action.payload;
-                state.correo = action.payload;
-                state.idPersona = action.payload;
-                state.rol = action.payload;
-                state.rememberMe = action.payload;
-            }
+            disconnect: (state) => {
+                state.authenticated = false;
+                state.token = null;
+                state.rememberMe = false;
+            },            
         }
     }
 )

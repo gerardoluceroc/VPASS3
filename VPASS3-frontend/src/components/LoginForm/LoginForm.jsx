@@ -6,12 +6,15 @@ import useLogin from "../../hooks/auth/useLogin";
 import ValidationLoginForm from "./ValidationLoginForm";
 import TextFieldUno from "../TextField/TextFieldUno/TextFieldUno";
 import ButtonTypeOne from "../Buttons/ButtonTypeOne/ButtonTypeOne";
+import { useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
 
-    const {response, loading, loginSession, responseStatus} = useLogin();
+    const {response, loading, loginSession, logoutSession, responseStatus} = useLogin();
   
     const [cargando, setCargando] = useState(false);
+
+    const navigate = useNavigate();
   
     const formik = useFormik({
       initialValues: {
@@ -26,6 +29,11 @@ const LoginForm = () => {
             const { token, status } = result;
             if (token) {
               console.log("Login exitoso");
+
+              navigate("/", { replace: true });
+            // logoutSession(); // Llama a la función logoutSession después de iniciar sesión
+            
+
             } else if (status === 401) {
               formik.setFieldError('email', "Correo y/o contraseña incorrecto(s)");
               formik.setFieldError('password', "Correo y/o contraseña incorrecto(s)");

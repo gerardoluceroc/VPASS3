@@ -40,8 +40,8 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 // });
 
 // Crea el store de Redux, que contiene todo el estado global de la aplicación
-// Usamos el reducer con persistencia y le agregamos el middleware thunk para manejar acciones asincrónicas
-// Aquí está la solución al warning
+// Usamos el reducer con persistencia y le agregamos el midd230pleware thunk para manejar acciones asincrónicas
+// Aquí está la solución al warning4r
 export const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>

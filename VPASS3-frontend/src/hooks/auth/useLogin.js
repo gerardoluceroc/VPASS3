@@ -1,12 +1,16 @@
 import axios from "axios";
 import { useState } from "react";
 import { url_loginSession } from "../../services/API/API-VPASS3";
+import { useDispatch } from "react-redux";
+import { disconnect, setUser } from "../../components/store/misSlice";
+import { persistor } from "../../components/store/store";
 
 const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState(null);  // Guardar la respuesta completa de la API
     // const [error, setError] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
+    const dispatch = useDispatch();
   
     const loginSession = async ({email, password}) => {
       const body = {
@@ -21,6 +25,15 @@ const useLogin = () => {
         const status = response?.status || null;  // Asegurarse que status no sea undefined
   
         if (token) {
+
+          dispatch(setUser(
+            {
+              authenticated: true,
+              token: token,
+              rememberMe: true,
+            }
+          ))
+
           setResponse(token);
           setResponseStatus(status);
           return { token, status }; 
@@ -38,12 +51,32 @@ const useLogin = () => {
           setLoading(false);  // Indicamos que la petición terminó, independientemente de si tuvo éxito o no
       }
   };
+
+  const logoutSession = () => {
+    dispatch(disconnect(
+      {
+        authenticated: false,
+        token: null,
+        rememberMe: false,
+      }
+    ));
+
+    const handleReset = async () => {
+      // Despacha la acción RESET para limpiar el estado en Redux
+      dispatch({ type: 'RESET' });
+
+      // Limpia los datos persistidos
+      await persistor.purge();
+    };
+    handleReset();
+  }
   
   
     return {
       loading,
       response,
       loginSession,
+      logoutSession,
       responseStatus
     };
   };
