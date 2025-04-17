@@ -1,0 +1,15 @@
+#ContainerDrawerResponsive{
+    background-color: #2f4c78;
+    height: 100%;
+}
+
+#ImagenLogoVpassDrawerResponsive{
+    height: 20vh;
+    width: 100%;
+    object-fit: contain;
+    background-color: #2f4c78;
+}
+
+.DividerDrawerResponsive{
+    background-color: white;
+}
