@@ -13,6 +13,8 @@ namespace VPASS3_backend.Context
         public DbSet<Zone> Zones { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
 
+        public DbSet<Direction> Directions { get; set; }
+
         public DbSet<Visit> Visits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -53,6 +55,13 @@ namespace VPASS3_backend.Context
                 .WithMany(z => z.Visits)
                 .HasForeignKey(v => v.ZoneId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            //Relacion Visit - Direction, uno es a muchos
+            // Una visita tiene un sentido, y un sentido está asociado a muchas visitas
+            modelBuilder.Entity<Visit>()
+            .HasOne(v => v.Direction)
+            .WithMany(d => d.Visits)
+            .HasForeignKey(v => v.IdDirection);
         }
     }
 }

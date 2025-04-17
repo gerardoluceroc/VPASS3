@@ -9,5 +9,7 @@
         public int ZoneId { get; set; }
 
         public DateTime EntryDate { get; set; }
+
+        public int IdDirection { get; set; }
     }
 }

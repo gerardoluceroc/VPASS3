@@ -21,7 +21,14 @@ namespace VPASS3_backend.Models
         [Required]
         public DateTime EntryDate { get; set; }
 
+        [Required]
+        public int IdDirection { get; set; }
+
         // Propiedades de navegación
+
+        [JsonIgnore]
+        public Direction Direction { get; set; }
+
         [JsonIgnore]
         public Establishment Establishment { get; set; }
 
