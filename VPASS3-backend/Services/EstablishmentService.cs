@@ -24,6 +24,8 @@ namespace VPASS3_backend.Services
                 var establishments = await _context.Establishments
                     .Include(e => e.Users)
                     .Include(e => e.Zones)
+                        .ThenInclude(z => z.ZoneSections)  // Esto agrega las subzonas dentro de cada zona
+                    .Include(e => e.ParkingSpots)
                     .ToListAsync();
 
                 return new ResponseDto(200, establishments, "Establecimientos obtenidos correctamente.");
@@ -42,6 +44,7 @@ namespace VPASS3_backend.Services
                 var establishment = await _context.Establishments
                     .Include(e => e.Users)
                     .Include(e => e.Zones)
+                    .Include(e => e.ParkingSpots)
                     .FirstOrDefaultAsync(e => e.Id == id);
 
                 if (establishment == null)

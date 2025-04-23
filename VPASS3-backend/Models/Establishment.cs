@@ -18,5 +18,9 @@ namespace VPASS3_backend.Models
 
         // Relación de uno es a muchos. Un establecimiento tiene muchas visitas.
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+
+        // Relación de uno es a muchos. Un establecimiento tiene muchos espacios de estacionamiento.
+        public ICollection<ParkingSpot> ParkingSpots { get; set; } = new List<ParkingSpot>();
+
     }
 }

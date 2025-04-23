@@ -22,6 +22,7 @@ namespace VPASS3_backend.Services
             {
                 var zones = await _context.Zones
                     .Include(z => z.Establishment)
+                    .Include(z => z.ZoneSections)
                     .ToListAsync();
 
                 return new ResponseDto(200, zones, "Zonas obtenidas correctamente.");
@@ -38,8 +39,9 @@ namespace VPASS3_backend.Services
             try
             {
                 var zone = await _context.Zones
-                    .Include(z => z.Establishment)
-                    .FirstOrDefaultAsync(z => z.Id == id);
+                .Include(z => z.Establishment)
+                .Include(z => z.ZoneSections)  
+                .FirstOrDefaultAsync(z => z.Id == id);
 
                 if (zone == null)
                     return new ResponseDto(404, "Zona no encontrada.");

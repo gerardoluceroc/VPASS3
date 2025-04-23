@@ -176,6 +176,9 @@ builder.Services.AddScoped<IZoneService, ZoneService>();
 builder.Services.AddScoped<IVisitorService, VisitorService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<IDirectionService, DirectionService>();
+builder.Services.AddScoped<IZoneSectionService, ZoneSectionService>();
+builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
+builder.Services.AddScoped<IVisitTypeService, VisitTypeService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 

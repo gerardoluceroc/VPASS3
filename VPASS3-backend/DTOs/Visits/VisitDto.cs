@@ -8,8 +8,17 @@
 
         public int ZoneId { get; set; }
 
-        public DateTime EntryDate { get; set; }
-
         public int IdDirection { get; set; }
+
+        public int? IdZoneSection {  get; set; }
+
+        public bool VehicleIncluded { get; set; }
+
+        public string? LicensePlate { get; set; }
+
+        public int? IdParkingSpot { get; set; }
+
+        public int IdVisitType { get; set; }
     }
 }
+

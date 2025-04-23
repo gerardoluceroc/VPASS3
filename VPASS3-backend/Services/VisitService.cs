@@ -55,12 +55,44 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                // Obtener zona horaria de Chile
+                TimeZoneInfo chileTimeZone;
+                try
+                {
+                    chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific SA Standard Time");
+                }
+                catch (TimeZoneNotFoundException)
+                {
+                    chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Santiago");
+                }
+
+                DateTime chileDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, chileTimeZone);
+
+                // Validar si la zoneSection existe y pertenece a la zona
+                int? idZoneSectionValida = null;
+                if (dto.IdZoneSection.HasValue)
+                {
+                    var zoneSection = await _context.ZoneSections
+                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
+
+                    if (zoneSection != null)
+                    {
+                        idZoneSectionValida = zoneSection.Id;
+                    }
+                }
+
                 var visit = new Visit
                 {
                     EstablishmentId = dto.EstablishmentId,
                     VisitorId = dto.VisitorId,
                     ZoneId = dto.ZoneId,
-                    EntryDate = dto.EntryDate
+                    IdDirection = dto.IdDirection,
+                    VehicleIncluded = dto.VehicleIncluded,
+                    LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null,
+                    IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null,
+                    EntryDate = chileDateTime,
+                    IdZoneSection = idZoneSectionValida,
+                    IdVisitType = dto.IdVisitType,
                 };
 
                 _context.Visits.Add(visit);
@@ -75,6 +107,8 @@ namespace VPASS3_backend.Services
             }
         }
 
+
+
         public async Task<ResponseDto> UpdateVisitAsync(int id, VisitDto dto)
         {
             try
@@ -86,7 +120,12 @@ namespace VPASS3_backend.Services
                 visit.EstablishmentId = dto.EstablishmentId;
                 visit.VisitorId = dto.VisitorId;
                 visit.ZoneId = dto.ZoneId;
-                visit.EntryDate = dto.EntryDate;
+                visit.VehicleIncluded = dto.VehicleIncluded;
+                visit.IdDirection = dto.IdDirection;
+                visit.IdZoneSection = dto.IdZoneSection;
+                visit.LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null;
+                visit.IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null;
+                visit.IdVisitType = dto.IdVisitType;
 
                 await _context.SaveChangesAsync();
 
