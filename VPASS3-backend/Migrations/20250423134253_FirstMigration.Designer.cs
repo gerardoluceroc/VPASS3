@@ -12,8 +12,8 @@ using VPASS3_backend.Context;
 namespace VPASS3_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250410155121_AddZoneModel")]
-    partial class AddZoneModel
+    [Migration("20250423134253_FirstMigration")]
+    partial class FirstMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -131,6 +131,23 @@ namespace VPASS3_backend.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.Direction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("VisitDirection")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Directions");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.Establishment", b =>
                 {
                     b.Property<int>("Id")
@@ -146,6 +163,28 @@ namespace VPASS3_backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Establishments");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IdEstablishment")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdEstablishment");
+
+                    b.ToTable("ParkingSpots");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Role", b =>
@@ -245,6 +284,110 @@ namespace VPASS3_backend.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.Visit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("EntryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EstablishmentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdDirection")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdParkingSpot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdVisitType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdZoneSection")
+                        .HasColumnType("int");
+
+                    b.Property<string>("LicensePlate")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("VehicleIncluded")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("VisitorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ZoneId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ZoneSectionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EstablishmentId");
+
+                    b.HasIndex("IdDirection");
+
+                    b.HasIndex("IdParkingSpot");
+
+                    b.HasIndex("IdVisitType");
+
+                    b.HasIndex("IdZoneSection");
+
+                    b.HasIndex("VisitorId");
+
+                    b.HasIndex("ZoneId");
+
+                    b.HasIndex("ZoneSectionId");
+
+                    b.ToTable("Visits");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.VisitType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VisitTypes");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("IdentificationNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastNames")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Names")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Visitors");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
                 {
                     b.Property<int>("Id")
@@ -256,11 +399,36 @@ namespace VPASS3_backend.Migrations
                     b.Property<int>("EstablishmentId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EstablishmentId");
 
                     b.ToTable("Zones");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.ZoneSection", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IdZone")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdZone");
+
+                    b.ToTable("ZoneSections");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -314,6 +482,17 @@ namespace VPASS3_backend.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
+                        .WithMany("ParkingSpots")
+                        .HasForeignKey("IdEstablishment")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Establishment");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.User", b =>
                 {
                     b.HasOne("VPASS3_backend.Models.Establishment", "establishment")
@@ -322,6 +501,67 @@ namespace VPASS3_backend.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("establishment");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.Visit", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
+                        .WithMany("Visits")
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.Direction", "Direction")
+                        .WithMany("Visits")
+                        .HasForeignKey("IdDirection")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.ParkingSpot", "ParkingSpot")
+                        .WithMany("Visits")
+                        .HasForeignKey("IdParkingSpot")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("VPASS3_backend.Models.VisitType", "VisitType")
+                        .WithMany()
+                        .HasForeignKey("IdVisitType")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.ZoneSection", "ZoneSection")
+                        .WithMany()
+                        .HasForeignKey("IdZoneSection")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("VPASS3_backend.Models.Visitor", "Visitor")
+                        .WithMany("Visits")
+                        .HasForeignKey("VisitorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.Zone", "Zone")
+                        .WithMany()
+                        .HasForeignKey("ZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.ZoneSection", null)
+                        .WithMany("Visits")
+                        .HasForeignKey("ZoneSectionId");
+
+                    b.Navigation("Direction");
+
+                    b.Navigation("Establishment");
+
+                    b.Navigation("ParkingSpot");
+
+                    b.Navigation("VisitType");
+
+                    b.Navigation("Visitor");
+
+                    b.Navigation("Zone");
+
+                    b.Navigation("ZoneSection");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
@@ -335,11 +575,51 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("Establishment");
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.ZoneSection", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Zone", "Zone")
+                        .WithMany("ZoneSections")
+                        .HasForeignKey("IdZone")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Zone");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.Direction", b =>
+                {
+                    b.Navigation("Visits");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.Establishment", b =>
                 {
+                    b.Navigation("ParkingSpots");
+
                     b.Navigation("Users");
 
+                    b.Navigation("Visits");
+
                     b.Navigation("Zones");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
+                {
+                    b.Navigation("Visits");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>
+                {
+                    b.Navigation("Visits");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
+                {
+                    b.Navigation("ZoneSections");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.ZoneSection", b =>
+                {
+                    b.Navigation("Visits");
                 });
 #pragma warning restore 612, 618
         }
