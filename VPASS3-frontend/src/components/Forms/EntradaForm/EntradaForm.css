@@ -9,8 +9,14 @@
     background-color: #eaeef7;
 }
 
-#NombresApellidosEntradaForm{
+.DosItemsEntradaForm{
     display: flex;
     flex-direction: row;
     gap: 20px;
+    width: 100%;
+    justify-content: space-between
+}
+
+#SwitchIncluyeVehiculoEntradaForm{
+    margin-bottom: -10px;
 }

@@ -44,13 +44,14 @@ const SelectMui = ({
     keyListadoElementos = "idPelicula", 
     atributoValue = "title", 
     elementoSeleccionado, 
+    width = 150,
     mostrarElemento = (opcion) => `${opcion["title"]} ${opcion["year"]}`, 
     readOnly = false,
     disabled = false 
 }) => {
 
     return (
-        <Box sx={{ minWidth: 150 }}>
+        <Box sx={{ width: width }}>
             <FormControl fullWidth disabled={disabled}>
                 <InputLabel id="demo-simple-select-label">{label}</InputLabel>
                 <Select
