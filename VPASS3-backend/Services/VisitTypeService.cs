@@ -52,9 +52,28 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                // 1. Verificar que el establecimiento exista
+                var establishment = await _context.Establishments
+                    .FirstOrDefaultAsync(e => e.Id == dto.IdEstablishment);
+
+                if (establishment == null)
+                {
+                    return new ResponseDto(404, "El establecimiento especificado no existe.");
+                }
+
+                // 2. Verificar si ya existe un VisitType con el mismo nombre para ese establecimiento
+                var existingVisitType = await _context.VisitTypes
+                    .FirstOrDefaultAsync(vt => vt.IdEstablishment == dto.IdEstablishment && vt.Name.ToLower() == dto.Name.ToLower());
+
+                if (existingVisitType != null)
+                {
+                    return new ResponseDto(409, $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
+                }
+
                 var visitType = new VisitType
                 {
-                    Name = dto.Name
+                    Name = dto.Name,
+                    IdEstablishment = dto.IdEstablishment
                 };
 
                 _context.VisitTypes.Add(visitType);
@@ -73,12 +92,37 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                // 1. Verificar que el establecimiento exista
+                var establishment = await _context.Establishments
+                    .FirstOrDefaultAsync(e => e.Id == dto.IdEstablishment);
+
+                if (establishment == null)
+                {
+                    return new ResponseDto(404, "El establecimiento especificado no existe.");
+                }
+
                 var visitType = await _context.VisitTypes.FindAsync(id);
 
                 if (visitType == null)
+                {
                     return new ResponseDto(404, "Tipo de visita no encontrado.");
+                }
 
+                // 2. Verificar si ya existe un VisitType con ese nombre para el mismo establecimiento (excluyendo el actual)
+                var duplicateVisitType = await _context.VisitTypes
+                    .FirstOrDefaultAsync(vt =>
+                        vt.Id != id &&
+                        vt.IdEstablishment == dto.IdEstablishment &&
+                        vt.Name.ToLower() == dto.Name.ToLower());
+
+                if (duplicateVisitType != null)
+                {
+                    return new ResponseDto(409, $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
+                }
+
+                // 3. Actualizar campos
                 visitType.Name = dto.Name;
+                visitType.IdEstablishment = dto.IdEstablishment;
 
                 await _context.SaveChangesAsync();
 
@@ -86,7 +130,7 @@ namespace VPASS3_backend.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error en UpdateVisitTypeAsync: " + ex.Message);
+                Console.WriteLine("Error en UpdateVisitTypeAsync: " + ex.Message);    
                 return new ResponseDto(500, "Error en el servidor al actualizar el tipo de visita.");
             }
         }

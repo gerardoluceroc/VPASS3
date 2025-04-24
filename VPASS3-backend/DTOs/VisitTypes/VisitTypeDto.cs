@@ -7,5 +7,8 @@ namespace VPASS3_backend.DTOs.VisitTypes
         [Required]
         public string Name { get; set; }
 
+        [Required]
+        public int IdEstablishment { get; set; }
+
     }
 }
