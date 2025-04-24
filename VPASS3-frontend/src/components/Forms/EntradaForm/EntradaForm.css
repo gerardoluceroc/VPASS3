@@ -7,15 +7,22 @@
     padding: 20px;
     border-radius: 20px;
     background-color: #eaeef7;
+    width: 100%;
 }
 
-.DosItemsEntradaForm{
+.DosItemsEntradaForm {
     display: flex;
     flex-direction: row;
     gap: 20px;
     width: 100%;
-    justify-content: space-between
+    justify-content: space-between;
 }
+
+@media (max-width: 774px) {
+    .DosItemsEntradaForm {
+      flex-direction: column;
+    }
+  }
 
 #SwitchIncluyeVehiculoEntradaForm{
     margin-bottom: -10px;
