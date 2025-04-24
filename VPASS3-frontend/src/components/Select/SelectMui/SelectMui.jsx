@@ -1,4 +1,4 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
+import { Box, FormControl, FormHelperText, InputLabel, MenuItem, Select } from "@mui/material";
 
 /* Componente Select de MaterialUI perzonalizado para ser re utilizado en otras partes. */
 /* Props Entrada: 
@@ -47,7 +47,9 @@ const SelectMui = ({
     width = 150,
     mostrarElemento = (opcion) => `${opcion["title"]} ${opcion["year"]}`, 
     readOnly = false,
-    disabled = false 
+    disabled = false,
+    helperText = "",
+    error = false,
 }) => {
 
     return (
@@ -61,6 +63,7 @@ const SelectMui = ({
                     value={elementoSeleccionado === 0 ? "0" : elementoSeleccionado || ""}
                     label={label}
                     onChange={handleChange}
+                    error={error}
                     inputProps={{ 
                         readOnly: readOnly,
                     }}
@@ -94,6 +97,7 @@ const SelectMui = ({
                         </MenuItem>
                     ))}
                 </Select>
+                {helperText && <FormHelperText error={error}>{helperText}</FormHelperText>}
             </FormControl>
         </Box>
     );
