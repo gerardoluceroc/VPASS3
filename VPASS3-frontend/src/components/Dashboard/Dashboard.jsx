@@ -7,7 +7,7 @@ import ConfiguracionImage from "./../../assets/configuracion.png"
 import BlacklistImage from "./../../assets/blacklist.png"
 import UltimosRegistrosImage from "./../../assets/ultimosregistros.png"
 import { opcionAjustes, opcionBlacklist, opcionContactanos, opcionDescargarRegistros, opcionNuevaVisita, opcionUltimosRegistros } from "../Home/constantesHome";
-const Dashboard = ({handleOpcionSeleccionada}) => {
+const Dashboard = ({handleOpcionSeleccionada = ()=>{}}) => {
 return (
     <Box id="ContainerDashboard">
             <ButtonBase className="ItemDashboard" onClick={() => handleOpcionSeleccionada(opcionNuevaVisita)}>

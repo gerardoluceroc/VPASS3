@@ -64,6 +64,7 @@ const SelectMui = ({
                     label={label}
                     onChange={handleChange}
                     error={error}
+                    fullWidth
                     inputProps={{ 
                         readOnly: readOnly,
                     }}
