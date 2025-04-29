@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs.Visitors;
 using VPASS3_backend.Services;
 
@@ -15,6 +16,7 @@ namespace VPASS3_backend.Controllers
             _visitorService = visitorService;
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllVisitors()
         {
@@ -22,6 +24,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetVisitorById(int id)
         {
@@ -29,6 +32,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateVisitor([FromBody] VisitorDto dto)
         {
@@ -36,6 +40,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateVisitor(int id, [FromBody] VisitorDto dto)
         {
@@ -43,6 +48,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteVisitor(int id)
         {

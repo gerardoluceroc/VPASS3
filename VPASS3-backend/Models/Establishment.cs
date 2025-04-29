@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VPASS3_backend.Models
 {
@@ -10,8 +11,11 @@ namespace VPASS3_backend.Models
         [Required]
         public string Name { get; set; }
 
-        // Relación uno a muchos: un establecimiento tiene muchos usuarios
-        public ICollection<User> Users { get; set; }
+        public int IdUser { get; set; }
+
+        // Relación uno a uno: un establecimiento tiene un solo usuario
+        [JsonIgnore]
+        public User User { get; set; }
 
         // Relación de uno a muchos: Un Establishment tiene muchas Zonas
         public ICollection<Zone> Zones { get; set; } = new List<Zone>();

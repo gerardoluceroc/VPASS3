@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.DTOs.Directions;
 using VPASS3_backend.Interfaces;
@@ -16,6 +17,7 @@ namespace VPASS3_backend.Controllers
             _directionService = directionService;
         }
 
+        [Authorize(Policy = "ManageEverything")]
         [HttpPost("create")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] DirectionDto dto)
         {
@@ -28,6 +30,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageEverything")]
         [HttpGet("all")]
         public async Task<ActionResult<ResponseDto>> GetAll()
         {
@@ -42,6 +45,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageEverything")]
         [HttpPut("update/{id}")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] DirectionDto dto)
         {
@@ -54,6 +58,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageEverything")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {

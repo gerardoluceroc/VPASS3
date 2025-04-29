@@ -4,6 +4,7 @@ using VPASS3_backend.Services;
 using System.Threading.Tasks;
 using VPASS3_backend.DTOs;
 using Microsoft.AspNetCore.Authorization;
+using VPASS3_backend.Interfaces;
 
 namespace VPASS3_backend.Controllers
 {
@@ -12,11 +13,14 @@ namespace VPASS3_backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserService _userService;
+        private readonly IUserContextService _userContext;
 
-        public UserController(UserService userService)
+        public UserController(UserService userService, IUserContextService userContext)
         {
             _userService = userService;
+            _userContext = userContext;
         }
+
 
         [HttpPost("create")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
@@ -38,7 +42,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        //[Authorize]
+        [Authorize(Policy = "ManageEverything")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -46,13 +50,22 @@ namespace VPASS3_backend.Controllers
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetUserById(string id)
+
+        [Authorize(Policy = "ReadOnlyOwnProfile")]
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetUserById(int id)
         {
+            // Se verifica que el usuario sea Super Admin o que esté consultando a recursos relacionados con su usuario
+            if (!_userContext.CanAccessOwnResourceById(id))
+            {
+                return StatusCode(403, new ResponseDto(403, message: "No cuenta con los permisos para ver la información de otros usuarios"));
+            }
+
             var responseDto = await _userService.GetUserByIdAsync(id);
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] CreateUserDto userDto)
         {
@@ -66,13 +79,26 @@ namespace VPASS3_backend.Controllers
                 return StatusCode(response.StatusCode, response);
             }
 
+            // Se verifica que el usuario sea Super Admin o que esté consultando a recursos relacionados con su usuario
+            if (!_userContext.CanAccessOwnResourceByEmail(userDto.Email))
+            {
+                return StatusCode(403, new ResponseDto(403, message: "No cuenta con los permisos para administar la información de otros usuarios"));
+            }
+
             var responseDto = await _userService.UpdateUserAsync(userDto);
             return StatusCode(responseDto.StatusCode, responseDto);
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteUser(string id)
+        [Authorize(Policy = "ManageOwnProfile")]
+        [HttpDelete("delete/{id:int}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
+            // Se verifica que el usuario sea Super Admin o que esté consultando a recursos relacionados con su usuario
+            if (!_userContext.CanAccessOwnResourceById(id))
+            {
+                return StatusCode(403, new ResponseDto(403, message: "No cuenta con los permisos para administar la información de otros usuarios"));
+            }
+
             var responseDto = await _userService.DeleteUserAsync(id);
             return StatusCode(responseDto.StatusCode, responseDto);
         }

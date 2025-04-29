@@ -63,7 +63,7 @@ builder.Services.AddAuthentication(options =>
 
         // Se especifica la clave secreta utilizada para firmar el token (debe estar segura)
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "clave-secreta")) // Aquí se toma la clave de la configuración
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // Aquí se toma la clave de la configuración
     };
 
     // Aquí se configuran los eventos relacionados con el proceso de autenticación
@@ -179,8 +179,42 @@ builder.Services.AddScoped<IDirectionService, DirectionService>();
 builder.Services.AddScoped<IZoneSectionService, ZoneSectionService>();
 builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddScoped<IVisitTypeService, VisitTypeService>();
+builder.Services.AddScoped<IUserContextService, UserContextService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ReadOnlyOwnProfile", policy =>
+        policy.RequireRole("USER", "ADMIN", "SUPERADMIN"));
+
+    options.AddPolicy("ManageOwnProfile", policy =>
+        policy.RequireRole("ADMIN", "SUPERADMIN"));
+
+    options.AddPolicy("ManageEverything", policy =>
+        policy.RequireRole("SUPERADMIN"));
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 var app = builder.Build();
 

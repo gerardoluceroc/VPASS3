@@ -31,7 +31,7 @@ namespace VPASS3_backend.Services
                     return new ResponseDto(409, message: "El correo electrónico ya está registrado.");
 
                 // Se busca el rol con el RoleId proporcionado
-                var role = await _roleManager.FindByIdAsync(userDto.RoleId);
+                var role = await _roleManager.FindByIdAsync(userDto.RoleId.ToString());
                 if (role == null)
                     return new ResponseDto(404, message: "El rol especificado no existe.");
 
@@ -121,12 +121,12 @@ namespace VPASS3_backend.Services
         }
 
         // Obtener usuario por id
-        public async Task<ResponseDto> GetUserByIdAsync(string userId)
+        public async Task<ResponseDto> GetUserByIdAsync(int userId)
         {
             try
             {
                 // Obtiene el usuario por ID
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (user == null)
                 {
@@ -192,10 +192,10 @@ namespace VPASS3_backend.Services
                 existingUser.UserName = userDto.Email;
 
                 // Aquí se mantiene el rol original del usuario si no se proporciona un nuevo RoleId o si el RoleId es inválido.
-                if (!string.IsNullOrEmpty(userDto.RoleId))
+                if (!string.IsNullOrEmpty(userDto.RoleId.ToString()))
                 {
                     // Se valida si el RoleId proporcionado existe en la base de datos.
-                    var role = await _roleManager.FindByIdAsync(userDto.RoleId);
+                    var role = await _roleManager.FindByIdAsync(userDto.RoleId.ToString());
 
                     // Si el rol es válido, se asigna al usuario.
                     if (role != null)
@@ -239,11 +239,11 @@ namespace VPASS3_backend.Services
 
 
         // Eliminar usuario
-        public async Task<ResponseDto> DeleteUserAsync(string userId)
+        public async Task<ResponseDto> DeleteUserAsync(int userId)
         {
             try
             {
-                var user = await _userManager.FindByIdAsync(userId);
+                var user = await _userManager.FindByIdAsync(userId.ToString());
                 if (user == null)
                     return new ResponseDto(404, message: "Usuario no encontrado.");
 

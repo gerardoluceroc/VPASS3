@@ -10,18 +10,32 @@ namespace VPASS3_backend.Services
     public class VisitService : IVisitService
     {
         private readonly AppDbContext _context;
+        private readonly IUserContextService _userContext;
 
-        public VisitService(AppDbContext context)
+        public VisitService(AppDbContext context, IUserContextService userContext)
         {
             _context = context;
+            _userContext = userContext;
         }
+
 
         public async Task<ResponseDto> GetAllVisitsAsync()
         {
             try
             {
                 var visits = await _context.Visits
+                    .Include(v => v.Establishment)
                     .ToListAsync();
+
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message:"No tienes un establecimiento asociado.");
+
+                    visits = visits
+                        .Where(v => _userContext.CanAccessVisit(v))
+                        .ToList();
+                }
 
                 return new ResponseDto(200, visits, "Visitas obtenidas correctamente.");
             }
@@ -32,43 +46,53 @@ namespace VPASS3_backend.Services
             }
         }
 
+
         public async Task<ResponseDto> GetVisitByIdAsync(int id)
         {
             try
             {
                 var visit = await _context.Visits
+                    .Include(v => v.Establishment)
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visit == null)
                     return new ResponseDto(404, "Visita no encontrada.");
+
+                if (!_userContext.CanAccessVisit(visit))
+                    return new ResponseDto(403, message:"No tienes permiso para acceder a esta visita.");
 
                 return new ResponseDto(200, visit, "Visita obtenida correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetVisitByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener la visita.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener la visita.");
             }
         }
+
 
         public async Task<ResponseDto> CreateVisitAsync(VisitDto dto)
         {
             try
             {
-                // Obtener zona horaria de Chile
+                if (_userContext.UserRole != "SUPERADMIN" &&
+                    _userContext.EstablishmentId != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "No tienes permiso para crear visitas en este establecimiento.");
+                }
+
                 TimeZoneInfo chileTimeZone;
                 try
                 {
                     chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific SA Standard Time");
                 }
-                catch (TimeZoneNotFoundException)
+                catch
                 {
                     chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Santiago");
                 }
 
                 DateTime chileDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, chileTimeZone);
 
-                // Validar si la zoneSection existe y pertenece a la zona
                 int? idZoneSectionValida = null;
                 if (dto.IdZoneSection.HasValue)
                 {
@@ -103,9 +127,10 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en CreateVisitAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al crear la visita.");
+                return new ResponseDto(500, message: "Error en el servidor al crear la visita.");
             }
         }
+
 
 
 
@@ -113,9 +138,20 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var visit = await _context.Visits.FindAsync(id);
+                var visit = await _context.Visits
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
                 if (visit == null)
-                    return new ResponseDto(404, "Visita no encontrada.");
+                    return new ResponseDto(404, message: "Visita no encontrada.");
+
+                if (!_userContext.CanAccessVisit(visit))
+                    return new ResponseDto(403, message: "No tienes permiso para editar esta visita.");
+
+                if (_userContext.UserRole != "SUPERADMIN" &&
+                    _userContext.EstablishmentId != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "No puedes reasignar la visita a otro establecimiento.");
+                }
 
                 visit.EstablishmentId = dto.EstablishmentId;
                 visit.VisitorId = dto.VisitorId;
@@ -134,28 +170,35 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en UpdateVisitAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al actualizar la visita.");
+                return new ResponseDto(500, message: "Error en el servidor al actualizar la visita.");
             }
         }
+
 
         public async Task<ResponseDto> DeleteVisitAsync(int id)
         {
             try
             {
-                var visit = await _context.Visits.FindAsync(id);
+                var visit = await _context.Visits
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
                 if (visit == null)
-                    return new ResponseDto(404, "Visita no encontrada.");
+                    return new ResponseDto(404, message: "Visita no encontrada.");
+
+                if (!_userContext.CanAccessVisit(visit))
+                    return new ResponseDto(403, message: "No tienes permiso para eliminar esta visita.");
 
                 _context.Visits.Remove(visit);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, "Visita eliminada correctamente.");
+                return new ResponseDto(200, message: "Visita eliminada correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en DeleteVisitAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al eliminar la visita.");
+                return new ResponseDto(500, message: "Error en el servidor al eliminar la visita.");
             }
         }
+
     }
 }

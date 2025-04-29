@@ -12,6 +12,6 @@ namespace VPASS3_backend.DTOs
         [MinLength(6, ErrorMessage = "La contraseña debe tener al menos 6 caracteres.")]
         public string Password { get; set; } = string.Empty;
 
-        public string RoleId { get; set; }
+        public int RoleId { get; set; }
     }
 }

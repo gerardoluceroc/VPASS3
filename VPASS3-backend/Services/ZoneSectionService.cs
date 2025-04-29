@@ -10,10 +10,12 @@ namespace VPASS3_backend.Services
     public class ZoneSectionService : IZoneSectionService
     {
         private readonly AppDbContext _context;
+        private readonly IUserContextService _userContext;
 
-        public ZoneSectionService(AppDbContext context)
+        public ZoneSectionService(AppDbContext context, IUserContextService userContext)
         {
             _context = context;
+            _userContext = userContext;
         }
 
         public async Task<ResponseDto> GetAllZoneSectionsAsync()
@@ -24,14 +26,25 @@ namespace VPASS3_backend.Services
                     .Include(zs => zs.Zone)
                     .ToListAsync();
 
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message:"No tienes un establecimiento asociado.");
+
+                    sections = sections
+                        .Where(zs => _userContext.CanAccessZoneSection(zs))
+                        .ToList();
+                }
+
                 return new ResponseDto(200, sections, "Secciones obtenidas correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllZoneSectionsAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener las secciones.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener las secciones.");
             }
         }
+
 
         public async Task<ResponseDto> GetZoneSectionByIdAsync(int id)
         {
@@ -42,24 +55,36 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(zs => zs.Id == id);
 
                 if (section == null)
-                    return new ResponseDto(404, "Sección no encontrada.");
+                    return new ResponseDto(404, message:"Sección no encontrada.");
+
+                if (!_userContext.CanAccessZoneSection(section))
+                    return new ResponseDto(403, message:"No tienes permiso para acceder a esta sección.");
 
                 return new ResponseDto(200, section, "Sección obtenida correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetZoneSectionByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener la sección.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener la sección.");
             }
         }
+
 
         public async Task<ResponseDto> CreateZoneSectionAsync(ZoneSectionDto dto)
         {
             try
             {
-                var zone = await _context.Zones.FindAsync(dto.IdZone);
+                var zone = await _context.Zones
+                    .FirstOrDefaultAsync(z => z.Id == dto.IdZone);
+
                 if (zone == null)
-                    return new ResponseDto(404, "Zona asociada no encontrada.");
+                    return new ResponseDto(404, message: "Zona asociada no encontrada.");
+
+                if (_userContext.UserRole != "SUPERADMIN" &&
+                    _userContext.EstablishmentId != zone.EstablishmentId)
+                {
+                    return new ResponseDto(403, message:"No tienes permiso para crear sub zonas en esta zona.");
+                }
 
                 var zoneSection = new ZoneSection
                 {
@@ -70,26 +95,33 @@ namespace VPASS3_backend.Services
                 _context.ZoneSections.Add(zoneSection);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(201, zoneSection, "Sección creada correctamente.");
+                return new ResponseDto(201, zoneSection, message:"Sección creada correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en CreateZoneSectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al crear la sección.");
+                return new ResponseDto(500, message: "Error en el servidor al crear la sección.");
             }
         }
+
 
         public async Task<ResponseDto> UpdateZoneSectionAsync(int id, ZoneSectionDto dto)
         {
             try
             {
-                var section = await _context.ZoneSections.FindAsync(id);
+                var section = await _context.ZoneSections
+                    .Include(zs => zs.Zone)
+                    .FirstOrDefaultAsync(zs => zs.Id == id);
+
                 if (section == null)
-                    return new ResponseDto(404, "Sección no encontrada.");
+                    return new ResponseDto(404, message: "Sección no encontrada.");
+
+                if (!_userContext.CanAccessZoneSection(section))
+                    return new ResponseDto(403, message: "No tienes permiso para editar esta sección.");
 
                 var zone = await _context.Zones.FindAsync(dto.IdZone);
                 if (zone == null)
-                    return new ResponseDto(404, "Zona asociada no encontrada.");
+                    return new ResponseDto(404, message: "Zona asociada no encontrada.");
 
                 section.Name = dto.Name;
                 section.IdZone = dto.IdZone;
@@ -101,28 +133,36 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en UpdateZoneSectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al actualizar la sección.");
+                return new ResponseDto(500, message: "Error en el servidor al actualizar la sección.");
             }
         }
+
 
         public async Task<ResponseDto> DeleteZoneSectionAsync(int id)
         {
             try
             {
-                var section = await _context.ZoneSections.FindAsync(id);
+                var section = await _context.ZoneSections
+                    .Include(zs => zs.Zone)
+                    .FirstOrDefaultAsync(zs => zs.Id == id);
+
                 if (section == null)
-                    return new ResponseDto(404, "Sección no encontrada.");
+                    return new ResponseDto(404, message: "Sección no encontrada.");
+
+                if (!_userContext.CanAccessZoneSection(section))
+                    return new ResponseDto(403, message: "No tienes permiso para eliminar esta sección.");
 
                 _context.ZoneSections.Remove(section);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, "Sección eliminada correctamente.");
+                return new ResponseDto(200, message: "Sección eliminada correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en DeleteZoneSectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al eliminar la sección.");
+                return new ResponseDto(500, message: "Error en el servidor al eliminar la sección.");
             }
         }
+
     }
 }

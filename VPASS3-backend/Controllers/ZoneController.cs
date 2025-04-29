@@ -2,6 +2,7 @@
 using VPASS3_backend.DTOs.Zones;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VPASS3_backend.Controllers
 {
@@ -10,12 +11,15 @@ namespace VPASS3_backend.Controllers
     public class ZoneController : ControllerBase
     {
         private readonly IZoneService _zoneService;
+        private readonly IUserContextService _userContext;
 
-        public ZoneController(IZoneService zoneService)
+        public ZoneController(IZoneService zoneService, IUserContextService userContext)
         {
             _zoneService = zoneService;
+            _userContext = userContext;
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPost("create")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] CreateZoneDto dto)
         {
@@ -24,10 +28,17 @@ namespace VPASS3_backend.Controllers
                 return BadRequest(new ResponseDto(400, message: "Datos inválidos. Verifica los campos ingresados."));
             }
 
+            // Se verifica que el usuario sea Super Admin o que esté consultando a recursos relacionados con su usuario
+            if (!_userContext.CanAccessOwnEstablishment(dto.EstablishmentId))
+            {
+                return StatusCode(403, new ResponseDto(403, message: "No cuenta con los permisos para administrar la información de otros usuarios"));
+            }
+
             var response = await _zoneService.CreateZoneAsync(dto);
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("all")]
         public async Task<ActionResult<ResponseDto>> GetAll()
         {
@@ -35,6 +46,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ResponseDto>> GetById(int id)
         {
@@ -42,6 +54,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPut("update/{id}")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] CreateZoneDto dto)
         {
@@ -54,6 +67,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {
@@ -62,4 +76,3 @@ namespace VPASS3_backend.Controllers
         }
     }
 }
-

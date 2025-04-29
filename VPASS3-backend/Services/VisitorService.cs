@@ -3,23 +3,37 @@ using VPASS3_backend.DTOs.Visitors;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Models;
 using Microsoft.EntityFrameworkCore;
+using VPASS3_backend.Interfaces;
 
 namespace VPASS3_backend.Services
 {
     public class VisitorService : IVisitorService
     {
         private readonly AppDbContext _context;
+        private readonly IUserContextService _userContext;
 
-        public VisitorService(AppDbContext context)
+        public VisitorService(AppDbContext context, IUserContextService userContext)
         {
             _context = context;
+            _userContext = userContext;
         }
+
 
         public async Task<ResponseDto> GetAllVisitorsAsync()
         {
             try
             {
-                var visitors = await _context.Visitors.ToListAsync();
+                var visitors = await _context.Visitors
+                    .Include(v => v.Visits)
+                    .ToListAsync();
+
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    visitors = visitors
+                        .Where(v => _userContext.CanAccessVisitor(v))
+                        .ToList();
+                }
+
                 return new ResponseDto(200, visitors, "Visitantes obtenidos correctamente.");
             }
             catch (Exception ex)
@@ -29,13 +43,20 @@ namespace VPASS3_backend.Services
             }
         }
 
+
         public async Task<ResponseDto> GetVisitorByIdAsync(int id)
         {
             try
             {
-                var visitor = await _context.Visitors.FindAsync(id);
+                var visitor = await _context.Visitors
+                    .Include(v => v.Visits)
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
                 if (visitor == null)
                     return new ResponseDto(404, "Visitante no encontrado.");
+
+                if (!_userContext.CanAccessVisitor(visitor))
+                    return new ResponseDto(403, "No tienes permiso para acceder a este visitante.");
 
                 return new ResponseDto(200, visitor, "Visitante obtenido correctamente.");
             }
@@ -45,6 +66,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, "Error en el servidor al obtener el visitante.");
             }
         }
+
 
         public async Task<ResponseDto> CreateVisitorAsync(VisitorDto dto)
         {
@@ -56,6 +78,7 @@ namespace VPASS3_backend.Services
                 if (exists)
                     return new ResponseDto(400, "Ya existe un visitante con ese número de identificación.");
 
+                // No hay visitas asociadas al momento de crear, por lo tanto, permitimos la creación libre
                 var visitor = new Visitor
                 {
                     Names = dto.Names,
@@ -75,13 +98,20 @@ namespace VPASS3_backend.Services
             }
         }
 
+
         public async Task<ResponseDto> UpdateVisitorAsync(int id, VisitorDto dto)
         {
             try
             {
-                var existingVisitor = await _context.Visitors.FindAsync(id);
-                if (existingVisitor == null)
+                var visitor = await _context.Visitors
+                    .Include(v => v.Visits)
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
+                if (visitor == null)
                     return new ResponseDto(404, "Visitante no encontrado.");
+
+                if (!_userContext.CanAccessVisitor(visitor))
+                    return new ResponseDto(403, "No tienes permiso para modificar este visitante.");
 
                 var duplicate = await _context.Visitors
                     .AnyAsync(v => v.IdentificationNumber == dto.IdentificationNumber && v.Id != id);
@@ -89,13 +119,13 @@ namespace VPASS3_backend.Services
                 if (duplicate)
                     return new ResponseDto(400, "Ya existe otro visitante con ese número de identificación.");
 
-                existingVisitor.Names = dto.Names;
-                existingVisitor.LastNames = dto.LastNames;
-                existingVisitor.IdentificationNumber = dto.IdentificationNumber;
+                visitor.Names = dto.Names;
+                visitor.LastNames = dto.LastNames;
+                visitor.IdentificationNumber = dto.IdentificationNumber;
 
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, existingVisitor, "Visitante actualizado correctamente.");
+                return new ResponseDto(200, visitor, "Visitante actualizado correctamente.");
             }
             catch (Exception ex)
             {
@@ -108,9 +138,15 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var visitor = await _context.Visitors.FindAsync(id);
+                var visitor = await _context.Visitors
+                    .Include(v => v.Visits)
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
                 if (visitor == null)
                     return new ResponseDto(404, "Visitante no encontrado.");
+
+                if (!_userContext.CanAccessVisitor(visitor))
+                    return new ResponseDto(403, "No tienes permiso para eliminar este visitante.");
 
                 _context.Visitors.Remove(visitor);
                 await _context.SaveChangesAsync();
@@ -123,5 +159,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, "Error en el servidor al eliminar el visitante.");
             }
         }
+
     }
 }

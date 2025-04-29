@@ -10,10 +10,12 @@ namespace VPASS3_backend.Services
     public class VisitTypeService : IVisitTypeService
     {
         private readonly AppDbContext _context;
+        private readonly IUserContextService _userContext;
 
-        public VisitTypeService(AppDbContext context)
+        public VisitTypeService(AppDbContext context, IUserContextService userContext)
         {
             _context = context;
+            _userContext = userContext;
         }
 
         public async Task<ResponseDto> GetAllVisitTypesAsync()
@@ -21,12 +23,23 @@ namespace VPASS3_backend.Services
             try
             {
                 var visitTypes = await _context.VisitTypes.ToListAsync();
+
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message:"No tienes un establecimiento asociado.");
+
+                    visitTypes = visitTypes
+                        .Where(vt => _userContext.CanAccessVisitType(vt))
+                        .ToList();
+                }
+
                 return new ResponseDto(200, visitTypes, "Tipos de visita obtenidos correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllVisitTypesAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener los tipos de visita.");
+                return new ResponseDto(500, message:"Error en el servidor al obtener los tipos de visita.");
             }
         }
 
@@ -34,17 +47,20 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var visitType = await _context.VisitTypes.FindAsync(id);
+                var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == id);
 
                 if (visitType == null)
                     return new ResponseDto(404, "Tipo de visita no encontrado.");
+
+                if (!_userContext.CanAccessVisitType(visitType))
+                    return new ResponseDto(403, message: "No tienes permiso para acceder a este tipo de visita.");
 
                 return new ResponseDto(200, visitType, "Tipo de visita obtenido correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetVisitTypeByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener el tipo de visita.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener el tipo de visita.");
             }
         }
 
@@ -52,22 +68,20 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                // 1. Verificar que el establecimiento exista
-                var establishment = await _context.Establishments
-                    .FirstOrDefaultAsync(e => e.Id == dto.IdEstablishment);
-
-                if (establishment == null)
+                if (_userContext.UserRole != "SUPERADMIN" &&
+                    _userContext.EstablishmentId != dto.IdEstablishment)
                 {
-                    return new ResponseDto(404, "El establecimiento especificado no existe.");
+                    return new ResponseDto(403, message: "No tienes permiso para crear tipos de visita en este establecimiento.");
                 }
 
-                // 2. Verificar si ya existe un VisitType con el mismo nombre para ese establecimiento
-                var existingVisitType = await _context.VisitTypes
-                    .FirstOrDefaultAsync(vt => vt.IdEstablishment == dto.IdEstablishment && vt.Name.ToLower() == dto.Name.ToLower());
+                var duplicate = await _context.VisitTypes
+                    .FirstOrDefaultAsync(vt =>
+                        vt.IdEstablishment == dto.IdEstablishment &&
+                        vt.Name.ToLower() == dto.Name.ToLower());
 
-                if (existingVisitType != null)
+                if (duplicate != null)
                 {
-                    return new ResponseDto(409, $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
+                    return new ResponseDto(409, message:$"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
                 }
 
                 var visitType = new VisitType
@@ -84,7 +98,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en CreateVisitTypeAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al crear el tipo de visita.");
+                return new ResponseDto(500, message: "Error en el servidor al crear el tipo de visita.");
             }
         }
 
@@ -92,35 +106,31 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                // 1. Verificar que el establecimiento exista
-                var establishment = await _context.Establishments
-                    .FirstOrDefaultAsync(e => e.Id == dto.IdEstablishment);
-
-                if (establishment == null)
-                {
-                    return new ResponseDto(404, "El establecimiento especificado no existe.");
-                }
-
-                var visitType = await _context.VisitTypes.FindAsync(id);
+                var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == id);
 
                 if (visitType == null)
+                    return new ResponseDto(404, message: "Tipo de visita no encontrado.");
+
+                if (!_userContext.CanAccessVisitType(visitType))
+                    return new ResponseDto(403, message: "No tienes permiso para editar este tipo de visita.");
+
+                if (_userContext.UserRole != "SUPERADMIN" &&
+                    _userContext.EstablishmentId != dto.IdEstablishment)
                 {
-                    return new ResponseDto(404, "Tipo de visita no encontrado.");
+                    return new ResponseDto(403, message: "No puedes reasignar el tipo de visita a otro establecimiento.");
                 }
 
-                // 2. Verificar si ya existe un VisitType con ese nombre para el mismo establecimiento (excluyendo el actual)
-                var duplicateVisitType = await _context.VisitTypes
+                var duplicate = await _context.VisitTypes
                     .FirstOrDefaultAsync(vt =>
-                        vt.Id != id &&
                         vt.IdEstablishment == dto.IdEstablishment &&
-                        vt.Name.ToLower() == dto.Name.ToLower());
+                        vt.Name.ToLower() == dto.Name.ToLower() &&
+                        vt.Id != id);
 
-                if (duplicateVisitType != null)
+                if (duplicate != null)
                 {
-                    return new ResponseDto(409, $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
+                    return new ResponseDto(409, message: $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
                 }
 
-                // 3. Actualizar campos
                 visitType.Name = dto.Name;
                 visitType.IdEstablishment = dto.IdEstablishment;
 
@@ -130,8 +140,8 @@ namespace VPASS3_backend.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error en UpdateVisitTypeAsync: " + ex.Message);    
-                return new ResponseDto(500, "Error en el servidor al actualizar el tipo de visita.");
+                Console.WriteLine("Error en UpdateVisitTypeAsync: " + ex.Message);
+                return new ResponseDto(500, message: "Error en el servidor al actualizar el tipo de visita.");
             }
         }
 
@@ -139,21 +149,25 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var visitType = await _context.VisitTypes.FindAsync(id);
+                var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == id);
 
                 if (visitType == null)
-                    return new ResponseDto(404, "Tipo de visita no encontrado.");
+                    return new ResponseDto(404, message: "Tipo de visita no encontrado.");
+
+                if (!_userContext.CanAccessVisitType(visitType))
+                    return new ResponseDto(403, message: "No tienes permiso para eliminar este tipo de visita.");
 
                 _context.VisitTypes.Remove(visitType);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, "Tipo de visita eliminado correctamente.");
+                return new ResponseDto(200, message: "Tipo de visita eliminado correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en DeleteVisitTypeAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al eliminar el tipo de visita.");
+                return new ResponseDto(500, message: "Error en el servidor al eliminar el tipo de visita.");
             }
         }
+
     }
 }

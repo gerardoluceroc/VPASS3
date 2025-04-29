@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -27,7 +28,9 @@ namespace VPASS3_backend.Services
                 //throw new Exception("Error interno simulado desde AuthService.LoginAsync");
 
                 // Buscar al usuario por email
-                var user = await _userManager.FindByEmailAsync(email);
+                var user = await _userManager.Users
+                .Include(u => u.establishment)
+                .FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user == null || !await _userManager.CheckPasswordAsync(user, password))
                 {
@@ -37,9 +40,15 @@ namespace VPASS3_backend.Services
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.UserName),
-                    new Claim(ClaimTypes.NameIdentifier, user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(ClaimTypes.Email, user.Email)
                 };
+
+                //  Claim del establecimiento desde la propiedad de navegación
+                if (user.establishment != null)
+                {
+                    claims.Add(new Claim("establishment_id", user.establishment.Id.ToString()));
+                }
 
                 var roles = await _userManager.GetRolesAsync(user);
                 foreach (var role in roles)

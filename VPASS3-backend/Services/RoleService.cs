@@ -65,11 +65,11 @@ namespace VPASS3_backend.Services
         }
 
         // Obtener rol por id
-        public async Task<ResponseDto> GetRoleByIdAsync(string id)
+        public async Task<ResponseDto> GetRoleByIdAsync(int id)
         {
             try
             {
-                var role = await _roleManager.FindByIdAsync(id);
+                var role = await _roleManager.FindByIdAsync(id.ToString());
                 return role != null
                     ? new ResponseDto { StatusCode = 200, Data = role }
                     : new ResponseDto { StatusCode = 404, Message = "Rol no encontrado." };
@@ -82,11 +82,11 @@ namespace VPASS3_backend.Services
         }
 
         // Actualizar rol
-        public async Task<ResponseDto> UpdateRoleAsync(string id, RoleDto roleDto)
+        public async Task<ResponseDto> UpdateRoleAsync(int id, RoleDto roleDto)
         {
             try
             {
-                var role = await _roleManager.FindByIdAsync(id);
+                var role = await _roleManager.FindByIdAsync(id.ToString());
                 if (role == null)
                     return new ResponseDto { StatusCode = 404, Message = "Rol no encontrado." };
 
@@ -105,11 +105,11 @@ namespace VPASS3_backend.Services
         }
 
         // Eliminar rol
-        public async Task<ResponseDto> DeleteRoleAsync(string id)
+        public async Task<ResponseDto> DeleteRoleAsync(int id)
         {
             try
             {
-                var role = await _roleManager.FindByIdAsync(id);
+                var role = await _roleManager.FindByIdAsync(id.ToString());
                 if (role == null)
                     return new ResponseDto { StatusCode = 404, Message = "Rol no encontrado." };
 

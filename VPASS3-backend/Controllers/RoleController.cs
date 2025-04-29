@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Services;
 
@@ -31,6 +32,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageEverything")]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllRoles()
         {
@@ -38,15 +40,17 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetRoleById(string id)
+        [Authorize(Policy = "ManageEverything")]
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetRoleById(int id)
         {
             var response = await _roleService.GetRoleByIdAsync(id);
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateRole(string id, [FromBody] RoleDto roleDto)
+        [Authorize(Policy = "ManageEverything")]
+        [HttpPut("update/{id:int}")]
+        public async Task<IActionResult> UpdateRole(int id, [FromBody] RoleDto roleDto)
         {
             if (!ModelState.IsValid)
             {
@@ -60,8 +64,9 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteRole(string id)
+        [Authorize(Policy = "ManageEverything")]
+        [HttpDelete("delete/{id:int}")]
+        public async Task<IActionResult> DeleteRole(int id)
         {
             var response = await _roleService.DeleteRoleAsync(id);
             return StatusCode(response.StatusCode, response);
