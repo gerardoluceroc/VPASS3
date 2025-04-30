@@ -40,6 +40,14 @@ namespace VPASS3_backend.Context
             .HasForeignKey<Establishment>(e => e.IdUser)
             .OnDelete(DeleteBehavior.Restrict); // evita eliminación en cascada si deseas proteger al usuario
 
+
+            // Relación entre Visit y ZoneSection (para que use IdZoneSection como FK)
+            modelBuilder.Entity<Visit>()
+            .HasOne(v => v.ZoneSection)
+            .WithMany() // No necesitas colección inversa
+            .HasForeignKey(v => v.IdZoneSection)
+            .OnDelete(DeleteBehavior.SetNull);
+
             // Relación entre Zone y Establishment (uno a muchos)
             modelBuilder.Entity<Zone>()
                 .HasOne(z => z.Establishment) // propiedad de navegación en Zone
@@ -103,13 +111,6 @@ namespace VPASS3_backend.Context
             .WithMany(p => p.Visits)
             .HasForeignKey(v => v.IdParkingSpot)
             .OnDelete(DeleteBehavior.Restrict);
-
-            // Relación entre Visit y ZoneSection (para que use IdZoneSection como FK)
-            modelBuilder.Entity<Visit>()
-                .HasOne(v => v.ZoneSection)
-                .WithMany() // Asume que no necesitas una colección de visitas en ZoneSection
-                .HasForeignKey(v => v.IdZoneSection)
-                .OnDelete(DeleteBehavior.SetNull);
 
             // Relación de uno es a muchos con visitType. Una visita tiene un tipo de visita asociado, pero el tipo de visita puede repetirse en otras visitas diferentes.
             modelBuilder.Entity<Visit>()

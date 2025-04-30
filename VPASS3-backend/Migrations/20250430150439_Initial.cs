@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VPASS3_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class FirstMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -302,7 +302,7 @@ namespace VPASS3_backend.Migrations
                     VehicleIncluded = table.Column<bool>(type: "bit", nullable: false),
                     LicensePlate = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IdParkingSpot = table.Column<int>(type: "int", nullable: true),
-                    IdVisitType = table.Column<int>(type: "int", nullable: false),
+                    IdVisitType = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -343,7 +343,6 @@ namespace VPASS3_backend.Migrations
                         principalTable: "ZoneSections",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
-
                     table.ForeignKey(
                         name: "FK_Visits_Zones_ZoneId",
                         column: x => x.ZoneId,

@@ -12,8 +12,8 @@ using VPASS3_backend.Context;
 namespace VPASS3_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250429143317_FirstMigration")]
-    partial class FirstMigration
+    [Migration("20250430150439_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -329,9 +329,6 @@ namespace VPASS3_backend.Migrations
                     b.Property<int>("ZoneId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ZoneSectionId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("EstablishmentId");
@@ -347,8 +344,6 @@ namespace VPASS3_backend.Migrations
                     b.HasIndex("VisitorId");
 
                     b.HasIndex("ZoneId");
-
-                    b.HasIndex("ZoneSectionId");
 
                     b.ToTable("Visits");
                 });
@@ -558,10 +553,6 @@ namespace VPASS3_backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("VPASS3_backend.Models.ZoneSection", null)
-                        .WithMany("Visits")
-                        .HasForeignKey("ZoneSectionId");
-
                     b.Navigation("Direction");
 
                     b.Navigation("Establishment");
@@ -643,11 +634,6 @@ namespace VPASS3_backend.Migrations
             modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
                 {
                     b.Navigation("ZoneSections");
-                });
-
-            modelBuilder.Entity("VPASS3_backend.Models.ZoneSection", b =>
-                {
-                    b.Navigation("Visits");
                 });
 #pragma warning restore 612, 618
         }

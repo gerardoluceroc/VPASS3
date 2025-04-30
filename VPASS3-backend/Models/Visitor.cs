@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VPASS3_backend.Models
 {
@@ -18,6 +19,7 @@ namespace VPASS3_backend.Models
         public string IdentificationNumber { get; set; }
 
         // Relación de uno es a muchos. Un visitante tiene muchas visitas.
+        [JsonIgnore]
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
     }
 }

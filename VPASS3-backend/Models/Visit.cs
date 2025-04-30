@@ -60,8 +60,8 @@ namespace VPASS3_backend.Models
         [JsonIgnore]
         public Zone Zone { get; set; }
 
-        [JsonIgnore]
         [ForeignKey("IdZoneSection")]
+        [JsonIgnore]
         public ZoneSection? ZoneSection { get; set; }
     }
 }

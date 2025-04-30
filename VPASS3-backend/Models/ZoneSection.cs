@@ -17,7 +17,7 @@ namespace VPASS3_backend.Models
         [JsonIgnore]
         public Zone Zone { get; set; }
 
-        [JsonIgnore]
-        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+        //[JsonIgnore]
+        //public ICollection<Visit> Visits { get; set; } = new List<Visit>();
     }
 }

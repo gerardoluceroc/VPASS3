@@ -24,7 +24,7 @@ namespace VPASS3_backend.Services
             try
             {
                 var visitors = await _context.Visitors
-                    .Include(v => v.Visits)
+                    //.Include(v => v.Visits)
                     .ToListAsync();
 
                 if (_userContext.UserRole != "SUPERADMIN")

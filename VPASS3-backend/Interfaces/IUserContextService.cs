@@ -29,9 +29,7 @@ namespace VPASS3_backend.Interfaces
 
         bool CanAccessVisitType(VisitType visitType);
 
-        bool CanAccessVisitor(VisitType visitType);
-
-        bool CanAccessVisitor(Visitor visitor)
+        bool CanAccessVisitor(Visitor visitor);
 
     }
 }
