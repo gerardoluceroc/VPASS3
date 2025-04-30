@@ -75,12 +75,65 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                if (_userContext.UserRole != "SUPERADMIN" &&
-                    _userContext.EstablishmentId != dto.EstablishmentId)
+                // Verificar permisos sobre el establecimiento
+                if (!_userContext.CanAccessOwnEstablishment(dto.EstablishmentId))
                 {
                     return new ResponseDto(403, message: "No tienes permiso para crear visitas en este establecimiento.");
                 }
 
+                // Validar existencia del establecimiento
+                var establishmentExists = await _context.Establishments.AnyAsync(e => e.Id == dto.EstablishmentId);
+                if (!establishmentExists)
+                {
+                    return new ResponseDto(404, message: "El establecimiento especificado no existe.");
+                }
+
+                // Validar existencia del tipo de visita
+                var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == dto.IdVisitType);
+                if (visitType == null)
+                {
+                    return new ResponseDto(404, message: "El tipo de visita especificado no existe.");
+                }
+
+                if (!_userContext.CanAccessVisitType(visitType) || visitType.IdEstablishment != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "El tipo de visita no pertenece a tu establecimiento.");
+                }
+
+                // Validar existencia de la zona
+                var zone = await _context.Zones.FirstOrDefaultAsync(z => z.Id == dto.ZoneId);
+                if (zone == null)
+                {
+                    return new ResponseDto(404, message: "La zona especificada no existe.");
+                }
+
+                if (!_userContext.CanAccessZone(zone) || zone.EstablishmentId != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "La zona no pertenece a tu establecimiento.");
+                }
+
+                // Validar existencia de la zona sección (si aplica)
+                int? idZoneSectionValida = null;
+                if (dto.IdZoneSection.HasValue)
+                {
+                    var zoneSection = await _context.ZoneSections
+                        .Include(zs => zs.Zone)
+                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
+
+                    if (zoneSection == null)
+                    {
+                        return new ResponseDto(404, message: "La subzona especificada no existe o no está asociada a la zona indicada.");
+                    }
+
+                    if (!_userContext.CanAccessZoneSection(zoneSection))
+                    {
+                        return new ResponseDto(403, message: "No tienes acceso a la subzona especificada.");
+                    }
+
+                    idZoneSectionValida = zoneSection.Id;
+                }
+
+                // Obtener hora local Chile
                 TimeZoneInfo chileTimeZone;
                 try
                 {
@@ -93,18 +146,7 @@ namespace VPASS3_backend.Services
 
                 DateTime chileDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, chileTimeZone);
 
-                int? idZoneSectionValida = null;
-                if (dto.IdZoneSection.HasValue)
-                {
-                    var zoneSection = await _context.ZoneSections
-                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
-
-                    if (zoneSection != null)
-                    {
-                        idZoneSectionValida = zoneSection.Id;
-                    }
-                }
-
+                // Crear la visita
                 var visit = new Visit
                 {
                     EstablishmentId = dto.EstablishmentId,
@@ -131,9 +173,6 @@ namespace VPASS3_backend.Services
             }
         }
 
-
-
-
         public async Task<ResponseDto> UpdateVisitAsync(int id, VisitDto dto)
         {
             try
@@ -147,18 +186,68 @@ namespace VPASS3_backend.Services
                 if (!_userContext.CanAccessVisit(visit))
                     return new ResponseDto(403, message: "No tienes permiso para editar esta visita.");
 
-                if (_userContext.UserRole != "SUPERADMIN" &&
-                    _userContext.EstablishmentId != dto.EstablishmentId)
-                {
+                if (!_userContext.CanAccessOwnEstablishment(dto.EstablishmentId))
                     return new ResponseDto(403, message: "No puedes reasignar la visita a otro establecimiento.");
+
+                // Verificar existencia del nuevo establecimiento
+                var establishmentExists = await _context.Establishments.AnyAsync(e => e.Id == dto.EstablishmentId);
+                if (!establishmentExists)
+                {
+                    return new ResponseDto(404, message: "El establecimiento especificado no existe.");
                 }
 
+                // Verificar existencia y pertenencia del tipo de visita
+                var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == dto.IdVisitType);
+                if (visitType == null)
+                {
+                    return new ResponseDto(404, message: "El tipo de visita especificado no existe.");
+                }
+
+                if (!_userContext.CanAccessVisitType(visitType) || visitType.IdEstablishment != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "El tipo de visita no pertenece a tu establecimiento.");
+                }
+
+                // Verificar existencia y pertenencia de la zona
+                var zone = await _context.Zones.FirstOrDefaultAsync(z => z.Id == dto.ZoneId);
+                if (zone == null)
+                {
+                    return new ResponseDto(404, message: "La zona especificada no existe.");
+                }
+
+                if (!_userContext.CanAccessZone(zone) || zone.EstablishmentId != dto.EstablishmentId)
+                {
+                    return new ResponseDto(403, message: "La zona no pertenece a tu establecimiento.");
+                }
+
+                // Verificar existencia y pertenencia de la zona sección (opcional)
+                int? idZoneSectionValida = null;
+                if (dto.IdZoneSection.HasValue)
+                {
+                    var zoneSection = await _context.ZoneSections
+                        .Include(zs => zs.Zone)
+                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
+
+                    if (zoneSection == null)
+                    {
+                        return new ResponseDto(404, message: "La subzona especificada no existe o no está asociada a la zona indicada.");
+                    }
+
+                    if (!_userContext.CanAccessZoneSection(zoneSection))
+                    {
+                        return new ResponseDto(403, message: "No tienes acceso a la subzona especificada.");
+                    }
+
+                    idZoneSectionValida = zoneSection.Id;
+                }
+
+                // Asignar los nuevos valores
                 visit.EstablishmentId = dto.EstablishmentId;
                 visit.VisitorId = dto.VisitorId;
                 visit.ZoneId = dto.ZoneId;
                 visit.VehicleIncluded = dto.VehicleIncluded;
                 visit.IdDirection = dto.IdDirection;
-                visit.IdZoneSection = dto.IdZoneSection;
+                visit.IdZoneSection = idZoneSectionValida;
                 visit.LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null;
                 visit.IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null;
                 visit.IdVisitType = dto.IdVisitType;
@@ -173,7 +262,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al actualizar la visita.");
             }
         }
-
 
         public async Task<ResponseDto> DeleteVisitAsync(int id)
         {

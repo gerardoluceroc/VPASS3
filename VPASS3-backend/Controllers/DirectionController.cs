@@ -30,7 +30,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [Authorize(Policy = "ManageEverything")]
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("all")]
         public async Task<ActionResult<ResponseDto>> GetAll()
         {
@@ -38,6 +38,7 @@ namespace VPASS3_backend.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ResponseDto>> GetById(int id)
         {

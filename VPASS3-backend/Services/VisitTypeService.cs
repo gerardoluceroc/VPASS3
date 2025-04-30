@@ -68,12 +68,23 @@ namespace VPASS3_backend.Services
         {
             try
             {
+                //  Validación de permisos
                 if (_userContext.UserRole != "SUPERADMIN" &&
                     _userContext.EstablishmentId != dto.IdEstablishment)
                 {
                     return new ResponseDto(403, message: "No tienes permiso para crear tipos de visita en este establecimiento.");
                 }
 
+                // Validar que el establecimiento exista
+                var establishmentExists = await _context.Establishments
+                    .AnyAsync(e => e.Id == dto.IdEstablishment);
+
+                if (!establishmentExists)
+                {
+                    return new ResponseDto(404, message: "El establecimiento indicado no existe.");
+                }
+
+                //  Validar duplicado por nombre
                 var duplicate = await _context.VisitTypes
                     .FirstOrDefaultAsync(vt =>
                         vt.IdEstablishment == dto.IdEstablishment &&
@@ -81,9 +92,10 @@ namespace VPASS3_backend.Services
 
                 if (duplicate != null)
                 {
-                    return new ResponseDto(409, message:$"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
+                    return new ResponseDto(409, message: $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
                 }
 
+                //  Crear el tipo de visita
                 var visitType = new VisitType
                 {
                     Name = dto.Name,
@@ -102,24 +114,38 @@ namespace VPASS3_backend.Services
             }
         }
 
+
         public async Task<ResponseDto> UpdateVisitTypeAsync(int id, VisitTypeDto dto)
         {
             try
             {
+                // Buscar el tipo de visita por ID
                 var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == id);
 
                 if (visitType == null)
                     return new ResponseDto(404, message: "Tipo de visita no encontrado.");
 
+                // Verificar acceso
                 if (!_userContext.CanAccessVisitType(visitType))
                     return new ResponseDto(403, message: "No tienes permiso para editar este tipo de visita.");
 
+                // Validación extra para no reasignar a otro establecimiento si no es SUPERADMIN
                 if (_userContext.UserRole != "SUPERADMIN" &&
                     _userContext.EstablishmentId != dto.IdEstablishment)
                 {
                     return new ResponseDto(403, message: "No puedes reasignar el tipo de visita a otro establecimiento.");
                 }
 
+                // Validar existencia del nuevo establecimiento
+                var establishmentExists = await _context.Establishments
+                    .AnyAsync(e => e.Id == dto.IdEstablishment);
+
+                if (!establishmentExists)
+                {
+                    return new ResponseDto(404, message: "El nuevo establecimiento indicado no existe.");
+                }
+
+                // Verificar duplicado
                 var duplicate = await _context.VisitTypes
                     .FirstOrDefaultAsync(vt =>
                         vt.IdEstablishment == dto.IdEstablishment &&
@@ -131,6 +157,7 @@ namespace VPASS3_backend.Services
                     return new ResponseDto(409, message: $"Ya existe un tipo de visita con el nombre '{dto.Name}' para este establecimiento.");
                 }
 
+                //  Actualizar valores
                 visitType.Name = dto.Name;
                 visitType.IdEstablishment = dto.IdEstablishment;
 
@@ -144,6 +171,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al actualizar el tipo de visita.");
             }
         }
+
 
         public async Task<ResponseDto> DeleteVisitTypeAsync(int id)
         {
