@@ -2,8 +2,8 @@ import axios from "axios";
 import { useState } from "react";
 import { url_loginSession } from "../../services/API/API-VPASS3";
 import { useDispatch } from "react-redux";
-import { disconnect, setUser } from "../../components/store/misSlice";
-import { persistor } from "../../components/store/store";
+import { persistor } from "../../store/store";
+import { disconnect, setUser } from "../../store/misSlice";
 
 const useLogin = () => {
     const [loading, setLoading] = useState(false);

@@ -20,7 +20,7 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-import { opcionPanelDeControl } from "../../Home/constantesHome";
+import { opcionPanelDeControl } from "../../PagesComponents/HomePageComponent/constantesHome";
   
   const drawerWidth = 280;
   
@@ -35,7 +35,6 @@ import { opcionPanelDeControl } from "../../Home/constantesHome";
   export default function DrawerResponsive({ children, handleOpcionSeleccionada }) {
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
-    const navigate = useNavigate();
   
     const handleDrawerToggle = () => {
       if (!isClosing) {
@@ -51,13 +50,20 @@ import { opcionPanelDeControl } from "../../Home/constantesHome";
     const handleDrawerTransitionEnd = () => {
       setIsClosing(false);
     };
+
+    const RUTA_NUEVA_VISITA = "/visitas";
+    const RUTA_HOME =  "/";
+    const navigate = useNavigate();
+
+    const handleOpcionClick = (ruta) => {
+        navigate(ruta);
+    };
   
     const drawer = (
       <div id="ContainerDrawerResponsive">
         <ButtonBase onClick={() => { 
-                handleOpcionSeleccionada(opcionPanelDeControl);
                 handleDrawerClose(); // Cierra el menú al seleccionar una opción
-                navigate("/", { replace: true });
+                handleOpcionClick(RUTA_HOME);
             }
             }>
           <Box
@@ -165,7 +171,6 @@ import { opcionPanelDeControl } from "../../Home/constantesHome";
           component="main"
           sx={{
             flexGrow: 1,
-            p: "0px 20px 20px 30px",
             width: { sm: `calc(100% - ${drawerWidth}px)` },
             minHeight: "100vh",
           }}

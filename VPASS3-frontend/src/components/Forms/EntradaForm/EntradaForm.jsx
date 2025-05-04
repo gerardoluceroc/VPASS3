@@ -29,6 +29,7 @@ const EntradaForm = () => {
         getAllZonas();
         getAllLugaresEstacionamiento();
         getAllTiposVisita();
+        
     }, [])
     
     const formik = useFormik({
@@ -68,6 +69,7 @@ const EntradaForm = () => {
 
   return (
     <Box id= "ContainerEntradaForm">
+        <h1>Nueva Visita</h1>
         <Box className ="DosItemsEntradaForm">
             <TextFieldUno 
                 name="nombres" 

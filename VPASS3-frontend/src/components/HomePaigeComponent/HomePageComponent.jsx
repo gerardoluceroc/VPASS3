@@ -1,12 +1,12 @@
-import { Box } from "@mui/material";
-import Dashboard from "../Dashboard/Dashboard";
-import DrawerResponsive from "../Drawer/DrawerResponsive/DrawerResponsive";
-import "./HomeComponent.css";
+import { Box, TextField } from "@mui/material";
+import Dashboard from "../../Dashboard/Dashboard";
+import DrawerResponsive from "../../Drawer/DrawerResponsive/DrawerResponsive";
+import "./HomePageComponent.css";
 import { useState } from "react";
 import { opcionNuevaVisita, opcionPanelDeControl } from "./constantesHome";
-import EntradaForm from "../Forms/EntradaForm/EntradaForm";
+import EntradaForm from "../../Forms/EntradaForm/EntradaForm";
 
-function HomeComponent() {
+function HomePageComponent() {
 
   const [opcionSeleccionada, setOpcionSeleccionada] = useState(opcionPanelDeControl);
 
@@ -15,36 +15,13 @@ function HomeComponent() {
   }
 
   return (
-    <DrawerResponsive handleOpcionSeleccionada={handleOpcionSeleccionada}>
-      <Box id="CuerpoHomeComponent">
-        <input
-          type="text"
-          placeholder="Buscar"
-          id="InputBuscarHomeComponent"
-        />
-
-        {opcionSeleccionada === opcionPanelDeControl ? 
-
-          <Dashboard
-            handleOpcionSeleccionada={handleOpcionSeleccionada}
-          /> 
-          
-        :
-        
-        opcionSeleccionada === opcionNuevaVisita ?
-
-        <EntradaForm/>
-
-        : 
-
-        null        
-      }
-      </Box>
-    </DrawerResponsive>
+    <Box id="ContainerHomePageComponent">
+      <Dashboard/> 
+    </Box>
   );
 }
 
-export default HomeComponent;
+export default HomePageComponent;
 
 
 

@@ -1,7 +1,8 @@
 import axios from "axios";
 import { useEffect } from "react";
 import { InterceptorRequest, InterceptorResponse } from "../services/API/Interceptor";
-import HomeComponent from "../components/Home/HomeComponent";
+import DrawerResponsive from "../components/Drawer/DrawerResponsive/DrawerResponsive";
+import HomePageComponent from "../components/PagesComponents/HomePageComponent/HomePageComponent";
 
 const HomePage = () => {
   InterceptorResponse();
@@ -20,7 +21,9 @@ const HomePage = () => {
   }, []);
 
   return (
-    <HomeComponent/>
+    <DrawerResponsive>
+      <HomePageComponent/>
+    </DrawerResponsive> 
   )
 }
 
