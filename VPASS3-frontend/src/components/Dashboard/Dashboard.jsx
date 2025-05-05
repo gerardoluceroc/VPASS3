@@ -21,65 +21,67 @@ const Dashboard = () => {
 
     return (
         <Box id="ContainerDashboard">
-                <ButtonBase className="ItemDashboard" onClick={() => handleOpcionClick(RUTA_NUEVA_VISITA)}> 
-                    <Box
-                    component="img"
-                    src={PersonPlus}
-                    alt="Nueva visita"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Nueva Visita</Typography>
-                </ButtonBase>
+                <Box id="DashboardBox">
+                    <ButtonBase className="ItemDashboard" onClick={() => handleOpcionClick(RUTA_NUEVA_VISITA)}> 
+                        <Box
+                        component="img"
+                        src={PersonPlus}
+                        alt="Nueva visita"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Nueva Visita</Typography>
+                    </ButtonBase>
 
-                <ButtonBase className="ItemDashboard" onClick={() => {}}>
-                    <Box
-                    component="img"
-                    src={UltimosRegistrosImage}
-                    alt="Últimos Registros"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Últimos Registros</Typography>
-                </ButtonBase>
+                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                        <Box
+                        component="img"
+                        src={UltimosRegistrosImage}
+                        alt="Últimos Registros"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Últimos Registros</Typography>
+                    </ButtonBase>
 
-                <ButtonBase className="ItemDashboard" onClick={() => {}}>
-                    <Box
-                    component="img"
-                    src={BlacklistImage}
-                    alt="Lista Negra"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Lista Negra</Typography>
-                </ButtonBase>
+                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                        <Box
+                        component="img"
+                        src={BlacklistImage}
+                        alt="Lista Negra"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Lista Negra</Typography>
+                    </ButtonBase>
 
-                <ButtonBase className="ItemDashboard" onClick={() => {}}>
-                    <Box
-                    component="img"
-                    src={DescargarRegistrosImage}
-                    alt="Descargar Registros"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Descargar Registros</Typography>
-                </ButtonBase>
+                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                        <Box
+                        component="img"
+                        src={DescargarRegistrosImage}
+                        alt="Descargar Registros"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Descargar Registros</Typography>
+                    </ButtonBase>
 
-                <ButtonBase className="ItemDashboard" onClick={() => {}}>
-                    <Box
-                    component="img"
-                    src={ContactanosImage}
-                    alt="Contáctanos"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Contáctanos</Typography>
-                </ButtonBase>
+                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                        <Box
+                        component="img"
+                        src={ContactanosImage}
+                        alt="Contáctanos"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Contáctanos</Typography>
+                    </ButtonBase>
 
-                <ButtonBase className="ItemDashboard" onClick={() => {}}>
-                    <Box
-                    component="img"
-                    src={ConfiguracionImage}
-                    alt="Ajustes"
-                    className="ImagenNuevaVisitaDashboard"
-                    />
-                    <Typography className="TituloItemDashboard">Ajustes</Typography>
-                </ButtonBase>
+                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                        <Box
+                        component="img"
+                        src={ConfiguracionImage}
+                        alt="Ajustes"
+                        className="ImagenNuevaVisitaDashboard"
+                        />
+                        <Typography className="TituloItemDashboard">Ajustes</Typography>
+                    </ButtonBase>
+                </Box>
 
         </Box>
     )
