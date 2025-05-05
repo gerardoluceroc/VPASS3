@@ -39,7 +39,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllVisitorsAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener los visitantes.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener los visitantes.");
             }
         }
 
@@ -53,17 +53,41 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visitor == null)
-                    return new ResponseDto(404, "Visitante no encontrado.");
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
 
                 if (!_userContext.CanAccessVisitor(visitor))
-                    return new ResponseDto(403, "No tienes permiso para acceder a este visitante.");
+                    return new ResponseDto(403, message: "No tienes permiso para acceder a este visitante.");
 
                 return new ResponseDto(200, visitor, "Visitante obtenido correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetVisitorByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener el visitante.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener el visitante.");
+            }
+        }
+
+        // Obtener visitante por rut o pasaporte
+        public async Task<ResponseDto> GetVisitorByIdentificationNumberAsync(string identificationNumber)
+        {
+            try
+            {
+                var visitor = await _context.Visitors
+                    .Include(v => v.Visits)
+                    .FirstOrDefaultAsync(v => v.IdentificationNumber == identificationNumber);
+
+                if (visitor == null)
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
+
+                if (!_userContext.CanAccessVisitor(visitor))
+                    return new ResponseDto(403, message: "No tienes permiso para acceder a este visitante.");
+
+                return new ResponseDto(200, visitor, "Visitante obtenido correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error en GetVisitorByIdAsync: " + ex.Message);
+                return new ResponseDto(500, message: "Error en el servidor al obtener el visitante.");
             }
         }
 
@@ -76,7 +100,7 @@ namespace VPASS3_backend.Services
                     .AnyAsync(v => v.IdentificationNumber == dto.IdentificationNumber);
 
                 if (exists)
-                    return new ResponseDto(400, "Ya existe un visitante con ese número de identificación.");
+                    return new ResponseDto(409, message: "Ya existe un visitante con ese número de identificación.");
 
                 // No hay visitas asociadas al momento de crear, por lo tanto, permitimos la creación libre
                 var visitor = new Visitor
@@ -94,7 +118,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en CreateVisitorAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al crear el visitante.");
+                return new ResponseDto(500, message: "Error en el servidor al crear el visitante.");
             }
         }
 
@@ -108,16 +132,16 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visitor == null)
-                    return new ResponseDto(404, "Visitante no encontrado.");
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
 
                 if (!_userContext.CanAccessVisitor(visitor))
-                    return new ResponseDto(403, "No tienes permiso para modificar este visitante.");
+                    return new ResponseDto(403, message: "No tienes permiso para modificar este visitante.");
 
                 var duplicate = await _context.Visitors
                     .AnyAsync(v => v.IdentificationNumber == dto.IdentificationNumber && v.Id != id);
 
                 if (duplicate)
-                    return new ResponseDto(400, "Ya existe otro visitante con ese número de identificación.");
+                    return new ResponseDto(400, message: "Ya existe otro visitante con ese número de identificación.");
 
                 visitor.Names = dto.Names;
                 visitor.LastNames = dto.LastNames;
@@ -130,7 +154,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en UpdateVisitorAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al actualizar el visitante.");
+                return new ResponseDto(500, message: "Error en el servidor al actualizar el visitante.");
             }
         }
 
@@ -143,22 +167,27 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visitor == null)
-                    return new ResponseDto(404, "Visitante no encontrado.");
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
 
                 if (!_userContext.CanAccessVisitor(visitor))
-                    return new ResponseDto(403, "No tienes permiso para eliminar este visitante.");
+                    return new ResponseDto(403, message: "No tienes permiso para eliminar este visitante.");
+
+                // Validar si el visitante tiene visitas asociadas
+                if (visitor.Visits.Any())
+                    return new ResponseDto(400, message: "No se puede eliminar el visitante porque tiene visitas asociadas.");
 
                 _context.Visitors.Remove(visitor);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, "Visitante eliminado correctamente.");
+                return new ResponseDto(200, message: "Visitante eliminado correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en DeleteVisitorAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al eliminar el visitante.");
+                return new ResponseDto(500, message: "Error en el servidor al eliminar el visitante.");
             }
         }
+
 
     }
 }

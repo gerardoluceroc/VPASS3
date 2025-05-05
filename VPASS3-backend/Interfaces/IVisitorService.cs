@@ -7,6 +7,7 @@ namespace VPASS3_backend.Services
     {
         Task<ResponseDto> GetAllVisitorsAsync();
         Task<ResponseDto> GetVisitorByIdAsync(int id);
+        Task<ResponseDto> GetVisitorByIdentificationNumberAsync(string identificationNumber);
         Task<ResponseDto> CreateVisitorAsync(VisitorDto visitorDto);
         Task<ResponseDto> UpdateVisitorAsync(int id, VisitorDto visitorDto);
         Task<ResponseDto> DeleteVisitorAsync(int id);

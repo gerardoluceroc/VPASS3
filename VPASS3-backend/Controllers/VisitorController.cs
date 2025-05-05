@@ -33,6 +33,14 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [HttpGet("idnumber/{identificationNumber}")]
+        public async Task<IActionResult> GetVisitorByIdentificationNumber(string identificationNumber)
+        {
+            var response = await _visitorService.GetVisitorByIdentificationNumberAsync(identificationNumber);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Policy = "ManageOwnProfile")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateVisitor([FromBody] VisitorDto dto)
         {
