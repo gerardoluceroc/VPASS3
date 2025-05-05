@@ -41,7 +41,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllParkingSpotsAsync: " + ex.Message);
-                return new ResponseDto(500, message:"Error en el servidor al obtener los estacionamientos.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener los estacionamientos.");
             }
         }
 

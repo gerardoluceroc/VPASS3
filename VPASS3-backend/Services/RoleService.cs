@@ -60,7 +60,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error al obtener roles: " + ex.Message);
-                return new ResponseDto { StatusCode = 500, Message = "Error en el servidor." };
+                return new ResponseDto(500, message: "Error en el servidor.");
             }
         }
 

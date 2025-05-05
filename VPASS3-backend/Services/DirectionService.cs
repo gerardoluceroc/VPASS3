@@ -26,7 +26,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllDirectionsAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener los sentidos.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener los sentidos.");
             }
         }
 
@@ -37,14 +37,14 @@ namespace VPASS3_backend.Services
                 var direction = await _context.Directions.FirstOrDefaultAsync(d => d.Id == id);
 
                 if (direction == null)
-                    return new ResponseDto(404, "Sentido no encontrado.");
+                    return new ResponseDto(404, message: "Sentido no encontrado.");
 
                 return new ResponseDto(200, direction, "Sentido obtenido correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetDirectionByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener el sentido.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener el sentido.");
             }
         }
 
@@ -65,7 +65,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en CreateDirectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al crear el sentido.");
+                return new ResponseDto(500, message: "Error en el servidor al crear el sentido.");
             }
         }
 
@@ -76,7 +76,7 @@ namespace VPASS3_backend.Services
                 var direction = await _context.Directions.FirstOrDefaultAsync(d => d.Id == id);
 
                 if (direction == null)
-                    return new ResponseDto(404, "Sentido no encontrado.");
+                    return new ResponseDto(404, message: "Sentido no encontrado.");
 
                 direction.VisitDirection = dto.VisitDirection!;
                 await _context.SaveChangesAsync();
@@ -86,7 +86,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en UpdateDirectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al actualizar el sentido.");
+                return new ResponseDto(500, message: "Error en el servidor al actualizar el sentido.");
             }
         }
 
@@ -97,17 +97,17 @@ namespace VPASS3_backend.Services
                 var direction = await _context.Directions.FindAsync(id);
 
                 if (direction == null)
-                    return new ResponseDto(404, "Sentido no encontrado.");
+                    return new ResponseDto(404, message: "Sentido no encontrado.");
 
                 _context.Directions.Remove(direction);
                 await _context.SaveChangesAsync();
 
-                return new ResponseDto(200, "Sentido eliminado correctamente.");
+                return new ResponseDto(200, message: "Sentido eliminado correctamente.");
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Error en DeleteDirectionAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al eliminar el sentido.");
+                return new ResponseDto(500, message: "Error en el servidor al eliminar el sentido.");
             }
         }
     }

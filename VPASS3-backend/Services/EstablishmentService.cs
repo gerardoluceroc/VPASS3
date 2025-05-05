@@ -36,7 +36,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllEstablishmentsAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener los establecimientos.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener los establecimientos.");
             }
         }
 
@@ -70,7 +70,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetEstablishmentByIdAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener el establecimiento.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener el establecimiento.");
             }
         }
 
