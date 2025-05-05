@@ -2,7 +2,7 @@
 {
     public class VisitDto
     {
-        public int EstablishmentId { get; set; }
+        public int? EstablishmentId { get; set; }
 
         public int VisitorId { get; set; }
 
