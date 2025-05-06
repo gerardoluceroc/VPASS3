@@ -38,7 +38,7 @@ export function InterceptorResponse(){
           // Caso 1: El cliente no tiene conexión a internet o el servidor no responde
           if (!error.response) {
               console.error("Error de red o sin conexión a internet: ", error.message);
-              return Promise.reject("No se pudo conectar con el servidor. Verifique su conexión a internet.");
+              return Promise.reject({statusCode: 0, data: null, message: "Error de red o sin conexión a internet"});
           }
   
           // Caso 2: La respuesta del servidor tiene un código de error (4xx, 5xx)

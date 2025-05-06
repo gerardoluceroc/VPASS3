@@ -14,16 +14,20 @@ const useVisitante = () => {
         try {
           const response = await axios.get(path_getAllVisitantes);
           const status = response?.status || null;
-          setResponse(response || null);
+          const responseData = response?.data || null;
+          const visitantesData = response?.data?.data || null;
+          setResponse(responseData);
           setResponseStatus(status);
-          setVisitantes(response?.data?.data || null);
+          setVisitantes(visitantesData);
+          return responseData;
         } catch (error) {
-          const errorMessage = error?.response?.data?.message || "Error desconocido";
-          const status = error?.response?.status || null;
-          setResponse(errorMessage);
-          setResponseStatus(status);
+            const dataError = error?.response?.data || error || "Error desconocido";
+            const status = error?.status ?? error?.statusCode ?? null;
+            setResponse(dataError);
+            setResponseStatus(status);
+            return dataError;
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
     }
 
@@ -32,18 +36,19 @@ const useVisitante = () => {
       try {
         const response = await axios.get(path_getVisitanteByIdentificationNumber + identificationNumber);
         const status = response?.status || null;
-        setResponse(response || null);
+        const responseData = response?.data || null;
+        setResponse(responseData);
         setResponseStatus(status);
-        setVisitantes(response?.data?.data || null);
-        return response?.data?.data || null;
+        setVisitantes(responseData);
+        return responseData;
       } catch (error) {
-        const errorMessage = error?.response?.data?.message || "Error desconocido";
-        const status = error?.response?.status || null;
-        setResponse(errorMessage);
-        setResponseStatus(status);
-        return null;
+          const dataError = error?.response?.data || error || "Error desconocido";
+          const status = error?.status ?? error?.statusCode ?? null;
+          setResponse(dataError);
+          setResponseStatus(status);
+          return dataError;
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
   }
 
@@ -57,18 +62,20 @@ const useVisitante = () => {
       try {
         const response = await axios.post(path_createVisitante, data);
         const status = response?.status || null;
-        setResponse(response || null);
+        const responseData = response?.data || null;
+        const visitanteCreado = response?.data?.data || null;
+        setResponse(responseData);
         setResponseStatus(status);
-        setVisitantes(response?.data?.data || null);
-        return { data: response?.data?.data || null, status };
+        setVisitantes(visitanteCreado);
+        return responseData;
       } catch (error) {
-        const errorMessage = error?.response?.data?.message || "Error desconocido";
-        const status = error?.response?.status || null;
-        setResponse(errorMessage);
-        setResponseStatus(status);
-        return { data: null, status };
+          const dataError = error?.response?.data || error || "Error desconocido";
+          const status = error?.status ?? error?.statusCode ?? null;
+          setResponse(dataError);
+          setResponseStatus(status);
+          return dataError;
       } finally {
-        setLoading(false);
+          setLoading(false);
       }
     };
   

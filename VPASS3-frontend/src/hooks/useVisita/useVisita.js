@@ -17,14 +17,18 @@ const useVisita = () => {
         try {
           const response = await axios.get(path_getAllVisitas);
           const status = response?.status || null;
-          setResponse(response || null);
+          const responseData = response?.data || null;
+          const visitasData = response?.data?.data || null;
+          setResponse(responseData);
           setResponseStatus(status);
-          setVisitas(response?.data?.data || null);
+          setVisitas(visitasData);
+          return responseData;
         } catch (error) {
-          const errorMessage = error?.response?.data?.message || "Error desconocido";
-          const status = error?.response?.status || null;
-          setResponse(errorMessage);
+          const dataError = error?.response?.data || error || "Error desconocido";
+          const status = error?.status ?? error?.statusCode ?? null;
+          setResponse(dataError);
           setResponseStatus(status);
+          return dataError;
         } finally {
           setLoading(false);
         }
@@ -47,37 +51,37 @@ const useVisita = () => {
     
       try {
         let idVisitante = null;
-    
-        // Primero se intenta crear un nuevo visitante
-        const { data: visitanteCreado, status } = await crearVisitante({
+        console.log("creando visitante");
+        const responseCrearVisitante = await crearVisitante({
           nombres,
           apellidos,
           numeroIdentificacion
         });
-    
-        if (status === 409) {
+        console.log("visitante creado, responseCrearVisitante", responseCrearVisitante);
+
+        // Primero se intenta crear un nuevo visitante
+        const { data: visitanteCreado, statusCode: statusCrearVisitante, message: messageCrearVisitante } = responseCrearVisitante;
+
+        if (statusCrearVisitante === 409) {
           // Si el visitante ya existe (código 409), se debe buscar por número de identificación
-          const visitanteExistente = await getVisitanteByIdentificationNumber(numeroIdentificacion);
-    
-          // Verifica que efectivamente se haya obtenido un visitante válido
-          if (!visitanteExistente || !visitanteExistente.id) {
-            throw new Error("No se pudo obtener el visitante existente tras conflicto 409");
-          }
-    
+          const {data: visitanteExistente} = await getVisitanteByIdentificationNumber(numeroIdentificacion);
+          console.log("visitanteExistente", visitanteExistente);
+
           // Se extrae el ID del visitante existente
-          idVisitante = visitanteExistente.id;
+          idVisitante = visitanteExistente?.id;
     
-        } else if (status === 201) {
+        } else if (statusCrearVisitante === 201 || statusCrearVisitante === 200) {
           // Si el visitante fue creado exitosamente, se obtiene el ID directamente de la respuesta
           idVisitante = visitanteCreado?.id;
     
         } else {
           // Si no se obtuvo un código 201 o 409, se considera un error inesperado
-          throw new Error("No se pudo crear ni obtener visitante");
+          throw responseCrearVisitante;
         }
-    
+        
+        console.log("creando visita");
         // Una vez obtenido el ID del visitante (nuevo o existente), se procede a crear la visita
-        const respuestaCrearVisita = await axios.post(path_createVisita, {
+        const {data: respuestaCrearVisita} = await axios.post(path_createVisita, {
           visitorId: idVisitante,
           zoneId: idZona,
           idDirection: idSentido,
@@ -87,25 +91,28 @@ const useVisita = () => {
           idParkingSpot: incluyeVehiculo ? idEstacionamiento : null,
           idVisitType: idTipoVisita
         });
+
+        console.log("visita creada, respuestaCrearVisita", respuestaCrearVisita);
+        setResponse(respuestaCrearVisita);
+        setResponseStatus(respuestaCrearVisita?.statusCode || null);
     
         // Si todo salió bien, se retorna la respuesta de la creación de la visita
         return respuestaCrearVisita;
     
       } catch (error) {
-        // Si ocurre un error en cualquiera de las etapas anteriores, se maneja y se guarda información relevante
-        const errorMessage = error?.response?.data?.message || error.message || "Error desconocido";
-        const status = error?.response?.status || null;
-        setResponse(errorMessage);
-        setResponseStatus(status);
-        return null;
+          console.log("error al crear visitante", error);
+          const dataError = error?.response?.data || error || "Error desconocido";
+          console.log("dataError", dataError);
+          const status = error?.status ?? error?.statusCode ?? null;
+          setResponse(dataError);
+          setResponseStatus(status);
+          return dataError;
       } finally {
-        // Se indica que el proceso ha terminado, sea exitoso o con error
-        setLoading(false);
+          // Se indica que el proceso ha terminado, sea exitoso o con error
+          setLoading(false);
       }
     };
-    
-    
-    
+     
     return {
         loading,
         response,
