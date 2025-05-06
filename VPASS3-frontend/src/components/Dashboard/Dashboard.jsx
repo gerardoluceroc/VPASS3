@@ -15,7 +15,6 @@ const Dashboard = () => {
     const navigate = useNavigate();
 
     const handleOpcionClick = (ruta) => {
-        console.log("ejecutando handleOpcionClick con ruta:", ruta);
         navigate(ruta);
     };
 
