@@ -1,0 +1,32 @@
+
+#ContainerModalLoadingMasRespuesta {
+/* Estilos generales del modal */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 24px;
+    padding: 24px;
+    width: auto; /* Se usa el 50% en pantallas grandes */
+    max-width: 60%;
+    text-align: center;
+    overflow: hidden;
+  }
+  
+  /* Estilos para pantallas menores a 700px */
+  @media (max-width: 700px) {
+    #ContainerConfirmDialog {
+      max-width: 70%; /* Se usa el 80% en pantallas más pequeñas */
+      padding: 16px;
+    }
+  }
+  
+  /* Para pantallas extremadamente pequeñas (opcional) */
+  @media (max-width: 480px) {
+    #ContainerConfirmDialog {
+      max-width: 90%; /* Asegura que en pantallas muy pequeñas el modal ocupe el 90% */
+      padding: 16px;
+    }
+  }

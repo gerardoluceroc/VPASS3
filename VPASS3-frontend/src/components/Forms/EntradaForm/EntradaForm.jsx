@@ -13,20 +13,20 @@ import { ValidationVisitaForm } from "./ValidationVisitaForm";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import useVisitante from "../../../hooks/useVisitante/useVisitante";
 import useVisita from "../../../hooks/useVisita/useVisita";
+import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog.jsx";
+import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta.jsx";
 
 const EntradaForm = () => {
-    const {loading: loadingSentidos, sentidos, getAllSentidos} = useSentido();
-    const {loading:loadingZonas, zonas, getAllZonas } = useZonas();
-    const {loading:loadingLugaresEstacionamiento, lugaresEstacionamiento, getAllLugaresEstacionamiento } = useLugaresEstacionamiento();
-    const {loading:loadingTiposVisita, tiposVisita, getAllTiposVisita } = useTiposVisita();
-    const { loading: loadingVisitantes, visitantes, response: responseVisitantes, crearVisitante} = useVisitante();
-    const { loading: loadingVisitas, visitas, response: responseVisita, getAllVisitas, crearVisita } = useVisita();
+    const { sentidos, getAllSentidos} = useSentido();
+    const { zonas, getAllZonas } = useZonas();
+    const { lugaresEstacionamiento, getAllLugaresEstacionamiento } = useLugaresEstacionamiento();
+    const { tiposVisita, getAllTiposVisita } = useTiposVisita();
+    const { loading: loadingVisitas, response: responseVisita, crearVisita, responseStatus: statusCrearVisita } = useVisita();
 
-    useEffect(() => {console.log("📌 sentidos => ",sentidos)}, [sentidos]);
-    useEffect(() => {console.log("📌 zonas => ",zonas)}, [zonas]);
-    useEffect(() => {console.log("📌 - lugaresEstacionamiento => ",lugaresEstacionamiento)}, [lugaresEstacionamiento]);
-    useEffect(() => {console.log("📌 tiposVisita => ",tiposVisita)}, [tiposVisita]);
-
+    // useEffect(() => {console.log("📌 sentidos => ",sentidos)}, [sentidos]);
+    // useEffect(() => {console.log("📌 zonas => ",zonas)}, [zonas]);
+    // useEffect(() => {console.log("📌 - lugaresEstacionamiento => ",lugaresEstacionamiento)}, [lugaresEstacionamiento]);
+    // useEffect(() => {console.log("📌 tiposVisita => ",tiposVisita)}, [tiposVisita]);
 
     useEffect(() => {
         getAllSentidos();
@@ -34,6 +34,42 @@ const EntradaForm = () => {
         getAllLugaresEstacionamiento();
         getAllTiposVisita();
     }, [])
+
+    // Se invoca la función para consultarle al usuario si desea enviar el formulario
+    const { confirm, ConfirmDialogComponent } = useConfirmDialog();
+
+    // Estados y funciones para manejar el componente ModalLoadingMasRespuesta
+    const [openLoadingRespuesta, setOpenLoadingRespuesta] = useState(false);
+    const [messageLoadingRespuesta, setMessageLoadingRespuesta] = useState('');
+    const accionPostCierreLoadingRespuesta = () => {
+        setOpenLoadingRespuesta(false);
+        setMessageLoadingRespuesta('');
+    }
+
+//   const simularPeticion = () => {
+//     setOpen(true);
+//     setLoading(true);
+//     setMessage('');
+//     setSuccess(false);
+
+//     // Simula una petición asíncrona de 3 segundos
+//     setTimeout(() => {
+//       const exito = true; // Podrías simular fallo con false
+//       setLoading(false);
+//       setSuccess(exito);
+//       setMessage(exito ? 'La operación fue exitosa ✅' : 'La operación falló ❌');
+//     }, 3000);
+//   };
+
+//   const handleClose = () => {
+//     setOpen(false);
+//     setLoading(false);
+//     setMessage('');
+//     setSuccess(false);
+//   };
+
+
+
     
     const formik = useFormik({
         initialValues: {
@@ -49,51 +85,49 @@ const EntradaForm = () => {
             idEstacionamiento: null,
         },
         validationSchema: ValidationVisitaForm,
-        // validateOnBlur: false,
-        // validateOnChange: false,
         onSubmit: async (values) => {
-            // lógica de envío
-            console.log("enviando formulario", formik.values);
-            console.log("values", values);
-            // const respuesta = await crearVisitante({
-            //     nombres: values.nombres,
-            //     apellidos: values.apellidos,
-            //     numeroIdentificacion: values.rut,
-            // });
-            // console.log("respuesta del submit", respuesta);
-
-            await crearVisita({
-                nombres: values.nombres,
-                apellidos: values.apellidos,
-                numeroIdentificacion: values.rut,
-                idTipoVisita: values.idTipoVisita,
-                idZona: values.idZona,
-                idSubZona: values.idSubZona,
-                idSentido: values.idSentido,
-                incluyeVehiculo: values.incluyeVehiculo,
-                patenteVehiculo: values.patenteVehiculo,
-                idEstacionamiento: values.idEstacionamiento,
+            const confirmed = await confirm({
+                title: "Registrar visita",
+                message: "¿Deseas registar esta nueva visita?"
             });
+        
+            if (confirmed) {
+                setOpenLoadingRespuesta(true);
 
+                // Se envía la información al backend para crear la visita
+                const {statusCode: statusCodeCrearVisita, data: dataVisitaCreada, message: messageCrearVisita} = await crearVisita({
+                    nombres: values.nombres,
+                    apellidos: values.apellidos,
+                    numeroIdentificacion: values.rut,
+                    idTipoVisita: values.idTipoVisita,
+                    idZona: values.idZona,
+                    idSubZona: values.idSubZona,
+                    idSentido: values.idSentido,
+                    incluyeVehiculo: values.incluyeVehiculo,
+                    patenteVehiculo: values.patenteVehiculo,
+                    idEstacionamiento: values.idEstacionamiento,
+                });
 
+                console.log("statusCodeCrearVisita", statusCodeCrearVisita);
+                console.log("dataVisitaCreada", dataVisitaCreada);
+                console.log("messageCrearVisita", messageCrearVisita);
 
-
-
+                if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 || statusCodeCrearVisita != null || statusCodeCrearVisita != undefined) {
+                    setMessageLoadingRespuesta(messageCrearVisita);
+                }
+                else {
+                    setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                }
+            } 
         }
     });
 
-    useEffect(() => {console.log("📌 formik errors => ",formik.errors)}, [formik.errors]);
-      
-    useEffect(() => {console.log("📌 formik values => ",formik.values)}, [formik.values]);
-
     const [subZonasDisponibles, setSubZonasDisponibles] = useState([]);
     useEffect(() => {
-
         //Cada vez que se cambia la zona seleccionada, se setea el estado de subZonasDisponibles
         const subZona = zonas?.find((zona) => zona.id === formik.values.idZona)?.zoneSections || [];
         setSubZonasDisponibles(subZona);
     }, [formik.values.idZona])
-
 
     return (
         <Box id= "ContainerEntradaForm">
@@ -231,9 +265,19 @@ const EntradaForm = () => {
                     defaultText="Registrar visita"
                     loadingText="Registrando visita..."
                     handleClick={formik.handleSubmit}
+                    // handleClick={simularPeticion}
                     disabled={formik.isSubmitting}
                 />
             </Box>
+
+            {ConfirmDialogComponent}
+
+            <ModalLoadingMasRespuesta
+                open={openLoadingRespuesta}
+                loading={loadingVisitas}
+                message={messageLoadingRespuesta}
+                accionPostCierre={accionPostCierreLoadingRespuesta}
+            />
         </Box>
     )
 }
