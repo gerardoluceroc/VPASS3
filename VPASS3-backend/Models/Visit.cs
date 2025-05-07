@@ -14,17 +14,21 @@ namespace VPASS3_backend.Models
         public int EstablishmentId { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int VisitorId { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int ZoneId { get; set; }
 
         [Required]
         public DateTime EntryDate { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int IdDirection { get; set; }
 
+        [JsonIgnore]
         public int? IdZoneSection { get; set; }
 
         [Required]
@@ -34,34 +38,40 @@ namespace VPASS3_backend.Models
         public string? LicensePlate { get; set; }
 
         // Nueva propiedad opcional: FK al estacionamiento usado
+        [JsonIgnore]
         public int? IdParkingSpot { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int IdVisitType { get; set; }
 
-        [JsonIgnore]
+
+
+        
+        //Propiedades de navegacion
+        //[JsonIgnore]
         public ParkingSpot? ParkingSpot { get; set; }
 
         // Propiedades de navegación
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public VisitType VisitType { get; set; }
 
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public Direction Direction { get; set; }
 
         [JsonIgnore]
         public Establishment Establishment { get; set; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public Visitor Visitor { get; set; }
 
-        [JsonIgnore]
+        //[JsonIgnore]
         public Zone Zone { get; set; }
 
         [ForeignKey("IdZoneSection")]
-        [JsonIgnore]
+        //[JsonIgnore]
         public ZoneSection? ZoneSection { get; set; }
     }
 }

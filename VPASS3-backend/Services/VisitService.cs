@@ -25,17 +25,31 @@ namespace VPASS3_backend.Services
             try
             {
                 var visits = await _context.Visits
-                    .Include(v => v.Establishment)
+                    .Include(v => v.ParkingSpot)
+                    .Include(v => v.VisitType)
+                    .Include(v => v.Direction)
+                    .Include(v => v.Zone)
+                    .Include(v => v.Visitor)
+                    .Include(v => v.ZoneSection)
                     .ToListAsync();
 
                 if (_userContext.UserRole != "SUPERADMIN")
                 {
                     if (!_userContext.EstablishmentId.HasValue)
-                        return new ResponseDto(403, message:"No tienes un establecimiento asociado.");
+                        return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
 
                     visits = visits
                         .Where(v => _userContext.CanAccessVisit(v))
                         .ToList();
+                }
+
+                // Limpia las subzonas en la zona principal de cada visita
+                foreach (var visit in visits)
+                {
+                    if (visit.Zone != null && visit.Zone.ZoneSections != null)
+                    {
+                        visit.Zone.ZoneSections.Clear();
+                    }
                 }
 
                 return new ResponseDto(200, visits, "Visitas obtenidas correctamente.");
@@ -47,20 +61,30 @@ namespace VPASS3_backend.Services
             }
         }
 
-
         public async Task<ResponseDto> GetVisitByIdAsync(int id)
         {
             try
             {
                 var visit = await _context.Visits
-                    .Include(v => v.Establishment)
+                    .Include(v => v.ParkingSpot)
+                    .Include(v => v.VisitType)
+                    .Include(v => v.Direction)
+                    .Include(v => v.Zone)
+                    .Include(v => v.Visitor)
+                    .Include(v => v.ZoneSection)
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visit == null)
                     return new ResponseDto(404, "Visita no encontrada.");
 
                 if (!_userContext.CanAccessVisit(visit))
-                    return new ResponseDto(403, message:"No tienes permiso para acceder a esta visita.");
+                    return new ResponseDto(403, message: "No tienes permiso para acceder a esta visita.");
+
+                // Limpiar las ZoneSections para evitar incluirlas en la respuesta
+                if (visit.Zone != null && visit.Zone.ZoneSections != null)
+                {
+                    visit.Zone.ZoneSections.Clear();
+                }
 
                 return new ResponseDto(200, visit, "Visita obtenida correctamente.");
             }
@@ -70,6 +94,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al obtener la visita.");
             }
         }
+
 
 
         public async Task<ResponseDto> CreateVisitAsync(VisitDto dto)
