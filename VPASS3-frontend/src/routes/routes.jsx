@@ -3,6 +3,7 @@ import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import VisitasPage from "../pages/VisitasPage";
+import UltimosRegistrosPage from "../pages/UltimosRegistrosPage";
 
 export const AppRoutes = () => (
     <Routes>
@@ -22,6 +23,15 @@ export const AppRoutes = () => (
         element={
           <ProtectedRoute>
             <VisitasPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ultimosRegistros"
+        element={
+          <ProtectedRoute>
+            <UltimosRegistrosPage />
           </ProtectedRoute>
         }
       />

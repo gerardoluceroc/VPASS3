@@ -12,6 +12,7 @@ const Dashboard = () => {
 
     const RUTA_NUEVA_VISITA = "/visitas";
     const RUTA_HOME =  "/";
+    const RUTA_ULTIMOS_REGISTROS = "/ultimosRegistros";
     const navigate = useNavigate();
 
     const handleOpcionClick = (ruta) => {
@@ -31,7 +32,7 @@ const Dashboard = () => {
                         <Typography className="TituloItemDashboard">Nueva Visita</Typography>
                     </ButtonBase>
 
-                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                    <ButtonBase className="ItemDashboard" onClick={() => handleOpcionClick(RUTA_ULTIMOS_REGISTROS)}>
                         <Box
                         component="img"
                         src={UltimosRegistrosImage}
