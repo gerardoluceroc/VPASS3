@@ -277,6 +277,7 @@ const EntradaForm = () => {
                 loading={loadingVisitas}
                 message={messageLoadingRespuesta}
                 accionPostCierre={accionPostCierreLoadingRespuesta}
+                loadingMessage="Registrando visita..."
             />
         </Box>
     )

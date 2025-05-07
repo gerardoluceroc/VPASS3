@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal, Box, Typography, Button, CircularProgress, Stack } from '@mui/material';
 import './ModalLoadingMasRespuesta.css';
+import ButtonTypeOne from '../../Buttons/ButtonTypeOne/ButtonTypeOne';
 
-const ModalLoadingMasRespuesta = ({ open, loading, message, accionPostCierre = () => {} }) => {
+const ModalLoadingMasRespuesta = ({ open, loading, loadingMessage = "cargando...", message, accionPostCierre = () => {} }) => {
 
     const handleClose = (event, reason) => {
         if (reason === 'backdropClick' || reason === 'escapeKeyDown') {
@@ -16,16 +17,17 @@ const ModalLoadingMasRespuesta = ({ open, loading, message, accionPostCierre = (
         {loading ? (
           <>
             <CircularProgress />
-            <Typography mt={2}>Cargando...</Typography>
+            <Typography mt={2}>{loadingMessage}</Typography>
           </>
         ) : (
           <>
             <Typography variant="h6">
               {message}
             </Typography>
-            <Button variant="contained" onClick={accionPostCierre} sx={{ mt: 2 }}>
-              Aceptar
-            </Button>
+            <ButtonTypeOne
+                defaultText="Aceptar"
+                handleClick={accionPostCierre}
+            />
           </>
         )}
       </Box>

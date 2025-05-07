@@ -18,6 +18,10 @@
     text-align: center;
 }
 
+#BoxButtonSubmitEntradaForm{
+  width: 50%;
+}
+
 .DosItemsEntradaForm {
     display: flex;
     flex-direction: row;
@@ -33,6 +37,10 @@
 
     #ContainerEntradaForm {
         padding: 5% 7% 5% 7%;
+    }
+
+    #BoxButtonSubmitEntradaForm {
+        width: 70%;
     }
   }
 

@@ -91,8 +91,6 @@ const LoginForm = () => {
             loadingText="Iniciando sesión..."
             handleClick={formik.handleSubmit}
             loading={loading}
-            backgroundColor="#2ecc71"
-            backgroundColorHover="#239b56"
             />
           </Box>
         </Box>
