@@ -82,8 +82,14 @@ builder.Services.AddAuthentication(options =>
             // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
             var response = new ResponseDto(401, message: "No autorizado. El token es inválido o no fue proporcionado.");
 
-            // Se convierte el objeto a JSON y se escribe en la respuesta
-            var json = JsonSerializer.Serialize(response);
+            // Se definen opciones para que las propiedades se serialicen en camelCase
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Convierte propiedades a camelCase
+            };
+
+            // Se convierte el objeto a JSON utilizando las opciones definidas
+            var json = JsonSerializer.Serialize(response, jsonOptions);
             await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
         },
 
@@ -97,11 +103,18 @@ builder.Services.AddAuthentication(options =>
             // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
             var response = new ResponseDto(403, message: "Acceso denegado. No tienes permiso para realizar esta acción.");
 
-            // Se convierte el objeto a JSON y se escribe en la respuesta
-            var json = JsonSerializer.Serialize(response);
+            // Se definen opciones para que las propiedades se serialicen en camelCase
+            var jsonOptions = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase // Convierte propiedades a camelCase
+            };
+
+            // Se convierte el objeto a JSON utilizando las opciones definidas
+            var json = JsonSerializer.Serialize(response, jsonOptions);
             await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
         }
     };
+
 });
 
 
