@@ -3,6 +3,7 @@ import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridRespon
 import "./UltimosRegistrosPageComponent.css";
 import useVisita from "../../../hooks/useVisita/useVisita";
 import { useEffect } from "react";
+import { cambiarFormatoHoraFecha } from "../../../utils/funciones";
 
 const UltimosRegistrosPageComponent = () => {
     const { getAllVisitas, visitas } = useVisita();
@@ -38,7 +39,7 @@ const UltimosRegistrosPageComponent = () => {
       const {name: nombreZona = ""} = zone || {};
       const {name: nombreSubzona = ""} = zoneSection || {}; 
       const {visitDirection: sentido = ""} = direction || {};
-      return [`${names} ${lastNames}`.trim(), identificationNumber, `${nombreZona} ${nombreSubzona}`, sentido, horaEntrada || "Sin nombre"];
+      return [`${names} ${lastNames}`.trim(), identificationNumber, `${nombreZona} ${nombreSubzona}`, sentido, cambiarFormatoHoraFecha(horaEntrada) || "Sin datos"];
     });
   
     return (

@@ -1,16 +1,11 @@
 // DatagridResponsive.jsx
 // Source 1: https://github.com/mui/mui-x/issues/6460
 // Source 2: https://codesandbox.io/p/sandbox/muidatatables-custom-toolbar-forked-j002q?file=%2Findex.js
-
 import React, { useState } from "react";
 import MUIDataTable from "mui-datatables";
 import {
   ThemeProvider,
   createTheme,
-  InputLabel,
-  MenuItem,
-  FormControl,
-  Select,
 } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
@@ -20,77 +15,223 @@ const muiCache = createCache({
   prepend: true,
 });
 
-const DatagridResponsive = ({ title = "Data Table", data, columns }) => {
-  const [responsive, setResponsive] = useState("simple");
-  const [tableBodyHeight, setTableBodyHeight] = useState("100%");
-  const [tableBodyMaxHeight, setTableBodyMaxHeight] = useState("");
-  const [searchBtn, setSearchBtn] = useState(true);
-  const [downloadBtn, setDownloadBtn] = useState(true);
-  const [printBtn, setPrintBtn] = useState(true);
-  const [viewColumnBtn, setViewColumnBtn] = useState(true);
-  const [filterBtn, setFilterBtn] = useState(true);
+// Tema específico para la tabla
+const tableTheme = createTheme({
+  components: {
+    MUIDataTable: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#eaeef7', // Color de fondo del resto de la tabla
+          borderRadius: '8px', // Bordes redondeados de la tabla completa
+          overflow: 'hidden',
+        },
+        paper: {
+          boxShadow: 'none',
+        },
+      }
+    },
+
+    // Personalización de la cabecera de la tabla
+    MUIDataTableHeadCell: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#175676', // Color de cabecera de la tabla
+          color: '#FFFFFF', // Color del texto de la cabecera
+          fontWeight: 'bold',
+          '&:hover': {
+            color: '#FFFFFF', // Color del texto de la cabecera al pasar el mouse
+          }
+        },
+        sortAction: {
+            alignItems: 'center',
+        },
+            sortActive: {
+            color: '#FFFFFF', // Color del texto de la cabecera cuando está activo el ordenamiento
+        },
+        toolButton: {
+            '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.1)', // color del fondo de una columna de cabecera al pasar el mouse
+            }
+        }
+      }
+    },
+    
+    MuiTableSortLabel: {
+        styleOverrides: {
+          icon: {
+            color: '#FFFFFF !important', // Color del icono de flecha para ordenar
+          }
+        }
+    },
+
+    MUIDataTableBodyCell: {
+      styleOverrides: {
+        root: {
+          padding: '8px 16px',
+          '&.MuiDataTableBodyCell-selected': {
+            backgroundColor: '#795548', // Fondo naranja claro para celdas seleccionadas
+          }
+        }
+      }
+    },
+
+    MUIDataTableSelectCell: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#175676', // Fondo para la columna de selección
+        },
+      }
+    },
+    
+    MUIDataTableToolbarSelect: {
+      styleOverrides: {
+        root: {
+          backgroundColor: ' #b3b6b7 ', // Barra de herramientas de selección naranja
+          '& .MuiTypography-root': {
+            color: '#FFFFFF', // Texto para los elementos de texto
+            fontSize: "20px"
+          },
+          '& .MuiIconButton-root': {
+            color: '#175676', // Iconos negros
+          }
+        }
+      }
+    },
+
+    // Personalización de los checkboxes de la tabla en caso de que tenga el select de las filas activado
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: '#FFFFFF', // Color de los checkboxes no seleccionados (color de bordes)
+          '&.Mui-checked': {
+            color: '#FFFFFF', // Color de los checkboxes seleccionados
+          }
+        }
+      }
+    },
+
+    // Personalización específica para el menú "Ver Columnas"
+    MUIDataTableViewCol: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#175676', // Fondo del menú
+          padding: '16px',
+          boxShadow: '0 4px 12px #175676',
+          
+          // Estilo del título
+          '& .MuiTypography-root': {
+            color: '#ecf0f1', // Color del texto del título
+            fontWeight: 'bolder',
+            fontSize: '1.2rem',
+          },
+          
+          // Estilo de las etiquetas
+          '& .MuiFormControlLabel-root': {
+            marginLeft: '-8px',
+            '& .MuiTypography-body1': {
+              color: '#bdc3c7', // Color del texto de las opciones
+              fontSize: '1.1rem'
+            }
+          },
+          
+          // Estilo de los checkboxes
+          '& .MuiCheckbox-root': {
+            color: '#ffffff', // Color del checkbox no seleccionado
+            '&.Mui-checked': {
+              color: '#FFFFFF', // Color del checkbox seleccionado
+            },
+          }
+        }
+      }
+    },
+
+    // Personalización específica para los botones del toolbar
+    MUIDataTableToolbar: {
+        styleOverrides: {
+          root: {
+            '& .MuiIconButton-root': {
+              // Estilo normal de los botones
+              color: '#175676', // Color de los iconos por defecto
+              
+              '&:hover': {
+                backgroundColor: '#175676', // Color del circulo de fondo que envuelve los iconos al pasar el cursor
+                color: '#FFFFFF', // Color del icono al pasar el cursor
+              },
+              
+              '&.Mui-disabled': {
+                color: '#b3b6b7', // Color cuando está deshabilitado
+              }
+            }
+          }
+        }
+    },
+  }
+});
+
+const DatagridResponsive = ({ title = "Data Table", data, columns }) => {  
 
   const options = {
-    search: searchBtn,
-    download: downloadBtn,
-    print: printBtn,
-    viewColumns: viewColumnBtn,
-    filter: filterBtn,
+    search: true,
+    download: true,
+    onDownload: (buildHead, buildBody, columns, data) => {
+        console.log("Botón de descarga presionado");
+        
+        console.log("Columnas:", columns);
+        console.log("Datos:", data);
+        console.log("buildBody:", buildBody);
+        console.log("buildHead:", buildHead);
+        
+        // Retornar false para cancelar la descarga automática
+        return false;
+    },
+    print: false,
+    viewColumns: true,
+    filter: false,
     filterType: "dropdown",
-    responsive,
-    tableBodyHeight,
-    tableBodyMaxHeight,
+    responsive: "simple", //"vertical", "standard", "simple", "scroll", "scrollMaxHeight", "stacked",
+    tableBodyHeight: "100%",
+    tableBodyMaxHeight: "100%",
+    rowsPerPage: 10,
+    rowsPerPageOptions: [5, 10, 20],
+    selectableRows: 'multiple', // 'multiple', 'single' o 'none'
+    pagination: true,
+    sort: false,
+    textLabels: {
+      body: {
+        noMatch: "Lo sentimos, no se encontraron registros",
+      },
+      toolbar: {
+        search: "Buscar",
+        downloadCsv: "Descargar CSV",
+        print: "Imprimir",
+        viewColumns: "Ver columnas",
+        filterTable: "Filtrar tabla",
+      },
+      pagination: {
+        rowsPerPage: "Filas por página:",
+        displayRows: "de",
+      },
+      selectedRows: {
+        text: "fila(s) seleccionada(s)",
+        delete: "Eliminar",
+        deleteAria: "Eliminar filas seleccionadas",
+      },
+      viewColumns: {
+        title: "Columnas Visibles",
+        titleAria: "Mostrar/Ocultar Columnas"
+      }
+    },
   };
-
-//   div style={{ display: "flex", flexWrap: "wrap" }}>
-//           {renderSelect("Responsive Option", responsive, setResponsive, [
-//             "vertical",
-//             "standard",
-//             "simple",
-//             "scroll",
-//             "scrollMaxHeight",
-//             "stacked",
-//           ])}
-//           {renderSelect("Table Body Height", tableBodyHeight, setTableBodyHeight, [
-//             "",
-//             "400px",
-//             "800px",
-//             "100%",
-//           ])}
-//           {renderSelect("Max Table Body Height", tableBodyMaxHeight, setTableBodyMaxHeight, [
-//             "",
-//             "400px",
-//             "800px",
-//             "100%",
-//           ])}
-//           {renderSelect("Search Button", searchBtn, setSearchBtn, [true, false])}
-//           {renderSelect("Download Button", downloadBtn, setDownloadBtn, [true, false])}
-//           {renderSelect("Print Button", printBtn, setPrintBtn, [true, false])}
-//           {renderSelect("View Column Button", viewColumnBtn, setViewColumnBtn, [true, false])}
-//           {renderSelect("Filter Button", filterBtn, setFilterBtn, [true, false])}
-//         </div>
-
-//   const renderSelect = (label, value, setValue, options) => (
-//     <FormControl>
-//       <InputLabel>{label}</InputLabel>
-//       <Select
-//         value={value}
-//         style={{ width: "200px", marginBottom: "10px", marginRight: 10 }}
-//         onChange={(e) => setValue(e.target.value)}
-//       >
-//         {options.map((opt, idx) => (
-//           <MenuItem key={idx} value={opt}>
-//             {String(opt)}
-//           </MenuItem>
-//         ))}
-//       </Select>
-//     </FormControl>
-//   );
 
   return (
     <CacheProvider value={muiCache}>
-      <ThemeProvider theme={createTheme()}>
-        <MUIDataTable title={title} data={data} columns={columns} options={options} />
+      <ThemeProvider theme={tableTheme}>
+        <MUIDataTable 
+          title={title} 
+          data={data} 
+          columns={columns} 
+          options={options} 
+        />
       </ThemeProvider>
     </CacheProvider>
   );
