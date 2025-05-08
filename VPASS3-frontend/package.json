@@ -16,6 +16,7 @@
     "@mui/material": "^7.0.2",
     "@reduxjs/toolkit": "^2.6.1",
     "axios": "^1.8.4",
+    "dayjs": "^1.11.13",
     "formik": "^2.4.6",
     "mui-datatables": "^4.3.0",
     "react": "^19.0.0",
