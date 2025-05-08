@@ -4,11 +4,11 @@ import { url_loginSession } from "../../services/API/API-VPASS3";
 import { useDispatch } from "react-redux";
 import { persistor } from "../../store/store";
 import { disconnect, setUser } from "../../store/misSlice";
+import { obtenerClaimsToken } from "../../utils/funciones";
 
 const useLogin = () => {
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState(null);  // Guardar la respuesta completa de la API
-    // const [error, setError] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
     const dispatch = useDispatch();
   
@@ -26,19 +26,23 @@ const useLogin = () => {
   
         if (token) {
 
+          // Decodificar el token para obtener los claims
+          const claims = obtenerClaimsToken(token);
+
+          const {exp: claimExpiracion} = claims; // Desestructuración para obtener el timestamp de la fecha de expiración del token
           dispatch(setUser(
             {
               authenticated: true,
               token: token,
               rememberMe: true,
+              expirationTokenTimestamp: claimExpiracion, // Guardar la fecha de expiración en el estado
             }
           ))
-
           setResponse(token);
           setResponseStatus(status);
           return { token, status }; 
         } else {
-          throw new Error("Token no disponible");
+            throw new Error("Token no disponible");
         }
   
       } catch (error) {
@@ -48,18 +52,14 @@ const useLogin = () => {
           setResponseStatus(status);
           return {token: null, status: status};
       } finally {
-          setLoading(false);  // Indicamos que la petición terminó, independientemente de si tuvo éxito o no
+          setLoading(false);  // Se indica que la petición terminó, independientemente de si tuvo éxito o no
       }
   };
 
   const logoutSession = () => {
-    dispatch(disconnect(
-      {
-        authenticated: false,
-        token: null,
-        rememberMe: false,
-      }
-    ));
+
+    // Despacha la acción disconnect para limpiar el estado en Redux
+    dispatch(disconnect());
 
     const handleReset = async () => {
       // Despacha la acción RESET para limpiar el estado en Redux
@@ -71,7 +71,6 @@ const useLogin = () => {
     handleReset();
   }
   
-  
     return {
       loading,
       response,
@@ -82,4 +81,3 @@ const useLogin = () => {
   };
   
   export default useLogin;
-  
