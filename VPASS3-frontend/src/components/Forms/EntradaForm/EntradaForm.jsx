@@ -11,22 +11,17 @@ import useLugaresEstacionamiento from "../../../hooks/UseLugarEstacionamiento/us
 import useTiposVisita from "../../../hooks/useTipoVisita/useTipoVisita";
 import { ValidationVisitaForm } from "./ValidationVisitaForm";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
-import useVisitante from "../../../hooks/useVisitante/useVisitante";
 import useVisita from "../../../hooks/useVisita/useVisita";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog.jsx";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta.jsx";
 
 const EntradaForm = () => {
+
     const { sentidos, getAllSentidos} = useSentido();
     const { zonas, getAllZonas } = useZonas();
     const { lugaresEstacionamiento, getAllLugaresEstacionamiento } = useLugaresEstacionamiento();
     const { tiposVisita, getAllTiposVisita } = useTiposVisita();
-    const { loading: loadingVisitas, response: responseVisita, crearVisita, responseStatus: statusCrearVisita } = useVisita();
-
-    // useEffect(() => {console.log("📌 sentidos => ",sentidos)}, [sentidos]);
-    // useEffect(() => {console.log("📌 zonas => ",zonas)}, [zonas]);
-    // useEffect(() => {console.log("📌 - lugaresEstacionamiento => ",lugaresEstacionamiento)}, [lugaresEstacionamiento]);
-    // useEffect(() => {console.log("📌 tiposVisita => ",tiposVisita)}, [tiposVisita]);
+    const { loading: loadingVisitas, crearVisita } = useVisita();
 
     useEffect(() => {
         getAllSentidos();
@@ -41,35 +36,11 @@ const EntradaForm = () => {
     // Estados y funciones para manejar el componente ModalLoadingMasRespuesta
     const [openLoadingRespuesta, setOpenLoadingRespuesta] = useState(false);
     const [messageLoadingRespuesta, setMessageLoadingRespuesta] = useState('');
+    const [operacionExitosa, setOperacionExitosa] = useState(false);
     const accionPostCierreLoadingRespuesta = () => {
         setOpenLoadingRespuesta(false);
         setMessageLoadingRespuesta('');
     }
-
-//   const simularPeticion = () => {
-//     setOpen(true);
-//     setLoading(true);
-//     setMessage('');
-//     setSuccess(false);
-
-//     // Simula una petición asíncrona de 3 segundos
-//     setTimeout(() => {
-//       const exito = true; // Podrías simular fallo con false
-//       setLoading(false);
-//       setSuccess(exito);
-//       setMessage(exito ? 'La operación fue exitosa ✅' : 'La operación falló ❌');
-//     }, 3000);
-//   };
-
-//   const handleClose = () => {
-//     setOpen(false);
-//     setLoading(false);
-//     setMessage('');
-//     setSuccess(false);
-//   };
-
-
-
     
     const formik = useFormik({
         initialValues: {
@@ -108,15 +79,23 @@ const EntradaForm = () => {
                     idEstacionamiento: values.idEstacionamiento,
                 });
 
-                console.log("statusCodeCrearVisita", statusCodeCrearVisita);
-                console.log("dataVisitaCreada", dataVisitaCreada);
-                console.log("messageCrearVisita", messageCrearVisita);
+                // console.log("statusCodeCrearVisita", statusCodeCrearVisita);
+                // console.log("dataVisitaCreada", dataVisitaCreada);
+                // console.log("messageCrearVisita", messageCrearVisita);
 
-                if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 || statusCodeCrearVisita != null || statusCodeCrearVisita != undefined) {
+                if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 && (statusCodeCrearVisita != null && statusCodeCrearVisita != undefined)) {
+                    setOperacionExitosa(true);
                     setMessageLoadingRespuesta(messageCrearVisita);
                 }
-                else {
+                else if (statusCodeCrearVisita === 500) {
+                    //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                    setOperacionExitosa(false);
                     setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                }
+                else{
+                    //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                    setOperacionExitosa(false);
+                    setMessageLoadingRespuesta(messageCrearVisita);
                 }
             } 
         }
@@ -276,11 +255,11 @@ const EntradaForm = () => {
                 open={openLoadingRespuesta}
                 loading={loadingVisitas}
                 message={messageLoadingRespuesta}
-                accionPostCierre={accionPostCierreLoadingRespuesta}
                 loadingMessage="Registrando visita..."
+                successfulProcess={operacionExitosa}
+                accionPostCierre={accionPostCierreLoadingRespuesta}
             />
         </Box>
     )
 }
-
 export default EntradaForm;

@@ -10,9 +10,33 @@
     box-shadow: 24px;
     padding: 24px;
     width: auto; /* Se usa el 50% en pantallas grandes */
-    max-width: 60%;
+    max-width: 50%;
     text-align: center;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  #TituloModalLoadingMasRespuesta{
+    font-size: 25px;
+    color: #333; /* Color del texto */
+    font-weight: bold;
+    width: 100%;
+  }
+
+  #DescripcionModalLoadingMasRespuesta{
+    font-size: 18px;
+    color: #333; /* Color del texto */
+    font-weight: normal;
+    width: 100%;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-line; 
+    text-align: center;
+    max-height: 200px;
+    overflow-y: auto;
   }
   
   /* Estilos para pantallas menores a 700px */

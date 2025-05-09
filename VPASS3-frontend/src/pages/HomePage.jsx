@@ -5,9 +5,6 @@ import DrawerResponsive from "../components/Drawer/DrawerResponsive/DrawerRespon
 import HomePageComponent from "../components/PagesComponents/HomePageComponent/HomePageComponent";
 
 const HomePage = () => {
-  InterceptorResponse();
-  InterceptorRequest();
-
   return (
     <DrawerResponsive>
       <HomePageComponent/>

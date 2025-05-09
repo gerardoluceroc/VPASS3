@@ -7,12 +7,10 @@ import ConfiguracionImage from "./../../assets/configuracion.png"
 import BlacklistImage from "./../../assets/blacklist.png"
 import UltimosRegistrosImage from "./../../assets/ultimosregistros.png"
 import { useNavigate } from "react-router-dom";
+import { RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../../utils/rutasCliente";
 
 const Dashboard = () => {
 
-    const RUTA_NUEVA_VISITA = "/visitas";
-    const RUTA_HOME =  "/";
-    const RUTA_ULTIMOS_REGISTROS = "/ultimosRegistros";
     const navigate = useNavigate();
 
     const handleOpcionClick = (ruta) => {

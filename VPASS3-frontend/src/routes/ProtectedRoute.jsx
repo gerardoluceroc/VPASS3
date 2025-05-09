@@ -1,28 +1,62 @@
 import dayjs from "dayjs";
 import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import AlertDialog from "../components/Dialog/AlertDialog/AlertDialog";
+import { useState } from "react";
+import { InterceptorRequest, InterceptorResponse } from "../services/API/Interceptor";
+import useLogin from "../hooks/auth/useLogin";
+import { RUTA_LOGIN } from "../utils/rutasCliente";
 
 const ProtectedRoute = ({ children }) => {
-  const { authenticated, expirationTokenTimestamp } = useSelector((state) => state.user);
 
+  InterceptorResponse();
+  InterceptorRequest();
+  const {logoutSession} = useLogin();
+
+  const [showExpiredSessionDialog, setShowExpiredSessionDialog] = useState(false);
+
+  // Función que se ejecutará al presionar "Aceptar" en el AlertDialog
+  const handleSessionExpiredAccept = () => {
+    logoutSession();
+  };
+  const navigate = useNavigate();
+
+  const { authenticated, expirationTokenTimestamp } = useSelector((state) => state.user);
   const fechaHoraExpiracionToken = dayjs.unix(expirationTokenTimestamp);
   const fechaHoraActual = dayjs();
-  console.log("fechaHoraExpiracionToken", fechaHoraExpiracionToken.format("YYYY-MM-DD HH:mm:ss"));
 
   if (authenticated) {
+
+    // Si el token ha expirado, muestra el AlertDialog y redirige a /login
     if (fechaHoraActual.isAfter(fechaHoraExpiracionToken)) {
-      alert("Su sesión ha expirado, por favor inicie sesión nuevamente.");
-      // // Aquí puedes redirigir al usuario a la página de inicio de sesión o realizar otra acción
-      // window.location.href = "/login";
-      return <Navigate to="/login" replace />;
+
+      if (!showExpiredSessionDialog) {
+        setShowExpiredSessionDialog(true); // Activa el modal
+      }
+
+      return (
+        <>
+          {/* Renderiza el AlertDialog */}
+          <AlertDialog
+            open={showExpiredSessionDialog}
+            onClose={() => setShowExpiredSessionDialog(false)}
+            title="Sesión expirada"
+            message="Su sesión ha expirado, por favor inicie sesión nuevamente."
+            actionPostCierre={handleSessionExpiredAccept}
+          />
+          {/* Mientras el modal está abierto, no renderiza nada */}
+          {null}
+        </>
+      );
+
     } else {
-      console.log("Token válido. Mostrando contenido protegido...");
+      // Si el token no ha expirado, renderiza los hijos
       return children;
     }
   }
   else{
     // Si no está autenticado, redirige a /login
-    return <Navigate to="/login" replace />;
+    return <Navigate to={RUTA_LOGIN} replace />;
   }
 };
 

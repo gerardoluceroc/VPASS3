@@ -7,6 +7,7 @@ import ValidationLoginForm from "./ValidationLoginForm";
 import TextFieldUno from "../TextField/TextFieldUno/TextFieldUno";
 import ButtonTypeOne from "../Buttons/ButtonTypeOne/ButtonTypeOne";
 import { useNavigate } from "react-router-dom";
+import { RUTA_HOME } from "../../utils/rutasCliente";
 
 const LoginForm = () => {
 
@@ -30,7 +31,7 @@ const LoginForm = () => {
             if (token) {
               console.log("Login exitoso");
 
-              navigate("/", { replace: true });
+              navigate(RUTA_HOME, { replace: true });
             // logoutSession(); // Llama a la función logoutSession después de iniciar sesión
             
 

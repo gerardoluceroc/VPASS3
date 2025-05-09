@@ -174,12 +174,12 @@ const DatagridResponsive = ({ title = "Data Table", data, columns }) => {
     search: true,
     download: true,
     onDownload: (buildHead, buildBody, columns, data) => {
-        console.log("Botón de descarga presionado");
+        // console.log("Botón de descarga presionado");
         
-        console.log("Columnas:", columns);
-        console.log("Datos:", data);
-        console.log("buildBody:", buildBody);
-        console.log("buildHead:", buildHead);
+        // console.log("Columnas:", columns);
+        // console.log("Datos:", data);
+        // console.log("buildBody:", buildBody);
+        // console.log("buildHead:", buildHead);
         
         // Retornar false para cancelar la descarga automática
         return false;

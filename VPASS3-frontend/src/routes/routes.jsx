@@ -4,13 +4,14 @@ import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import VisitasPage from "../pages/VisitasPage";
 import UltimosRegistrosPage from "../pages/UltimosRegistrosPage";
+import { RUTA_HOME, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
 
 export const AppRoutes = () => (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path={RUTA_LOGIN} element={<LoginPage />} />
 
       <Route
-        path="/"
+        path={RUTA_HOME}
         element={
           <ProtectedRoute>
             <HomePage />
@@ -19,7 +20,7 @@ export const AppRoutes = () => (
       />
 
       <Route
-        path="/visitas"
+        path={RUTA_NUEVA_VISITA}
         element={
           <ProtectedRoute>
             <VisitasPage />
@@ -28,14 +29,12 @@ export const AppRoutes = () => (
       />
 
       <Route
-        path="/ultimosRegistros"
+        path={RUTA_ULTIMOS_REGISTROS}
         element={
           <ProtectedRoute>
             <UltimosRegistrosPage />
           </ProtectedRoute>
         }
       />
-
-
     </Routes>
 );

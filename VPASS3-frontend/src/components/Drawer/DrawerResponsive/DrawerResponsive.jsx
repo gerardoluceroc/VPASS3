@@ -21,6 +21,7 @@ import {
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
 import { opcionPanelDeControl } from "../../PagesComponents/HomePageComponent/constantesHome";
+import { RUTA_HOME } from "../../../utils/rutasCliente";
   
   const drawerWidth = 280;
   
@@ -51,8 +52,6 @@ import { opcionPanelDeControl } from "../../PagesComponents/HomePageComponent/co
       setIsClosing(false);
     };
 
-    const RUTA_NUEVA_VISITA = "/visitas";
-    const RUTA_HOME =  "/";
     const navigate = useNavigate();
 
     const handleOpcionClick = (ruta) => {
