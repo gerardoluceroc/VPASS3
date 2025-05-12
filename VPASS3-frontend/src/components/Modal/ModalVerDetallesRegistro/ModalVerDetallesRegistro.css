@@ -1,0 +1,59 @@
+#ContainerModalVerDetallesRegistro{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40%;
+    max-height: 80%;
+    background-color: #eaeef7;
+    border-radius: 16px;
+    box-shadow: 24px;
+    padding: 16px 32px 32px 32px;
+    gap: 30px;
+    overflow-y: auto; 
+}
+
+#HeaderModalVerDetallesRegistro{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+  
+#CuerpoModalVerDetallesRegistro{
+    display: flex;
+    flex-direction: column;
+    background-color: inherit;
+    gap: 30px;
+}
+
+.DosItemsCuerpoModalVerDetallesRegistro{
+    display: flex;
+    flex-direction: row;
+    gap: 15%;
+}
+
+@media (max-width: 1120px){
+    #ContainerModalVerDetallesRegistro{
+        width: 60%;
+    }
+}
+
+@media (max-width: 770px){
+    #ContainerModalVerDetallesRegistro{
+        width: 80%;
+    }
+}
+
+@media (max-width: 550px){
+    #ContainerModalVerDetallesRegistro{
+        width: 90%;
+    }
+
+    .DosItemsCuerpoModalVerDetallesRegistro{
+        flex-direction: column;
+        gap: 20px;
+    }
+}
