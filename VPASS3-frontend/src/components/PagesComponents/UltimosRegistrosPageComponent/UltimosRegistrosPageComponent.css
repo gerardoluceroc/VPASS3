@@ -3,3 +3,12 @@
     height: 100%;
     padding: 36px;
 }
+
+#BoxAccionesTablaUltimosRegistros{
+    display: flex;
+    align-items: center;
+}
+
+#BotonVerDetallesRegistro {
+    color: #175676;
+}

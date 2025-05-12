@@ -1,52 +1,86 @@
-import { Box } from "@mui/material";
+import { Box, IconButton } from "@mui/material";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import "./UltimosRegistrosPageComponent.css";
 import useVisita from "../../../hooks/useVisita/useVisita";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { cambiarFormatoHoraFecha } from "../../../utils/funciones";
+import InfoIcon from '@mui/icons-material/Info';
+import ModalVerDetallesRegistros from "../../Modal/ModalVerDetallesRegistro/ModalVerDetallesRegistro";
+import TooltipTipoUno from "../../Tooltip/TooltipTipoUno/TooltipTipoUno";
+import dayjs from "dayjs";
+import TableSkeleton from "../../Skeleton/TableSkeleton/TableSkeleton";
 
 const UltimosRegistrosPageComponent = () => {
     const { getAllVisitas, visitas } = useVisita();
-  
+
+    // Información para gestionar el modal de detalles de registro
+    const [visitaSeleccionada, setVisitaSeleccionada] = useState({});
+    const [rows, setRows] = useState([]);
+    const [openModalDetallesVerRegistro, setOpenModalDetallesVerRegistro] = useState(false);
+    const handleOpenModalDetallesVerRegistro = (visita = {}) => {
+      setOpenModalDetallesVerRegistro(true);
+      setVisitaSeleccionada(visita);
+    };
+    const handleCloseModalDetallesVerRegistro = () => setOpenModalDetallesVerRegistro(false);
+
     useEffect(() => {
       getAllVisitas();
     }, []);
 
-    useEffect(() => {console.log("visitas => ",visitas)}, [visitas]);
-    // useEffect(() => {console.log("visitas => ",JSON.stringify(visitas))}, [visitas]);
+    // Cuando carguen las visitas desde el servidor, se proceden a ordenar por fecha.
+    useEffect(() => {
+      if (!Array.isArray(visitas)) return;
     
-    // const columns = [
-    //     { name: "Name", options: { filterOptions: { fullWidth: true } } },
-    //     "Title",
-    //     "Location"
-    //   ];
-    
-    //   const data = [
-    //     ["Gabby George", "Business Analyst", "Minneapolis"],
-    //     ["Aiden Lloyd", "Consultant", "Dallas"],
-    //     ["Jaden Collins", "Attorney", "Santa Ana"],
-    //     ["Franky Rees", "Analyst", "St. Petersburg"],
-    //   ];
-
+      const visitasOrdenadasPorFecha = [...visitas].sort((a, b) =>
+        dayjs(b.entryDate).valueOf() - dayjs(a.entryDate).valueOf()
+      );
+      setRows(visitasOrdenadasPorFecha);
+    }, [visitas]);
   
-    if (!Array.isArray(visitas)) {
-      return <div>Cargando visitas...</div>;
+    // Si no ha cargado la información, se muestar un skeleton mientras carga
+    if (!Array.isArray(rows)) {
+      return <TableSkeleton columnCount={5} rowCount={7} />;
     }
   
-    const columns = ["Nombre", "Rut", "Destino", "Sentido", "Hora"];
-    const data = visitas.map(({ visitor, zone, zoneSection, direction, entryDate: horaEntrada }) => {
+    const columns = ["Nombre", "Rut", "Destino", "Sentido", "Hora", "Acciones"];
+
+    const data = rows.map((visita) => {
+      const { visitor, zone, zoneSection, direction, entryDate: horaEntrada } = visita;
       const { names = "", lastNames = "", identificationNumber = "" } = visitor || {};
-      const {name: nombreZona = ""} = zone || {};
-      const {name: nombreSubzona = ""} = zoneSection || {}; 
-      const {visitDirection: sentido = ""} = direction || {};
-      return [`${names} ${lastNames}`.trim(), identificationNumber, `${nombreZona} ${nombreSubzona}`, sentido, cambiarFormatoHoraFecha(horaEntrada) || "Sin datos"];
-    });
-  
-    return (
-      <Box id="ContainerUltimosRegistrosPageComponent">
-        <DatagridResponsive title="Últimos Registros" columns={columns} data={data} />
-      </Box>
-    );
+      const { name: nombreZona = "" } = zone || {};
+      const { name: nombreSubzona = "" } = zoneSection || {};
+      const { visitDirection: sentido = "" } = direction || {};
+      const columnaAcciones = 
+      <Box id="BoxAccionesTablaUltimosRegistros">
+        <TooltipTipoUno titulo={"Ver detalles"} ubicacion={"right"}>
+          <IconButton onClick={()=>handleOpenModalDetallesVerRegistro(visita)}>
+            <InfoIcon id="BotonVerDetallesRegistro" fontSize="large" />
+          </IconButton>
+        </TooltipTipoUno>
+      </Box>;
+
+    return [
+      `${names} ${lastNames}`.trim(),
+      identificationNumber,
+      `${nombreZona} ${nombreSubzona}`,
+      sentido,
+      cambiarFormatoHoraFecha(horaEntrada),
+      columnaAcciones || "Sin datos"
+    ];
+  });
+
+  return (
+    <Box id="ContainerUltimosRegistrosPageComponent">
+      <DatagridResponsive title="Últimos Registros" columns={columns} data={data} />
+      <ModalVerDetallesRegistros
+        open={openModalDetallesVerRegistro}
+        onClose={handleCloseModalDetallesVerRegistro}
+        title="Detalles del Registro"
+        message={`Detalles de la visita: ${JSON.stringify(visitaSeleccionada)}`}
+        visitaSeleccionada={visitaSeleccionada}
+      />
+    </Box>
+  );
+
   };
-  
   export default UltimosRegistrosPageComponent;
