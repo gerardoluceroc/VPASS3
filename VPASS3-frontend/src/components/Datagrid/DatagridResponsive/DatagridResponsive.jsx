@@ -35,6 +35,7 @@ const tableTheme = createTheme({
     MUIDataTableHeadCell: {
       styleOverrides: {
         root: {
+          // padding: '8px 32px',
           backgroundColor: '#175676', // Color de cabecera de la tabla
           color: '#FFFFFF', // Color del texto de la cabecera
           fontWeight: 'bold',
@@ -67,7 +68,7 @@ const tableTheme = createTheme({
     MUIDataTableBodyCell: {
       styleOverrides: {
         root: {
-          padding: '8px 16px',
+          padding: '8px 8px',
           '&.MuiDataTableBodyCell-selected': {
             backgroundColor: '#795548', // Fondo naranja claro para celdas seleccionadas
           }
