@@ -48,6 +48,7 @@ const SelectMui = ({
     mostrarElemento = (opcion) => `${opcion["title"]} ${opcion["year"]}`, 
     readOnly = false,
     disabled = false,
+    disabledOptionCondition = (opcion) => {return false},
     helperText = "",
     error = false,
 }) => {
@@ -92,9 +93,9 @@ const SelectMui = ({
                     }}
                 >
                     {listadoElementos.map((item) => (
-                        <MenuItem key={item[keyListadoElementos]} value={item[atributoValue]}>
-                            {/* {item[atributoMostrable]}*/}
-                            {mostrarElemento(item)} {/* Este método debe ser implementado por el componente que lo utilice */}
+                        <MenuItem disabled={disabledOptionCondition(item)} key={item[keyListadoElementos]} value={item[atributoValue]}>
+                            {/* {JSON.stringify(item)} */}
+                            {mostrarElemento(item)}
                         </MenuItem>
                     ))}
                 </Select>

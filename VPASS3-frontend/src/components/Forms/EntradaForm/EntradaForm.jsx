@@ -231,6 +231,7 @@ const EntradaForm = () => {
                         keyListadoElementos={"id"}
                         mostrarElemento={(option)=> option["name"]}
                         handleChange = {formik.handleChange}
+                        disabledOptionCondition={(opcion) => opcion["isAvailable"] === false}
                         elementoSeleccionado = {formik.values.idEstacionamiento}
                         atributoValue={"id"}
                         helperText={formik.touched.idEstacionamiento && formik.errors.idEstacionamiento}
