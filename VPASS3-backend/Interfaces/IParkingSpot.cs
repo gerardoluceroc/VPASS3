@@ -8,7 +8,7 @@ namespace VPASS3_backend.Interfaces
         Task<ResponseDto> GetAllParkingSpotsAsync();
         Task<ResponseDto> GetParkingSpotByIdAsync(int id);
         Task<ResponseDto> CreateParkingSpotAsync(ParkingSpotDto dto);
-        Task<ResponseDto> UpdateParkingSpotAsync(int id, ParkingSpotDto dto);
+        Task<ResponseDto> UpdateParkingSpotAsync(int id, UpdateParkingSpotDto dto);
         Task<ResponseDto> DeleteParkingSpotAsync(int id);
     }
 }

@@ -170,12 +170,20 @@ namespace VPASS3_backend.Services
                     if (!dto.IdParkingSpot.HasValue)
                         return new ResponseDto(400, message: "Debes especificar un estacionamiento si el vehículo está incluido.");
 
-                    var parkingSpot = await _context.ParkingSpots.FirstOrDefaultAsync(p => p.Id == dto.IdParkingSpot.Value);
+                    var parkingSpot = await _context.ParkingSpots
+                        .FirstOrDefaultAsync(p => p.Id == dto.IdParkingSpot.Value);
+
                     if (parkingSpot == null)
                         return new ResponseDto(404, message: "El estacionamiento especificado no existe.");
 
                     if (!_userContext.CanAccessParkingSpot(parkingSpot))
                         return new ResponseDto(403, message: "No tienes acceso al estacionamiento especificado.");
+
+                    // Nueva validación: Verificar disponibilidad del parking spot
+                    if (parkingSpot.IsAvailable.HasValue && !parkingSpot.IsAvailable.Value)
+                    {
+                        return new ResponseDto(400, message: "El estacionamiento seleccionado se encuentra ocupado.");
+                    }
                 }
 
                 // Obtener hora local Chile
@@ -207,6 +215,17 @@ namespace VPASS3_backend.Services
                 };
 
                 _context.Visits.Add(visit);
+
+                // Si se usó un parking spot, marcarlo como ocupado
+                if (dto.VehicleIncluded && dto.IdParkingSpot.HasValue)
+                {
+                    var parkingSpot = await _context.ParkingSpots.FindAsync(dto.IdParkingSpot.Value);
+                    if (parkingSpot != null)
+                    {
+                        parkingSpot.IsAvailable = false;
+                    }
+                }
+
                 await _context.SaveChangesAsync();
 
                 return new ResponseDto(201, visit, "Visita creada correctamente.");

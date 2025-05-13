@@ -46,7 +46,7 @@ namespace VPASS3_backend.Controllers
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpPut("update/{id}")]
-        public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] ParkingSpotDto dto)
+        public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] UpdateParkingSpotDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseDto(400, "Datos inválidos."));
