@@ -1,7 +1,6 @@
 // DatagridResponsive.jsx
 // Source 1: https://github.com/mui/mui-x/issues/6460
 // Source 2: https://codesandbox.io/p/sandbox/muidatatables-custom-toolbar-forked-j002q?file=%2Findex.js
-import React, { useState } from "react";
 import MUIDataTable from "mui-datatables";
 import {
   ThemeProvider,
@@ -169,11 +168,17 @@ const tableTheme = createTheme({
   }
 });
 
-const DatagridResponsive = ({ title = "Data Table", data, columns }) => {  
+const DatagridResponsive = ({ 
+  title = "Data Table", 
+  data, 
+  columns, 
+  selectableRows = "multiple",
+  downloadCsvButton = true,
+}) => {  
 
   const options = {
     search: true,
-    download: true,
+    download: downloadCsvButton,
     onDownload: (buildHead, buildBody, columns, data) => {
         // console.log("Botón de descarga presionado");
         
@@ -194,7 +199,7 @@ const DatagridResponsive = ({ title = "Data Table", data, columns }) => {
     tableBodyMaxHeight: "100%",
     rowsPerPage: 10,
     rowsPerPageOptions: [5, 10, 20],
-    selectableRows: 'multiple', // 'multiple', 'single' o 'none'
+    selectableRows: selectableRows, // 'multiple', 'single' o 'none'
     pagination: true,
     sort: false,
     textLabels: {
