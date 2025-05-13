@@ -20,17 +20,38 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-import { opcionPanelDeControl } from "../../PagesComponents/HomePageComponent/constantesHome";
-import { RUTA_HOME } from "../../../utils/rutasCliente";
-  
+  import { RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
+  import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
+  import DashboardIcon from '@mui/icons-material/Dashboard';
+    
   const drawerWidth = 280;
   
   const opcionesDrawner = [
-    { nombre: "Panel de control", icono: <InboxIcon /> },
-    { nombre: "Últimos registros", icono: <MailIcon /> },
-    { nombre: "Blacklist", icono: <InboxIcon /> },
-    { nombre: "Descargar registros", icono: <MailIcon /> },
-    { nombre: "Enviar reporte rápido", icono: <InboxIcon /> },
+    { 
+      nombre: "Panel de control", 
+      icono: <DashboardIcon />,
+      ruta: RUTA_HOME
+    },
+    { 
+      nombre: "Gestion de estacionamientos", 
+      icono: <DirectionsCarFilledIcon />,
+      ruta: RUTA_GESTION_ESTACIONAMIENTO
+    },
+    { 
+      nombre: "Blacklist", 
+      icono: <InboxIcon />,
+      ruta: RUTA_GESTION_ESTACIONAMIENTO
+    },
+    { 
+      nombre: "Descargar registros", 
+      icono: <MailIcon />,
+      ruta: RUTA_GESTION_ESTACIONAMIENTO
+    },
+    { 
+      nombre: "Enviar reporte rápido", 
+      icono: <InboxIcon />,
+      ruta: RUTA_GESTION_ESTACIONAMIENTO
+    },
   ];
   
   export default function DrawerResponsive({ children, handleOpcionSeleccionada }) {
@@ -76,7 +97,7 @@ import { RUTA_HOME } from "../../../utils/rutasCliente";
         <List>
           {opcionesDrawner.map((opcion) => (
             <ListItem key={opcion.nombre} disablePadding>
-              <ListItemButton>
+              <ListItemButton onClick={()=>navigate(opcion.ruta)}>
                 <ListItemIcon>{opcion.icono}</ListItemIcon>
                 <ListItemText primary={opcion.nombre} />
               </ListItemButton>

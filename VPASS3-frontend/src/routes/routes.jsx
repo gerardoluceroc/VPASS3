@@ -4,7 +4,8 @@ import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import VisitasPage from "../pages/VisitasPage";
 import UltimosRegistrosPage from "../pages/UltimosRegistrosPage";
-import { RUTA_HOME, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
+import { RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
+import GestionEstacionamientoPage from "../pages/GestionEstacionamientoPage";
 
 export const AppRoutes = () => (
     <Routes>
@@ -33,6 +34,15 @@ export const AppRoutes = () => (
         element={
           <ProtectedRoute>
             <UltimosRegistrosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={RUTA_GESTION_ESTACIONAMIENTO}
+        element={
+          <ProtectedRoute>
+            <GestionEstacionamientoPage />
           </ProtectedRoute>
         }
       />
