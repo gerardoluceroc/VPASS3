@@ -9,9 +9,10 @@ const TextFieldReadOnlyUno = ({ label, value, borderBottomColorAfter = "#175676"
         variant="standard"
         multiline = {multiline}
         maxRows={maxRowsMultiline}
-        InputProps={{
-          readOnly: true,
-        }}
+        slotProps={
+            {htmlInput:{
+                readOnly: true
+        }}}
         sx={{
           "& .MuiInput-underline:before": {
             borderBottomColor: borderBottomColorBefore,  // Color de la línea cuando no está seleccionada
