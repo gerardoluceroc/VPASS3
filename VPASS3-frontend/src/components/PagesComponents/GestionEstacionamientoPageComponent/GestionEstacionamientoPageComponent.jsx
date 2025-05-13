@@ -42,7 +42,7 @@ const GestionEstacionamientoPageComponent = () => {
 
         const confirmed = await confirm({
             title: "Actualizar disponibilidad de estacionamiento",
-            message: "¿Desea habilitar nuevamente este estacionamiento?"
+            message: "¿Desea actualizar la disponibilidad de este estacionamiento?"
         });
 
         if(confirmed){
