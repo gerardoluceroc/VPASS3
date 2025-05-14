@@ -7,6 +7,8 @@ import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridRespon
 import SwitchMui from "../../Switch/SwitchMui/SwitchMui";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
+import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
+import ModalCrearEstacionamiento from "../../Modal/ModalCrearEstacionamiento/ModalCrearEstacionamiento";
 
 const GestionEstacionamientoPageComponent = () => {
 
@@ -55,26 +57,34 @@ const GestionEstacionamientoPageComponent = () => {
             // Se realiza la peticion al servidor para actualizar la disponibilidad del estacionamiento
             const {statusCode: statusActualizarEstacionamiento, data: estacionamientoActualizado, message: messageActualizarEstacionamiento} = await actualizarEstacionamiento(estacionamiento.id, cuerpoPeticion)
 
-            // En caso de ser exitoso, se actualiza las rows a partir del estacionamiento actualizado que responde el servidor, se reeemplaza este estacionamiento actualido del arreglo "rows"
-            if (statusActualizarEstacionamiento === 200 || statusActualizarEstacionamiento === 201 && (statusActualizarEstacionamiento != null && statusActualizarEstacionamiento != undefined)) {
-                setOperacionExitosa(true);
-                setMessageLoadingRespuesta(messageActualizarEstacionamiento);
-                const rowsActualizados = rows.map(estacionamiento =>
-                    estacionamiento.id === estacionamientoActualizado.id
-                        ? estacionamientoActualizado
-                        : estacionamiento
-                );
-                setRows(rowsActualizados);
-            }
-            else if (statusActualizarEstacionamiento === 500) {
-                //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
-                setOperacionExitosa(false);
-                setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+            // Si el servidor responde con el Response dto que tiene configurado
+            if(statusActualizarEstacionamiento != null && statusActualizarEstacionamiento != undefined){
+                // En caso de ser exitoso, se actualiza las rows a partir del estacionamiento actualizado que responde el servidor, se reeemplaza este estacionamiento actualido del arreglo "rows"
+                if (statusActualizarEstacionamiento === 200 || statusActualizarEstacionamiento === 201 && (statusActualizarEstacionamiento != null && statusActualizarEstacionamiento != undefined)) {
+                    setOperacionExitosa(true);
+                    setMessageLoadingRespuesta(messageActualizarEstacionamiento);
+                    const rowsActualizados = rows.map(estacionamiento =>
+                        estacionamiento.id === estacionamientoActualizado.id
+                            ? estacionamientoActualizado
+                            : estacionamiento
+                    );
+                    setRows(rowsActualizados);
+                }
+                else if (statusActualizarEstacionamiento === 500) {
+                    //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                    setOperacionExitosa(false);
+                    setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                }
+                else{
+                    //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                    setOperacionExitosa(false);
+                    setMessageLoadingRespuesta(messageActualizarEstacionamiento);
+                }
             }
             else{
-                //En caso de cualquier otro error, se muestra el mensaje de error del backend
-                setOperacionExitosa(false);
-                setMessageLoadingRespuesta(messageActualizarEstacionamiento);
+              //Esto es para los casos que el servidor no responda el ResponseDto tipico
+              setOperacionExitosa(false);
+              setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
             }
         }
     }
@@ -98,11 +108,22 @@ const GestionEstacionamientoPageComponent = () => {
 
     // Si no ha cargado la información, se muestar un skeleton mientras carga
     if (!Array.isArray(rows)) {
-        return <TableSkeleton columnCount={2} rowCount={4} />;
+        return <TableSkeleton columnCount={2} rowCount={4} />;        
     }
+
+    const [openModalCrearEstacionamiento, setOpenModalCrearEstacionamiento] = useState(false);
+    const handleOpenModalCrearEstacionamiento = () => setOpenModalCrearEstacionamiento(true);
+    const handleCloseModalCrearEstacionamiento = () => setOpenModalCrearEstacionamiento(false);
     
     return (
         <Box id="ContainerGestionEstacionamientoPageComponent">
+
+            <Box id="BotonCrearNuevoEstacionamiento">
+                <ButtonTypeOne
+                    defaultText="Crear nuevo estacionamiento"
+                    handleClick={handleOpenModalCrearEstacionamiento}
+                />
+            </Box>
             <DatagridResponsive title="Estacionamientos" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} />
             {ConfirmDialogComponent}
             <ModalLoadingMasRespuesta
@@ -112,6 +133,12 @@ const GestionEstacionamientoPageComponent = () => {
                 loadingMessage="Registrando visita..."
                 successfulProcess={operacionExitosa}
                 accionPostCierre={accionPostCierreLoadingRespuesta}
+            />
+
+            <ModalCrearEstacionamiento
+                open={openModalCrearEstacionamiento}
+                onClose={handleCloseModalCrearEstacionamiento}
+                setRows={setRows}
             />
         </Box>
     )

@@ -83,19 +83,27 @@ const EntradaForm = () => {
                 // console.log("dataVisitaCreada", dataVisitaCreada);
                 // console.log("messageCrearVisita", messageCrearVisita);
 
-                if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 && (statusCodeCrearVisita != null && statusCodeCrearVisita != undefined)) {
+                // Si el servidor responde con el Response dto que tiene configurado
+                if(statusCodeCrearVisita != null && statusCodeCrearVisita != undefined){
+                    if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 && (statusCodeCrearVisita != null && statusCodeCrearVisita != undefined)) {
                     setOperacionExitosa(true);
                     setMessageLoadingRespuesta(messageCrearVisita);
-                }
-                else if (statusCodeCrearVisita === 500) {
-                    //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
-                    setOperacionExitosa(false);
-                    setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                    else if (statusCodeCrearVisita === 500) {
+                        //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                    else{
+                        //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta(messageCrearVisita);
+                    }
                 }
                 else{
-                    //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                    //Esto es para los casos que el servidor no responda el ResponseDto tipico
                     setOperacionExitosa(false);
-                    setMessageLoadingRespuesta(messageCrearVisita);
+                    setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
                 }
             } 
         }

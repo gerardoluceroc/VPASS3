@@ -2,4 +2,23 @@
     background-color:  #5499c7;
     height: 100%;
     padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#BotonCrearNuevoEstacionamiento{
+    width: 25%;
+}
+
+@media (max-width: 1000px){
+    #BotonCrearNuevoEstacionamiento{
+        width: 40%;
+    }
+}
+
+@media (max-width: 760px){
+    #BotonCrearNuevoEstacionamiento{
+        width: 70%;
+    }
 }

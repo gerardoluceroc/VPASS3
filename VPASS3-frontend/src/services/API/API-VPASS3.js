@@ -9,6 +9,7 @@ export const path_getAllTiposVisita = `${URL_SERVER}/VisitType/all`
 /* Estacionamiento */
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
 export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
+export const path_createEstacionamiento = `${URL_SERVER}/ParkingSpot/create`
 
 
 /* Visita */

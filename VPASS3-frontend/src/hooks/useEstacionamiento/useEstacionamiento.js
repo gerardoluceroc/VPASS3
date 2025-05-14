@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { path_getAllEstacionamientos, path_updateEstacionamiento } from "../../services/API/API-VPASS3";
+import { path_createEstacionamiento, path_getAllEstacionamientos, path_updateEstacionamiento } from "../../services/API/API-VPASS3";
 import axios from "axios";
 
 const useEstacionamiento = () => {
@@ -44,6 +44,29 @@ const useEstacionamiento = () => {
             const status = error?.response?.status || null;
             setResponse(errorMessage);
             setResponseStatus(status);
+            return error;
+          } finally {
+            setLoading(false);
+          }
+    }
+
+    const crearEstacionamiento = async (nuevoEstacionamiento) => {
+        console.log("nuevoEstacionamiento", nuevoEstacionamiento);
+        setLoading(true);
+        try {
+            const response = await axios.post(path_createEstacionamiento, nuevoEstacionamiento);
+            const status = response?.status || null;
+            const responseData = response?.data || null;
+            setResponse(responseData);
+            setResponseStatus(status);
+            return responseData;
+          } catch (error) {
+            console.log("error", error);
+            const errorMessage = error?.response?.data?.message || "Error desconocido";
+            const status = error?.response?.status || null;
+            setResponse(errorMessage);
+            setResponseStatus(status);
+            return error
           } finally {
             setLoading(false);
           }
@@ -59,7 +82,8 @@ const useEstacionamiento = () => {
       responseStatus,
       getAllEstacionamientos,
       estacionamientos,
-      actualizarEstacionamiento
+      actualizarEstacionamiento,
+      crearEstacionamiento
     };
   }
   

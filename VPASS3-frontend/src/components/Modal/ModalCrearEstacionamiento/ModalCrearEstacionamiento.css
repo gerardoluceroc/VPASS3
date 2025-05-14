@@ -1,0 +1,35 @@
+#ContainerModalCrearEstacionamiento{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: auto;
+    max-width: 70%;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#HeaderModalCrearEstacionamiento{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px 0px 16px;
+}
+
+#CuerpoModalCrearEstacionamiento{
+  display: flex;
+  flex-direction: column;
+  padding: 0px 10px 24px 10px;
+  gap: 20px;
+}
