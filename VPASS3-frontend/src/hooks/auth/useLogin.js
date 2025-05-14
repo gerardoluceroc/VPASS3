@@ -29,12 +29,13 @@ const useLogin = () => {
           // Decodificar el token para obtener los claims
           const claims = obtenerClaimsToken(token);
 
-          const {exp: claimExpiracion} = claims; // Desestructuración para obtener el timestamp de la fecha de expiración del token
+          const {exp: claimExpiracion, establishment_id} = claims; // Desestructuración para obtener el timestamp de la fecha de expiración del token
           dispatch(setUser(
             {
               authenticated: true,
               token: token,
               rememberMe: true,
+              idEstablishment: establishment_id,
               expirationTokenTimestamp: claimExpiracion, // Guardar la fecha de expiración en el estado
             }
           ))
