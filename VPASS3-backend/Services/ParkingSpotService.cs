@@ -89,7 +89,7 @@ namespace VPASS3_backend.Services
                 {
                     Name = dto.Name,
                     IdEstablishment = dto.IdEstablishment,
-                    IsAvailable = false // Valor por defecto
+                    IsAvailable = true // Valor por defecto
                 };
 
                 _context.ParkingSpots.Add(newSpot);
@@ -103,46 +103,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al crear el estacionamiento.");
             }
         }
-
-
-        //public async Task<ResponseDto> UpdateParkingSpotAsync(int id, ParkingSpotDto dto)
-        //{
-        //    try
-        //    {
-        //        var spot = await _context.ParkingSpots
-        //            .Include(p => p.Establishment)
-        //            .FirstOrDefaultAsync(p => p.Id == id);
-
-        //        if (spot == null)
-        //            return new ResponseDto(404, message: "Estacionamiento no encontrado.");
-
-        //        if (!_userContext.CanAccessParkingSpot(spot))
-        //            return new ResponseDto(403, message: "No tienes permiso para editar este estacionamiento.");
-
-        //        var establishment = await _context.Establishments.FindAsync(dto.IdEstablishment);
-        //        if (establishment == null)
-        //            return new ResponseDto(404, message: "Establecimiento no encontrado.");
-
-        //        // Validar también si el cambio de establecimiento es válido
-        //        if (_userContext.UserRole != "SUPERADMIN" &&
-        //            _userContext.EstablishmentId != dto.IdEstablishment)
-        //        {
-        //            return new ResponseDto(403, message: "No puedes mover este estacionamiento a otro establecimiento.");
-        //        }
-
-        //        spot.Name = dto.Name;
-        //        spot.IdEstablishment = dto.IdEstablishment;
-
-        //        await _context.SaveChangesAsync();
-
-        //        return new ResponseDto(200, spot, "Estacionamiento actualizado correctamente.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine("Error en UpdateParkingSpotAsync: " + ex.Message);
-        //        return new ResponseDto(500, message: "Error en el servidor al actualizar el estacionamiento.");
-        //    }
-        //}
 
         public async Task<ResponseDto> UpdateParkingSpotAsync(int id, UpdateParkingSpotDto dto)
         {
