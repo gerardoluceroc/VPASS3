@@ -26,4 +26,3 @@ namespace VPASS3_backend.Models
         //public ICollection<Visit> Visits { get; set; } = new List<Visit>();
     }
 }
-
