@@ -26,10 +26,6 @@ const useLugaresEstacionamiento = () => {
       }
     }
   
-  
-  
-  
-  
     return {
       loading,
       response,
