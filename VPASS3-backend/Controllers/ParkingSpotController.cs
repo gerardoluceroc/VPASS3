@@ -3,6 +3,7 @@ using VPASS3_backend.DTOs.ParkingSpots;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using VPASS3_backend.Filters;
 
 namespace VPASS3_backend.Controllers
 {
@@ -34,6 +35,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Creación de estacionamiento")]
         [HttpPost("create")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] ParkingSpotDto dto)
         {
@@ -45,6 +47,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Actualización de información de estacionamiento")]
         [HttpPut("update/{id}")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] UpdateParkingSpotDto dto)
         {
@@ -56,6 +59,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Eliminación de estacionamiento")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {

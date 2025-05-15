@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using VPASS3_backend.DTOs;
 using Microsoft.AspNetCore.Authorization;
 using VPASS3_backend.Interfaces;
+using VPASS3_backend.Filters;
 
 namespace VPASS3_backend.Controllers
 {
@@ -23,6 +24,7 @@ namespace VPASS3_backend.Controllers
 
 
         [HttpPost("create")]
+        [Audit("Creación de usuario")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto userDto)
         {
             if (!ModelState.IsValid)
@@ -66,6 +68,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Actualización de información de usuario")]
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] CreateUserDto userDto)
         {
@@ -90,6 +93,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Eliminación de usuario")]
         [HttpDelete("delete/{id:int}")]
         public async Task<IActionResult> DeleteUser(int id)
         {

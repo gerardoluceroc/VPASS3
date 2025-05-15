@@ -3,6 +3,7 @@ using VPASS3_backend.DTOs.Zones;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using Microsoft.AspNetCore.Authorization;
+using VPASS3_backend.Filters;
 
 namespace VPASS3_backend.Controllers
 {
@@ -20,6 +21,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Creación de zona")]
         [HttpPost("create")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] CreateZoneDto dto)
         {
@@ -55,6 +57,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Actualización de información de zona")]
         [HttpPut("update/{id}")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] CreateZoneDto dto)
         {
@@ -68,6 +71,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Eliminación de zona")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {

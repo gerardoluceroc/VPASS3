@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs.Visits;
+using VPASS3_backend.Filters;
 using VPASS3_backend.Interfaces;
 
 namespace VPASS3_backend.Controllers
@@ -33,6 +34,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Registro de visita")]
         [HttpPost("create")]
         public async Task<IActionResult> CreateVisit([FromBody] VisitDto dto)
         {
@@ -41,6 +43,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Actualización de información de visita")]
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdateVisit(int id, [FromBody] VisitDto dto)
         {
@@ -49,6 +52,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Eliminación de visita")]
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteVisit(int id)
         {

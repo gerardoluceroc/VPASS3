@@ -2,6 +2,8 @@
 using VPASS3_backend.DTOs.ZoneSections;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using VPASS3_backend.Filters;
 
 namespace VPASS3_backend.Controllers
 {
@@ -17,6 +19,8 @@ namespace VPASS3_backend.Controllers
         }
 
         [HttpPost("create")]
+        [Audit("Creación de subzona")]
+        [Authorize(Policy = "ManageOwnProfile")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] ZoneSectionDto dto)
         {
             if (!ModelState.IsValid)
@@ -29,6 +33,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [HttpGet("all")]
+        [Authorize(Policy = "ManageOwnProfile")]
         public async Task<ActionResult<ResponseDto>> GetAll()
         {
             var response = await _zoneSectionService.GetAllZoneSectionsAsync();
@@ -36,6 +41,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Policy = "ManageOwnProfile")]
         public async Task<ActionResult<ResponseDto>> GetById(int id)
         {
             var response = await _zoneSectionService.GetZoneSectionByIdAsync(id);
@@ -43,6 +49,8 @@ namespace VPASS3_backend.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Audit("Actualización de información de Subzona")]
+        [Authorize(Policy = "ManageOwnProfile")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] ZoneSectionDto dto)
         {
             if (!ModelState.IsValid)
@@ -55,6 +63,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Audit("Eliminación de Subzona")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {
             var response = await _zoneSectionService.DeleteZoneSectionAsync(id);
