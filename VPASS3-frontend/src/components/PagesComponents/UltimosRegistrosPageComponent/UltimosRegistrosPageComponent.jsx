@@ -1,4 +1,4 @@
-import { Box, IconButton } from "@mui/material";
+import { Box, Fade, IconButton } from "@mui/material";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import "./UltimosRegistrosPageComponent.css";
 import useVisita from "../../../hooks/useVisita/useVisita";
@@ -15,7 +15,7 @@ const UltimosRegistrosPageComponent = () => {
 
     // Información para gestionar el modal de detalles de registro
     const [visitaSeleccionada, setVisitaSeleccionada] = useState({});
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState();
     const [openModalDetallesVerRegistro, setOpenModalDetallesVerRegistro] = useState(false);
     const handleOpenModalDetallesVerRegistro = (visita = {}) => {
       setOpenModalDetallesVerRegistro(true);
@@ -37,14 +37,9 @@ const UltimosRegistrosPageComponent = () => {
       setRows(visitasOrdenadasPorFecha);
     }, [visitas]);
   
-    // Si no ha cargado la información, se muestar un skeleton mientras carga
-    if (!Array.isArray(rows)) {
-      return <TableSkeleton columnCount={5} rowCount={7} />;
-    }
-  
     const columns = ["Nombre", "Rut", "Destino", "Sentido", "Hora", "Acciones"];
 
-    const data = rows.map((visita) => {
+    const data = rows?.map((visita) => {
       const { visitor, zone, zoneSection, direction, entryDate: horaEntrada } = visita;
       const { names = "", lastNames = "", identificationNumber = "" } = visitor || {};
       const { name: nombreZona = "" } = zone || {};
@@ -71,16 +66,27 @@ const UltimosRegistrosPageComponent = () => {
 
   return (
     <Box id="ContainerUltimosRegistrosPageComponent">
-      <DatagridResponsive title="Últimos Registros" columns={columns} data={data} />
-      <ModalVerDetallesRegistros
-        open={openModalDetallesVerRegistro}
-        onClose={handleCloseModalDetallesVerRegistro}
-        title="Detalles del Registro"
-        message={`Detalles de la visita: ${JSON.stringify(visitaSeleccionada)}`}
-        visitaSeleccionada={visitaSeleccionada}
-      />
+      <Fade in={!(!Array.isArray(rows))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+          <div>
+              <DatagridResponsive title="Últimos Registros" columns={columns} data={data} />
+              <ModalVerDetallesRegistros
+                open={openModalDetallesVerRegistro}
+                onClose={handleCloseModalDetallesVerRegistro}
+                title="Detalles del Registro"
+                message={`Detalles de la visita: ${JSON.stringify(visitaSeleccionada)}`}
+                visitaSeleccionada={visitaSeleccionada}
+              />
+          </div>
+      </Fade>
+
+      <Fade in={!Array.isArray(rows)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+          <div>
+              <TableSkeleton columnCount={3} rowCount={7} />
+          </div>
+      </Fade>
     </Box>
   );
 
-  };
-  export default UltimosRegistrosPageComponent;
+};
+
+export default UltimosRegistrosPageComponent;

@@ -20,27 +20,28 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-  import { RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
+  import { RUTA_BITACORA_INCIDENCIAS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
+import { IconoLogs } from "../../../icons/iconos";
     
   const drawerWidth = 280;
   
   const opcionesDrawner = [
     { 
       nombre: "Panel de control", 
-      icono: <DashboardIcon />,
+      icono: <DashboardIcon sx={{color: "white"}} />,
       ruta: RUTA_HOME
     },
     { 
       nombre: "Gestion de estacionamientos", 
-      icono: <DirectionsCarFilledIcon />,
+      icono: <DirectionsCarFilledIcon sx={{color: "white"}} />,
       ruta: RUTA_GESTION_ESTACIONAMIENTO
     },
     { 
-      nombre: "Blacklist", 
-      icono: <InboxIcon />,
-      ruta: RUTA_GESTION_ESTACIONAMIENTO
+      nombre: "Bitácora de incidencias", 
+      icono: <IconoLogs />,
+      ruta: RUTA_BITACORA_INCIDENCIAS
     },
     { 
       nombre: "Descargar registros", 
@@ -96,7 +97,7 @@ import {
         <Divider className="DividerDrawerResponsive" />
         <List>
           {opcionesDrawner.map((opcion) => (
-            <ListItem key={opcion.nombre} disablePadding>
+            <ListItem key={opcion.nombre} sx={{color: "white"}} disablePadding>
               <ListItemButton onClick={()=>navigate(opcion.ruta)}>
                 <ListItemIcon>{opcion.icono}</ListItemIcon>
                 <ListItemText primary={opcion.nombre} />

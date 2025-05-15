@@ -6,6 +6,9 @@ export const path_getAllZonas = `${URL_SERVER}/zone/all`
 export const path_getAllLugaresEstacionamiento = `${URL_SERVER}/ParkingSpot/all`
 export const path_getAllTiposVisita = `${URL_SERVER}/VisitType/all`
 
+/* Bitacora Incidencias */
+export const path_getAllBitacoraIncidencias = `${URL_SERVER}/AuditLog/all`
+
 /* Estacionamiento */
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
 export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
@@ -23,5 +26,3 @@ export const path_createVisita = `${URL_SERVER}/Visit/create`
 export const path_getAllVisitantes = `${URL_SERVER}/Visitor/all`
 export const path_getVisitanteByIdentificationNumber = `${URL_SERVER}/Visitor/idnumber/` // + rut ó pasaporte
 export const path_createVisitante = `${URL_SERVER}/Visitor/create`
-
-/* Estacionamiento */

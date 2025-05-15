@@ -1,4 +1,4 @@
-import { Box } from "@mui/material"
+import { Box, Fade } from "@mui/material"
 import "./GestionEstacionamientoPageComponent.css"
 import useEstacionamiento from "../../../hooks/useEstacionamiento/useEstacionamiento"
 import { useEffect, useState } from "react";
@@ -31,7 +31,7 @@ const GestionEstacionamientoPageComponent = () => {
     }
 
     // Estado en donde se guardarán los datos de estacionamientos, es con el objetivo de manipular el arreglo
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState();
 
     // En el momento en que carguen los estacionamientos, se hace una copia para rows.
     useEffect(() => {
@@ -106,40 +106,45 @@ const GestionEstacionamientoPageComponent = () => {
         ]
     })
 
-    // Si no ha cargado la información, se muestar un skeleton mientras carga
-    if (!Array.isArray(rows)) {
-        return <TableSkeleton columnCount={2} rowCount={4} />;        
-    }
-
     const [openModalCrearEstacionamiento, setOpenModalCrearEstacionamiento] = useState(false);
     const handleOpenModalCrearEstacionamiento = () => setOpenModalCrearEstacionamiento(true);
     const handleCloseModalCrearEstacionamiento = () => setOpenModalCrearEstacionamiento(false);
     
     return (
-        <Box id="ContainerGestionEstacionamientoPageComponent">
 
+        <Box id="ContainerGestionEstacionamientoPageComponent">
             <Box id="BotonCrearNuevoEstacionamiento">
                 <ButtonTypeOne
                     defaultText="Crear nuevo estacionamiento"
                     handleClick={handleOpenModalCrearEstacionamiento}
                 />
             </Box>
-            <DatagridResponsive title="Estacionamientos" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} />
-            {ConfirmDialogComponent}
-            <ModalLoadingMasRespuesta
-                open={openLoadingRespuesta}
-                loading={loadingEstacionamientos}
-                message={messageLoadingRespuesta}
-                loadingMessage="Registrando visita..."
-                successfulProcess={operacionExitosa}
-                accionPostCierre={accionPostCierreLoadingRespuesta}
-            />
+            <Fade in={!(!Array.isArray(rows))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+                <div>
+                    <DatagridResponsive title="Estacionamientos" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} />
+                    {ConfirmDialogComponent}
+                    <ModalLoadingMasRespuesta
+                        open={openLoadingRespuesta}
+                        loading={loadingEstacionamientos}
+                        message={messageLoadingRespuesta}
+                        loadingMessage="Registrando visita..."
+                        successfulProcess={operacionExitosa}
+                        accionPostCierre={accionPostCierreLoadingRespuesta}
+                    />
 
-            <ModalCrearEstacionamiento
-                open={openModalCrearEstacionamiento}
-                onClose={handleCloseModalCrearEstacionamiento}
-                setRows={setRows}
-            />
+                    <ModalCrearEstacionamiento
+                        open={openModalCrearEstacionamiento}
+                        onClose={handleCloseModalCrearEstacionamiento}
+                        setRows={setRows}
+                    />
+                </div>
+            </Fade>
+
+            <Fade in={!Array.isArray(rows)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+                <div>
+                    <TableSkeleton columnCount={3} rowCount={7} />
+                </div>
+            </Fade>
         </Box>
     )
 }
