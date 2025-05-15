@@ -23,6 +23,9 @@ namespace VPASS3_backend.Context
 
         public DbSet<VisitType> VisitTypes { get; set; }
 
+        //Entidad para guardar las bitacoras de algunas acciones
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
