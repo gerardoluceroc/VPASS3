@@ -57,7 +57,7 @@ namespace VPASS3_backend.Services
             catch (Exception ex)
             {
                 Console.WriteLine("Error en GetAllVisitsAsync: " + ex.Message);
-                return new ResponseDto(500, "Error en el servidor al obtener las visitas.");
+                return new ResponseDto(500, message: "Error en el servidor al obtener las visitas.");
             }
         }
 
@@ -75,7 +75,7 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visit == null)
-                    return new ResponseDto(404, "Visita no encontrada.");
+                    return new ResponseDto(404, message: "Visita no encontrada.");
 
                 if (!_userContext.CanAccessVisit(visit))
                     return new ResponseDto(403, message: "No tienes permiso para acceder a esta visita.");
