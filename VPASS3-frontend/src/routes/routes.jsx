@@ -4,9 +4,10 @@ import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import VisitasPage from "../pages/VisitasPage";
 import UltimosRegistrosPage from "../pages/UltimosRegistrosPage";
-import { RUTA_BITACORA_INCIDENCIAS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
+import { RUTA_BITACORA_INCIDENCIAS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME, RUTA_LISTA_NEGRA, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
 import GestionEstacionamientoPage from "../pages/GestionEstacionamientoPage";
 import BitacoraIncidenciasPage from "../pages/BitacoraIncidenciasPage";
+import ListaNegraPage from "../pages/ListaNegraPage";
 
 export const AppRoutes = () => (
     <Routes>
@@ -53,6 +54,15 @@ export const AppRoutes = () => (
         element={
           <ProtectedRoute>
             <BitacoraIncidenciasPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path={RUTA_LISTA_NEGRA}
+        element={
+          <ProtectedRoute>
+            <ListaNegraPage/>
           </ProtectedRoute>
         }
       />

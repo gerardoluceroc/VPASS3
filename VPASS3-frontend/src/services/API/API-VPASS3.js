@@ -10,17 +10,19 @@ export const path_getAllTiposVisita = `${URL_SERVER}/VisitType/all`
 export const path_getAllBitacoraIncidencias = `${URL_SERVER}/AuditLog/all`
 
 /* Estacionamiento */
-export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
-export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
-export const path_createEstacionamiento = `${URL_SERVER}/ParkingSpot/create`
+export const path_getAllListaNegra = `${URL_SERVER}/ParkingSpot/all`
+export const path_updateListaNegra = `${URL_SERVER}/ParkingSpot/Update`
+export const path_createListaNegra = `${URL_SERVER}/ParkingSpot/create`
 
+/* Lista Negra */
+export const path_getAllEstacionamientos = `${URL_SERVER}/Blacklist/all`
+export const path_updateEstacionamiento = `${URL_SERVER}/Blacklist/Update`
+export const path_createEstacionamiento = `${URL_SERVER}/Blacklist/create`
 
 /* Visita */
 export const path_getAllVisitas = `${URL_SERVER}/Visit/all`
 export const path_getVisitaById = `${URL_SERVER}/Visit/` // + id
 export const path_createVisita = `${URL_SERVER}/Visit/create`
-
-
 
 /* Visitante */
 export const path_getAllVisitantes = `${URL_SERVER}/Visitor/all`

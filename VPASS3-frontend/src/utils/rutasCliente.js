@@ -3,4 +3,5 @@ export const RUTA_HOME =  "/";
 export const RUTA_ULTIMOS_REGISTROS = "/ultimosRegistros";
 export const RUTA_LOGIN = "/login";
 export const RUTA_GESTION_ESTACIONAMIENTO = "/estacionamientos";
-export const RUTA_BITACORA_INCIDENCIAS = "/incidencias"
+export const RUTA_BITACORA_INCIDENCIAS = "/incidencias";
+export const RUTA_LISTA_NEGRA = "/listaNegra";
