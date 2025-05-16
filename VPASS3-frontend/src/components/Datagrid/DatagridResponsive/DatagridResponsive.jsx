@@ -172,7 +172,7 @@ const DatagridResponsive = ({
   title = "Data Table", 
   data, 
   columns, 
-  selectableRows = "multiple",
+  selectableRows = "none",
   downloadCsvButton = true,
 }) => {  
 
