@@ -72,6 +72,26 @@ namespace VPASS3_backend.Services
             await _context.SaveChangesAsync();
         }
 
+        // Servicio para registrar en los logs el login de un usuario manualmente
+        public async Task LogManualAsync(string action, string email, string role, int userId, string endpoint, string httpMethod, int statusCode)
+        {
+            var log = new AuditLog
+            {
+                Action = action,
+                Email = email,
+                Role = role,
+                UserId = userId,
+                HttpMethod = httpMethod,
+                Endpoint = endpoint,
+                StatusCode = statusCode,
+                Timestamp = GetSantiagoTime()
+            };
+
+            _context.AuditLogs.Add(log);
+            await _context.SaveChangesAsync();
+        }
+
+
         public async Task<ResponseDto> GetAllLogsAsync()
         {
             try

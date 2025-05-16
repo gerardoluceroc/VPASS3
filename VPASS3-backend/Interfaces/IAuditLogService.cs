@@ -11,5 +11,6 @@ namespace VPASS3_backend.Interfaces
         Task<ResponseDto> GetLogByIdAsync(int id);
         Task<ResponseDto> DeleteLogAsync(int id);
         Task<ResponseDto> UpdateLogAsync(int id, AuditLogDto updatedDto);
+        Task LogManualAsync(string action, string email, string role, int userId, string endpoint, string httpMethod, int statusCode);
     }
 }
