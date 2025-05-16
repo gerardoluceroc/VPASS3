@@ -168,10 +168,5 @@ namespace VPASS3_backend.Services
             // Validar si al menos una visita pertenece al establecimiento del usuario
             return visitor.Visits.Any(v => v.EstablishmentId == EstablishmentId.Value);
         }
-
-
-
-
-
     }
 }
