@@ -47,7 +47,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
-        [Audit("Actualización de información de estacionamiento")]
+        //[Audit("Actualización de información de estacionamiento")]
         [HttpPut("update/{id}")]
         public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] UpdateParkingSpotDto dto)
         {
