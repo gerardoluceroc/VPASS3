@@ -194,11 +194,10 @@ builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddScoped<IVisitTypeService, VisitTypeService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
+builder.Services.AddScoped<IBlacklistService, BlacklistService>();
 
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
-
-
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ReadOnlyOwnProfile", policy =>

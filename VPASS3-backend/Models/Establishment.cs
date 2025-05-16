@@ -26,5 +26,8 @@ namespace VPASS3_backend.Models
         // Relación de uno es a muchos. Un establecimiento tiene muchos espacios de estacionamiento.
         public ICollection<ParkingSpot> ParkingSpots { get; set; } = new List<ParkingSpot>();
 
+        [JsonIgnore]
+        public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
+
     }
 }

@@ -21,5 +21,8 @@ namespace VPASS3_backend.Models
         // Relación de uno es a muchos. Un visitante tiene muchas visitas.
         [JsonIgnore]
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+
+        [JsonIgnore]
+        public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
     }
 }

@@ -26,6 +26,8 @@ namespace VPASS3_backend.Context
         //Entidad para guardar las bitacoras de algunas acciones
         public DbSet<AuditLog> AuditLogs { get; set; }
 
+        public DbSet<Blacklist> Blacklists { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -70,6 +72,20 @@ namespace VPASS3_backend.Context
                 .HasOne(v => v.Visitor)
                 .WithMany(vis => vis.Visits)
                 .HasForeignKey(v => v.VisitorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Blacklist - Visitor (muchos a uno)
+            modelBuilder.Entity<Blacklist>()
+                .HasOne(b => b.Visitor)
+                .WithMany(v => v.Blacklists)
+                .HasForeignKey(b => b.IdVisitor)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación Blacklist - Establishment (muchos a uno)
+            modelBuilder.Entity<Blacklist>()
+                .HasOne(b => b.Establishment)
+                .WithMany(e => e.Blacklists)
+                .HasForeignKey(b => b.IdEstablishment)
                 .OnDelete(DeleteBehavior.Restrict);
 
             //// Relación Visit - Zone uno es a muchos
