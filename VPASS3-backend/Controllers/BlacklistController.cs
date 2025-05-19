@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs.Blacklist;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
-
 namespace VPASS3_backend.Controllers
 {
     [ApiController]
@@ -32,6 +31,18 @@ namespace VPASS3_backend.Controllers
             var response = await _blacklistService.CreateAsync(dto);
             return StatusCode(response.StatusCode, response);
         }
+
+        [Authorize(Policy = "ManageOwnProfile")]
+        [HttpPost("deleteByVisitorId")]
+        public async Task<ActionResult<ResponseDto>> DeleteUserFromBlacklist([FromBody] DeleteBlacklistByVisitorIdDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResponseDto(400, message: "Datos inválidos."));
+
+            var response = await _blacklistService.DeleteByVisitorAsync(dto);
+            return StatusCode(response.StatusCode, response);
+        }
+
 
 
         [Authorize(Policy = "ManageOwnProfile")]
