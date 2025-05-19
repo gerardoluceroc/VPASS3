@@ -16,10 +16,10 @@ namespace VPASS3_backend.Models
         [Required]
         public int IdEstablishment { get; set; }
 
-        [Required]
         public string? Reason { get; set; }
 
-        // Propiedades de navegación
+        // Propiedades de navegaciónssage: "No tienes permisos para este establecimiento."));
+
         public Visitor Visitor { get; set; }
 
         [JsonIgnore]

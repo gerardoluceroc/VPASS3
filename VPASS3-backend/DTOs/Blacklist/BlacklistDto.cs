@@ -10,7 +10,6 @@ namespace VPASS3_backend.DTOs.Blacklist
         [Required]
         public int IdEstablishment { get; set; }
 
-        [Required]
         public string? Reason { get; set; }
     }
 }
