@@ -14,6 +14,7 @@ const GestionEstacionamientoPageComponent = () => {
 
     // Se obtienen las funciones y estados a utilizar del hook
     const {estacionamientos, getAllEstacionamientos, actualizarEstacionamiento, loading: loadingEstacionamientos} = useEstacionamiento();
+
     useEffect(() => {
       getAllEstacionamientos();
     }, [])
@@ -111,7 +112,6 @@ const GestionEstacionamientoPageComponent = () => {
     const handleCloseModalCrearEstacionamiento = () => setOpenModalCrearEstacionamiento(false);
     
     return (
-
         <Box id="ContainerGestionEstacionamientoPageComponent">
             <Box id="BotonCrearNuevoEstacionamiento">
                 <ButtonTypeOne
@@ -127,7 +127,7 @@ const GestionEstacionamientoPageComponent = () => {
                         open={openLoadingRespuesta}
                         loading={loadingEstacionamientos}
                         message={messageLoadingRespuesta}
-                        loadingMessage="Registrando visita..."
+                        loadingMessage="Cambiando disponibilidad de estacionamiento..."
                         successfulProcess={operacionExitosa}
                         accionPostCierre={accionPostCierreLoadingRespuesta}
                     />

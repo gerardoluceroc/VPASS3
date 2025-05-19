@@ -1,0 +1,39 @@
+#ContainerListaNegraPageComponent{
+    background-color:  #5499c7;
+    height: 100%;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#BotonIconoEliminarDeListaNegra {
+    color: transparent;
+}
+#IconoEliminarDeListaNegra{
+    color: #175676;
+}
+
+#BotonIconoEliminarDeListaNegra:hover {
+    background-color: #175676;
+
+    #IconoEliminarDeListaNegra{
+        color: white;
+    }
+}
+
+#BotonCrearNuevaListaNegra{
+    width: 25%;
+}
+
+@media (max-width: 1000px){
+    #BotonCrearNuevaListaNegra{
+        width: 40%;
+    }
+}
+
+@media (max-width: 760px){
+    #BotonCrearNuevaListaNegra{
+        width: 70%;
+    }
+}

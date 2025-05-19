@@ -51,7 +51,6 @@ const useEstacionamiento = () => {
     }
 
     const crearEstacionamiento = async (nuevoEstacionamiento) => {
-        console.log("nuevoEstacionamiento", nuevoEstacionamiento);
         setLoading(true);
         try {
             const response = await axios.post(path_createEstacionamiento, nuevoEstacionamiento);
@@ -61,7 +60,6 @@ const useEstacionamiento = () => {
             setResponseStatus(status);
             return responseData;
           } catch (error) {
-            console.log("error", error);
             const errorMessage = error?.response?.data?.message || "Error desconocido";
             const status = error?.response?.status || null;
             setResponse(errorMessage);

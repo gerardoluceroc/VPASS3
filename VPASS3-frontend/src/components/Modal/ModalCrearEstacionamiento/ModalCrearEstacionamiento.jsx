@@ -4,7 +4,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import "./ModalCrearEstacionamiento.css";
 import useEstacionamiento from '../../../hooks/useEstacionamiento/useEstacionamiento';
 import TextFieldUno from '../../TextField/TextFieldUno/TextFieldUno';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import ButtonTypeOne from '../../Buttons/ButtonTypeOne/ButtonTypeOne';
 import ModalLoadingMasRespuesta from '../ModalLoadingMasRespuesta/ModalLoadingMasRespuesta';
 import { useConfirmDialog } from '../../../hooks/useConfirmDialog/useConfirmDialog';
@@ -49,7 +49,7 @@ const ModalCrearEstacionamiento = ({ open, onClose, setRows }) => {
             }
 
             // Se envía la información al backend para crear el estacionamiento
-            const {statusCode: statusCodeCrearEstacionamiento, data: dataEstacionamientoCreado, message: messageCrearEstacionamiento} = await crearEstacionamiento({cuerpoPeticion});
+            const {statusCode: statusCodeCrearEstacionamiento, data: dataEstacionamientoCreado, message: messageCrearEstacionamiento} = await crearEstacionamiento(cuerpoPeticion);
 
             // Si el servidor responde con el Response dto que tiene configurado
             if(statusCodeCrearEstacionamiento != null && statusCodeCrearEstacionamiento != undefined){

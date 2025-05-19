@@ -58,6 +58,46 @@ namespace VPASS3_backend.Services
             }
         }
 
+        public async Task<ResponseDto> DeleteByVisitorAsync(DeleteBlacklistByVisitorIdDto dto)
+        {
+            try
+            {
+                // Validar existencia del visitante
+                var visitor = await _context.Visitors.FindAsync(dto.IdVisitor);
+                if (visitor == null)
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
+
+                // Validar existencia del establecimiento
+                var establishment = await _context.Establishments.FindAsync(dto.IdEstablishment);
+                if (establishment == null)
+                    return new ResponseDto(404, message: "Establecimiento no encontrado.");
+
+                // Verificar permisos
+                if (!_userContext.CanAccessOwnEstablishment(dto.IdEstablishment))
+                    return new ResponseDto(403, message: "No tienes permisos para eliminar en este establecimiento.");
+
+                // Buscar la entrada
+                var blacklistEntry = await _context.Blacklists
+                    .FirstOrDefaultAsync(b =>
+                        b.IdVisitor == dto.IdVisitor &&
+                        b.IdEstablishment == dto.IdEstablishment);
+
+                if (blacklistEntry == null)
+                    return new ResponseDto(404, message: "Campo de lista negra no encontrada.");
+
+                // Eliminar
+                _context.Blacklists.Remove(blacklistEntry);
+                await _context.SaveChangesAsync();
+
+                return new ResponseDto(200, message: "Visitante eliminado de la lista negra.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error en DeleteByVisitorAsync: " + ex.Message);
+                return new ResponseDto(500, message: "Error del servidor.");
+            }
+        }
+
         public async Task<ResponseDto> UpdateAsync(int id, BlacklistDto dto)
         {
             try

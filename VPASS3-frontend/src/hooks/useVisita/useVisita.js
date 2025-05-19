@@ -95,7 +95,6 @@ const useVisita = () => {
     
       } catch (error) {
           const dataError = error?.response?.data || error || "Error desconocido";
-          console.log("dataError", dataError);
           const status = error?.status ?? error?.statusCode ?? null;
           setResponse(dataError);
           setResponseStatus(status);
