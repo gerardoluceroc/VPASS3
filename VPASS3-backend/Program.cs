@@ -210,26 +210,6 @@ builder.Services.AddAuthorization(options =>
         policy.RequireRole("SUPERADMIN"));
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var app = builder.Build();
 
 // Swagger
