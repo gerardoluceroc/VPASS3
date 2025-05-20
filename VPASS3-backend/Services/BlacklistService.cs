@@ -11,11 +11,13 @@ namespace VPASS3_backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IUserContextService _userContext;
+        private readonly IAuditLogService _auditLogService;
 
-        public BlacklistService(AppDbContext context, IUserContextService userContext)
+        public BlacklistService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
         {
             _context = context;
             _userContext = userContext;
+            _auditLogService = auditLogService;
         }
 
         public async Task<ResponseDto> CreateAsync(BlacklistDto dto)
@@ -49,6 +51,21 @@ namespace VPASS3_backend.Services
                 _context.Blacklists.Add(entry);
                 await _context.SaveChangesAsync();
 
+                // Registrar en AuditLog
+                var auditLogMessage = $"El visitante {visitor.Names} {visitor.LastNames} " +
+                                  $"(Rut/Pasaporte: {visitor.IdentificationNumber}) fue añadido a la lista negra " +
+                                  $"del establecimiento {establishment.Name}, ID: {dto.IdEstablishment}.";
+
+                await _auditLogService.LogManualAsync(
+                    action: auditLogMessage,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/blacklist/create",
+                    httpMethod: "POST",
+                    statusCode: 201
+                );
+
                 return new ResponseDto(201, entry, "Visitante añadido a la lista negra.");
             }
             catch (Exception ex)
@@ -62,21 +79,17 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                // Validar existencia del visitante
                 var visitor = await _context.Visitors.FindAsync(dto.IdVisitor);
                 if (visitor == null)
                     return new ResponseDto(404, message: "Visitante no encontrado.");
 
-                // Validar existencia del establecimiento
                 var establishment = await _context.Establishments.FindAsync(dto.IdEstablishment);
                 if (establishment == null)
                     return new ResponseDto(404, message: "Establecimiento no encontrado.");
 
-                // Verificar permisos
                 if (!_userContext.CanAccessOwnEstablishment(dto.IdEstablishment))
                     return new ResponseDto(403, message: "No tienes permisos para eliminar en este establecimiento.");
 
-                // Buscar la entrada
                 var blacklistEntry = await _context.Blacklists
                     .FirstOrDefaultAsync(b =>
                         b.IdVisitor == dto.IdVisitor &&
@@ -85,9 +98,23 @@ namespace VPASS3_backend.Services
                 if (blacklistEntry == null)
                     return new ResponseDto(404, message: "Campo de lista negra no encontrada.");
 
-                // Eliminar
                 _context.Blacklists.Remove(blacklistEntry);
                 await _context.SaveChangesAsync();
+
+                // Registrar en AuditLog
+                var message = $"El visitante {visitor.Names} {visitor.LastNames} " +
+                              $"(Rut/Pasaporte: {visitor.IdentificationNumber}) fue eliminado de la lista negra " +
+                              $"del establecimiento {establishment.Name}, ID: {dto.IdEstablishment}.";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/blacklist/deleteByVisitorId",
+                    httpMethod: "POST",
+                    statusCode: 200
+                );
 
                 return new ResponseDto(200, message: "Visitante eliminado de la lista negra.");
             }
@@ -97,6 +124,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error del servidor.");
             }
         }
+
 
         public async Task<ResponseDto> UpdateAsync(int id, BlacklistDto dto)
         {
@@ -213,6 +241,23 @@ namespace VPASS3_backend.Services
 
                 _context.Blacklists.Remove(entry);
                 await _context.SaveChangesAsync();
+
+                var visitor = await _context.Visitors.FindAsync(entry.IdVisitor);
+
+                // Registrar en AuditLog
+                var message = $"El visitante {visitor.Names} {visitor.LastNames} " +
+                              $"(Rut/Pasaporte: {visitor.IdentificationNumber}) fue eliminado de la lista negra " +
+                              $"del establecimiento con ID: {entry.IdEstablishment}";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/blacklist/delete/{id}",
+                    httpMethod: "DELETE",
+                    statusCode: 200
+                );
 
                 return new ResponseDto(200, message: "Entrada eliminada.");
             }

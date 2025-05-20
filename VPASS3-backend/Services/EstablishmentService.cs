@@ -14,10 +14,13 @@ namespace VPASS3_backend.Services
 
         private readonly IUserContextService _userContext;
 
-        public EstablishmentService(AppDbContext context, IUserContextService userContext)
+        private readonly IAuditLogService _auditLogService;
+
+        public EstablishmentService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
         {
             _context = context;
             _userContext = userContext;
+            _auditLogService = auditLogService;
         }
 
         public async Task<ResponseDto> GetAllEstablishmentsAsync()
@@ -55,12 +58,6 @@ namespace VPASS3_backend.Services
                     .Include(e => e.Zones)
                     .Include(e => e.ParkingSpots)
                     .FirstOrDefaultAsync(e => e.Id == id);
-
-                //// Se verifica que el usuario sea Super Admin o que esté consultando a recursos relacionados con su usuario
-                //if (!_userContext.CanAccessOwnResourceById(id))
-                //{
-                //    return new ResponseDto(403, message: "No cuenta con los permisos para ver la información de otros usuarios"));
-                //}
 
                 if (establishment == null)
                     return new ResponseDto(404, message: "Establecimiento no encontrado.");
@@ -106,6 +103,18 @@ namespace VPASS3_backend.Services
                 // Guardar los cambios en la base de datos
                 _context.Establishments.Add(establishment);
                 await _context.SaveChangesAsync();
+
+                var message = $"El establecimiento {establishment.Name} con ID {establishment.Id} fue creado y asignado al usuario {user.Email}.";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/establishment/create",
+                    httpMethod: "POST",
+                    statusCode: 200
+                );
 
                 return new ResponseDto(201, establishment, "Establecimiento creado correctamente.");
             }

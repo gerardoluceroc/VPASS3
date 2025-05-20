@@ -11,11 +11,13 @@ namespace VPASS3_backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IUserContextService _userContext;
+        private readonly IAuditLogService _auditLogService;
 
-        public VisitTypeService(AppDbContext context, IUserContextService userContext)
+        public VisitTypeService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
         {
             _context = context;
             _userContext = userContext;
+            _auditLogService = auditLogService;
         }
 
         public async Task<ResponseDto> GetAllVisitTypesAsync()
@@ -105,6 +107,18 @@ namespace VPASS3_backend.Services
                 _context.VisitTypes.Add(visitType);
                 await _context.SaveChangesAsync();
 
+                var message = $"Se creó el tipo de visita '{visitType.Name}'";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/VisitType/create",
+                    httpMethod: "POST",
+                    statusCode: 201
+                );
+
                 return new ResponseDto(201, visitType, "Tipo de visita creado correctamente.");
             }
             catch (Exception ex)
@@ -188,6 +202,18 @@ namespace VPASS3_backend.Services
                 _context.VisitTypes.Remove(visitType);
                 await _context.SaveChangesAsync();
 
+                var message = $"Se eliminó el tipo de visita '{visitType.Name}'";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/VisitType/delete/{id}",
+                    httpMethod: "DELETE",
+                    statusCode: 200
+                );
+
                 return new ResponseDto(200, message: "Tipo de visita eliminado correctamente.");
             }
             catch (Exception ex)
@@ -196,6 +222,5 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al eliminar el tipo de visita.");
             }
         }
-
     }
 }

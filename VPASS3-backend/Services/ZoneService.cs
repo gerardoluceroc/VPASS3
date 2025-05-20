@@ -11,11 +11,13 @@ namespace VPASS3_backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IUserContextService _userContext;
+        private readonly IAuditLogService _auditLogService;
 
-        public ZoneService(AppDbContext context, IUserContextService userContext)
+        public ZoneService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
         {
             _context = context;
             _userContext = userContext;
+            _auditLogService = auditLogService;
         }
 
         public async Task<ResponseDto> GetAllZonesAsync()
@@ -100,6 +102,18 @@ namespace VPASS3_backend.Services
                 _context.Zones.Add(zone);
                 await _context.SaveChangesAsync();
 
+                var message = $"Se creó la zona '{zone.Name}'";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/Zone/create",
+                    httpMethod: "POST",
+                    statusCode: 200
+                );
+
                 return new ResponseDto(201, zone, message: "Zona creada correctamente.");
             }
             catch (Exception ex)
@@ -159,6 +173,18 @@ namespace VPASS3_backend.Services
 
                 _context.Zones.Remove(zone);
                 await _context.SaveChangesAsync();
+
+                var message = $"Se eliminó la zona '{zone.Name}'";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/Zone/delete/{id}",
+                    httpMethod: "DELETE",
+                    statusCode: 200
+                );
 
                 return new ResponseDto(200, message:"Zona eliminada correctamente.");
             }
