@@ -1,31 +1,56 @@
 import axios from "axios";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 
 // Define una función que configura un interceptor para las solicitudes salientes de Axios
+// export function InterceptorRequest() {
+
+//     // Obtiene el estado del usuario desde Redux utilizando useSelector
+//     const data = useSelector(state => state.user);
+
+//     // Registra un interceptor que se ejecuta antes de que cada solicitud sea enviada
+//     axios.interceptors.request.use(
+//         (config) => {
+//             // Extrae el token del estado del usuario
+//             const token = data.token;
+
+//             // Si el token existe, lo agrega al encabezado Authorization de la solicitud
+//             if (token) {
+//                 config.headers['Authorization'] = `Bearer ${token}`;
+//             }
+
+//             // Retorna la configuración modificada de la solicitud
+//             return config;
+//         },
+//         (error) => {
+//             // En caso de error al preparar la solicitud, rechaza la promesa con el error
+//             return Promise.reject(error);
+//         }
+//     );
+// }
+
 export function InterceptorRequest() {
-
-    // Obtiene el estado del usuario desde Redux utilizando useSelector
-    const data = useSelector(state => state.user);
-
-    // Registra un interceptor que se ejecuta antes de que cada solicitud sea enviada
-    axios.interceptors.request.use(
-        (config) => {
-            // Extrae el token del estado del usuario
-            const token = data.token;
-
-            // Si el token existe, lo agrega al encabezado Authorization de la solicitud
-            if (token) {
-                config.headers['Authorization'] = `Bearer ${token}`;
-            }
-
-            // Retorna la configuración modificada de la solicitud
-            return config;
-        },
-        (error) => {
-            // En caso de error al preparar la solicitud, rechaza la promesa con el error
-            return Promise.reject(error);
+  const data = useSelector(state => state.user);
+  
+  useEffect(() => {
+    console.log("ingresamos a interceptor request");
+    // Crear una instancia del interceptor
+    const interceptor = axios.interceptors.request.use(
+      (config) => {
+        const token = data.token;
+        if (token) {
+          config.headers['Authorization'] = `Bearer ${token}`;
         }
+        return config;
+      },
+      (error) => Promise.reject(error)
     );
+    
+    // Limpiar el interceptor cuando el componente se desmonte o cuando cambie el token
+    return () => {
+      axios.interceptors.request.eject(interceptor);
+    };
+  }, [data.token]); // Dependencia del token
 }
 
 export function InterceptorResponse(){

@@ -59,6 +59,9 @@ const useLogin = () => {
 
   const logoutSession = () => {
 
+    // Limpiar manualmente las cabeceras de axios
+    delete axios.defaults.headers.common['Authorization'];
+
     // Despacha la acción disconnect para limpiar el estado en Redux
     dispatch(disconnect());
 
@@ -80,5 +83,4 @@ const useLogin = () => {
       responseStatus
     };
   };
-  
   export default useLogin;

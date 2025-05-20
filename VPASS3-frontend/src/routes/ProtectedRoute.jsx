@@ -9,8 +9,8 @@ import { RUTA_LOGIN } from "../utils/rutasCliente";
 
 const ProtectedRoute = ({ children }) => {
 
-  InterceptorResponse();
-  InterceptorRequest();
+  // InterceptorResponse();
+  // InterceptorRequest();
   const {logoutSession} = useLogin();
 
   const [showExpiredSessionDialog, setShowExpiredSessionDialog] = useState(false);
