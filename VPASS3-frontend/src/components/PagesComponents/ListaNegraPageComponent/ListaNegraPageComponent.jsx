@@ -20,7 +20,7 @@ const ListaNegraPageComponent = () => {
 
   useEffect(() => {
     getAllListaNegra();
-  }, [])
+  }, []);
 
   // Se invoca la función para consultarle al usuario si está seguro de la acción a realizar
   const { confirm, ConfirmDialogComponent } = useConfirmDialog();
