@@ -20,7 +20,7 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-  import { RUTA_BITACORA_INCIDENCIAS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
+  import { RUTA_BITACORA_INCIDENCIAS, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
 import { IconoLogs } from "../../../icons/iconos";
@@ -46,7 +46,7 @@ import { IconoLogs } from "../../../icons/iconos";
     { 
       nombre: "Descargar registros", 
       icono: <MailIcon />,
-      ruta: RUTA_GESTION_ESTACIONAMIENTO
+      ruta: RUTA_DESCARGAR_REGISTROS
     },
     { 
       nombre: "Enviar reporte rápido", 

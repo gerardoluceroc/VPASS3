@@ -7,7 +7,7 @@ import ConfiguracionImage from "./../../assets/configuracion.png"
 import BlacklistImage from "./../../assets/blacklist.png"
 import UltimosRegistrosImage from "./../../assets/ultimosregistros.png"
 import { useNavigate } from "react-router-dom";
-import { RUTA_LISTA_NEGRA, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../../utils/rutasCliente";
+import { RUTA_DESCARGAR_REGISTROS, RUTA_LISTA_NEGRA, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../../utils/rutasCliente";
 
 const Dashboard = () => {
 
@@ -50,7 +50,7 @@ const Dashboard = () => {
                         <Typography className="TituloItemDashboard">Lista Negra</Typography>
                     </ButtonBase>
 
-                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                    <ButtonBase className="ItemDashboard" onClick={() => handleOpcionClick(RUTA_DESCARGAR_REGISTROS)}>
                         <Box
                         component="img"
                         src={DescargarRegistrosImage}

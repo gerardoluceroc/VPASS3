@@ -18,7 +18,6 @@ const style = {
 };
 
 const ModalVerDetallesRegistros = ({ open, onClose, title, message, visitaSeleccionada }) => {
-    console.log("visitaSeleccionada", visitaSeleccionada);
   return (
     <Modal open={open} onClose={onClose}>
       <Box id="ContainerModalVerDetallesRegistro" sx={style}>
