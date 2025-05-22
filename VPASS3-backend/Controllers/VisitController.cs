@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VPASS3_backend.DTOs;
 using VPASS3_backend.DTOs.Visits;
 using VPASS3_backend.Filters;
 using VPASS3_backend.Interfaces;
@@ -58,6 +59,32 @@ namespace VPASS3_backend.Controllers
         {
             var response = await _visitService.DeleteVisitAsync(id);
             return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Descarga de visitas en Excel")]
+        [HttpPost("export/excel")]
+        public async Task<IActionResult> ExportVisitsToExcel([FromBody] GetVisitByDatesDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ResponseDto(400, message: "Datos inválidos. Verifica las fechas ingresadas."));
+            }
+
+            var response = await _visitService.ExportVisitsToExcelAsync(dto);
+
+            if (response.StatusCode != 200 || response.Data == null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+
+            // Extraer los datos del archivo del response
+            var fileData = (dynamic)response.Data;
+            byte[] fileContents = fileData.FileContent;
+            string contentType = fileData.ContentType;
+            string fileName = fileData.FileName;
+
+            return File(fileContents, contentType, fileName);
         }
     }
 }

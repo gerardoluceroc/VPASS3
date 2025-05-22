@@ -10,5 +10,7 @@ namespace VPASS3_backend.Interfaces
         Task<ResponseDto> CreateVisitAsync(VisitDto visitDto);
         Task<ResponseDto> UpdateVisitAsync(int id, VisitDto visitDto);
         Task<ResponseDto> DeleteVisitAsync(int id);
+
+        Task<ResponseDto> ExportVisitsToExcelAsync(GetVisitByDatesDto dto);
     }
 }
