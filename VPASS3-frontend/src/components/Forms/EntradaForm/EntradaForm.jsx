@@ -79,10 +79,6 @@ const EntradaForm = () => {
                     idEstacionamiento: values.idEstacionamiento,
                 });
 
-                // console.log("statusCodeCrearVisita", statusCodeCrearVisita);
-                // console.log("dataVisitaCreada", dataVisitaCreada);
-                // console.log("messageCrearVisita", messageCrearVisita);
-
                 // Si el servidor responde con el Response dto que tiene configurado
                 if(statusCodeCrearVisita != null && statusCodeCrearVisita != undefined){
                     if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 && (statusCodeCrearVisita != null && statusCodeCrearVisita != undefined)) {
