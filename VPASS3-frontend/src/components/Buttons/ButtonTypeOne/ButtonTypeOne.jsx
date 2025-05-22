@@ -19,75 +19,86 @@ const ButtonTypeOne = ({
     letterSpacing = "0.15px", // Espaciado entre letras
     textTransform = "none", // Transformación del texto (uppercase, lowercase, capitalize, none)
     loading = false, // Estado de carga del botón
-    loadingPosition = "end", // Posición del icono de carga (start, end, center)
+    loadingPosition = "center", // Posición del icono de carga (start, end, center)
+    width = "100%",
     // height = "45px", // Altura del botón
 }) => {
+   // 🔧 Calcula altura mínima basada en el fontSize
+  const computeMinHeight = (fontSize) => {
+    const size = parseInt(fontSize.replace('px', ''), 10);
+    return `${size * 3}px`; // puedes ajustar el multiplicador según estilo deseado
+  };
+
+  const minHeight = computeMinHeight(fontSize);
+
+  //  Estilo común para loading text e ícono
+  const loadingContentStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize,
+    fontStyle,
+    fontWeight,
+    lineHeight,
+    letterSpacing,
+    textTransform,
+    color: loadingTextColor,
+    gap: "10px"
+  };
+
+  //  loadingIndicator según posición
+  const loadingIndicator = (
+    <div style={loadingContentStyle}>
+      {(loadingPosition === 'start' || loadingPosition === 'center') && (
+        <CircularProgress
+          size={loadinIconSize}
+          thickness={5}
+          sx={{ color: loadingIconColor, marginRight: loadingPosition === 'start' ? '8px' : '0' }}
+        />
+      )}
+      <span>{loadingText}</span>
+      {loadingPosition === 'end' && (
+        <CircularProgress
+          size={loadinIconSize}
+          thickness={5}
+          sx={{ color: loadingIconColor, marginLeft: '8px' }}
+        />
+      )}
+    </div>
+  );
+
   return (
     <Button
-        fullWidth
-        onClick={handleClick}
-        loading={loading}
-        loadingPosition={loadingPosition}
-        sx={{
-            borderRadius: '100px',
-            boxShadow: '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-            // height: height,
-            color: defaultTextColor,
-            background: backgroundColor,
-            textAlign: 'center',
-            fontSize: fontSize,
-            fontStyle: fontStyle,
-            fontWeight: fontWeight,
-            lineHeight: lineHeight,
-            letterSpacing: letterSpacing,
-            textTransform: textTransform,
-            '&:hover': {  // Aquí se define el estilo del hover
-                background: backgroundColorHover,
-                color: letterColorHover,
-                boxShadow: '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
-            },
-        }}
-        loadingIndicator={
-
-            loadingPosition === "end" ?
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <span style={{ color: loadingTextColor /* tu color personalizado */ }}>
-                        {loadingText}
-                    </span>
-                    <CircularProgress
-                        size={loadinIconSize}
-                        thickness={5}
-                        sx={{ color: loadingIconColor }}
-                    />
-                </div>
-            :
-
-            loadingPosition === "start" ?
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <CircularProgress
-                        size={loadinIconSize}
-                        thickness={5}
-                        sx={{ color: loadingIconColor }}
-                    />
-                    <span style={{ color: loadingTextColor /* tu color personalizado */ }}>
-                        {loadingText}
-                    </span>
-                </div>
-
-            :
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                    <CircularProgress
-                        size={loadinIconSize}
-                        thickness={5}
-                        sx={{ color: loadingIconColor }}
-                    />
-                </div>
-        }
+      onClick={handleClick}
+      loading={loading}
+      loadingPosition={loadingPosition}
+      sx={{
+        width,
+        minHeight,
+        borderRadius: '100px',
+        boxShadow:
+          '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+        color: defaultTextColor,
+        background: backgroundColor,
+        textAlign: 'center',
+        fontSize,
+        fontStyle,
+        fontWeight,
+        lineHeight,
+        letterSpacing,
+        textTransform,
+        '&:hover': {
+          background: backgroundColorHover,
+          color: letterColorHover,
+          boxShadow:
+            '0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30)',
+        },
+      }}
+      loadingIndicator={loadingIndicator}
     >
-        {!loading && defaultText}
+      {!loading && defaultText}
     </Button>
-  )
-}
+  );
+};
 
 export default ButtonTypeOne;
