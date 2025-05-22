@@ -30,6 +30,21 @@ export const obtenerClaimsToken = (token) => {
   }
 }
 
+/**
+ * Compara si la primera fecha es menor o igual a la segunda.
+ * @param {string} fecha1 - Fecha en formato 'YYYY-MM-DD'
+ * @param {string} fecha2 - Fecha en formato 'YYYY-MM-DD'
+ * @returns {boolean} true si fecha1 <= fecha2, false si fecha1 > fecha2
+ */
+export function esFechaMenorOIgual(fecha1, fecha2) {
+    const d1 = dayjs(fecha1);
+    const d2 = dayjs(fecha2);
+
+    if (!d1.isValid() || !d2.isValid()) return false; // Manejo opcional
+
+    return d1.isBefore(d2) || d1.isSame(d2);
+}
+
 
 
 
