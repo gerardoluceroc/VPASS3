@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useVisitante from "../useVisitante/useVisitante";
 import axios from "axios";
-import { path_createVisita, path_getAllVisitas } from "../../services/API/API-VPASS3";
+import { path_createVisita, path_getAllVisitas, path_getReportePorRangoDeFechas } from "../../services/API/API-VPASS3";
 
 const useVisita = () => {
 
@@ -104,6 +104,83 @@ const useVisita = () => {
           setLoading(false);
       }
     };
+
+    const getVisitasPorRangoDeFechas = async (fechaInicio, fechaFinal) => {
+    setLoading(true);
+    try {
+        // Crear objeto con las fechas
+        const dto = {
+            StartDate: fechaInicio,
+            EndDate: fechaFinal
+        };
+
+        // Hacer la petición para exportar a Excel
+        const response = await axios.post(path_getReportePorRangoDeFechas,
+            dto,
+            {
+                responseType: 'blob' // Para manejar la respuesta como archivo
+            }
+        );
+
+        // Crear URL del blob
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        
+        // Extraer nombre del archivo del backend
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'visitas.xlsx';
+        
+        if (contentDisposition) {
+            const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+            if (fileNameMatch && fileNameMatch[1]) {
+                fileName = fileNameMatch[1];
+            }
+        }
+
+        // Crear enlace y descargar
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        
+        // Limpiar
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        setResponse({ success: true });
+        setResponseStatus(response.status);
+        
+        return { success: true, fileName };
+    } catch (error) {
+        let errorData;
+        let status;
+        
+        if (error.response) {
+            // Manejar error como blob si es necesario
+            if (error.response.data instanceof Blob) {
+                errorData = await error.response.data.text();
+                try {
+                    errorData = JSON.parse(errorData);
+                } catch {
+                    errorData = { message: errorData };
+                }
+            } else {
+                errorData = error.response.data;
+            }
+            status = error.response.status;
+        } else {
+            errorData = error.message || 'Error desconocido';
+            status = null;
+        }
+
+        setResponse(errorData);
+        setResponseStatus(status);
+        return { success: false, error: errorData };
+    } finally {
+        setLoading(false);
+    }
+};
+
      
     return {
         loading,
@@ -111,7 +188,8 @@ const useVisita = () => {
         responseStatus,
         visitas,
         crearVisita,
-        getAllVisitas
+        getAllVisitas,
+        getVisitasPorRangoDeFechas
     };
 };
 export default useVisita;

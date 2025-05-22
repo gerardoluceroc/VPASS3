@@ -24,6 +24,7 @@ export const path_deleteListaNegraPorIdPersona = `${URL_SERVER}/Blacklist/delete
 export const path_getAllVisitas = `${URL_SERVER}/Visit/all`
 export const path_getVisitaById = `${URL_SERVER}/Visit/` // + id
 export const path_createVisita = `${URL_SERVER}/Visit/create`
+export const path_getReportePorRangoDeFechas = `${URL_SERVER}/Visit/export/excel`
 
 /* Visitante */
 export const path_getAllVisitantes = `${URL_SERVER}/Visitor/all`
