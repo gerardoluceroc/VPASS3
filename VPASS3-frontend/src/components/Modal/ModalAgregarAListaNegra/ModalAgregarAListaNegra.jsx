@@ -56,9 +56,6 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
                     motivo: values.motivo,
                     idEstablecimiento: idEstablishment
                 });
-
-                console.log("status de la wea: ", statusCodeAgregarAListaNegra);
-                console.log("data de la wea: ", dataVisitanteAgregadoAListaNegra);
     
                 // Si el servidor responde con el Response dto que tiene configurado
                 if(statusCodeAgregarAListaNegra != null && statusCodeAgregarAListaNegra != undefined){
