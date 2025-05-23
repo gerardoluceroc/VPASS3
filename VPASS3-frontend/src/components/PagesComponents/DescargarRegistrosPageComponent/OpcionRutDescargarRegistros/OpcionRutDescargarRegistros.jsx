@@ -4,15 +4,46 @@ import TextFieldUno from "../../../TextField/TextFieldUno/TextFieldUno"
 import ButtonTypeOne from "../../../Buttons/ButtonTypeOne/ButtonTypeOne"
 import { useFormik } from "formik"
 import { ValidationOpcionRutDescargarRegistros } from "./ValidationOpcionRutDescargarRegistros"
+import useVisita from "../../../../hooks/useVisita/useVisita"
+import ModalLoadingMasRespuesta from "../../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta"
+import { useState } from "react"
 
 const OpcionRutDescargarRegistros = ({width = "100%"}) => {
+
+    const { loading, getReporteVisitasPorRut } = useVisita();
+
+    // Estados y funciones para manejar el componente ModalLoadingMasRespuesta
+    const [openLoadingRespuesta, setOpenLoadingRespuesta] = useState(false);
+    const [messageLoadingRespuesta, setMessageLoadingRespuesta] = useState('');
+    const [operacionExitosa, setOperacionExitosa] = useState(false);
+    const accionPostCierreLoadingRespuesta = () => {
+        setOpenLoadingRespuesta(false);
+        setMessageLoadingRespuesta('');
+    }
+
     const formik = useFormik({
         initialValues: {
             numeroIdentificacion: ""
         },
         validationSchema: ValidationOpcionRutDescargarRegistros,
         onSubmit: async (values) => {
-            console.log("Submit de opción rut descargar registros");
+            setOpenLoadingRespuesta(true);
+            try {
+                // Las fechas ya vienen en formato YYYY-MM-DD desde los inputs
+                const result = await getReporteVisitasPorRut(values.numeroIdentificacion);
+                
+                if (result.success) {
+                    setOperacionExitosa(true);
+                    setMessageLoadingRespuesta("Reporte descargado con éxito")
+                }
+                else{
+                    setOperacionExitosa(false);
+                    setMessageLoadingRespuesta("Error al descargar el reporte");
+                }
+            } catch (error) {
+                setOperacionExitosa(false);
+                setMessageLoadingRespuesta("Error al descargar el reporte");
+            }
         }
     });
   return (
@@ -32,6 +63,17 @@ const OpcionRutDescargarRegistros = ({width = "100%"}) => {
                 defaultText="Descargar reporte"
                 width="60%"
                 handleClick={formik.handleSubmit}
+                loading={loading}
+                loadingText="Descargando reporte..."
+            />
+
+            <ModalLoadingMasRespuesta
+                open={openLoadingRespuesta}
+                loading={loading}
+                message={messageLoadingRespuesta}
+                loadingMessage="Descargando reporte..."
+                successfulProcess={operacionExitosa}
+                accionPostCierre={accionPostCierreLoadingRespuesta}
             />
     </Box>
   )
