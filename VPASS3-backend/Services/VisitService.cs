@@ -497,13 +497,119 @@ namespace VPASS3_backend.Services
         }
 
 
+        public async Task<ResponseDto> ExportVisitsToExcelByIdentificationNumberAsync(ExportVisitsExcelByIdentificationNumberDto dto)
+        {
+            try
+            {
+                // Validar que el visitante exista
+                var visitor = await _context.Visitors
+                    .FirstOrDefaultAsync(v => v.IdentificationNumber == dto.IdentificationNumber);
 
+                if (visitor == null)
+                {
+                    return new ResponseDto(404, message: "Visitante no encontrado.");
+                }
 
+                // Obtener visitas según permisos
+                var visitsQuery = _context.Visits
+                    .Include(v => v.Visitor)
+                    .Include(v => v.Zone)
+                    .Include(v => v.ZoneSection)
+                    .Include(v => v.VisitType)
+                    .Include(v => v.Direction)
+                    .Include(v => v.ParkingSpot)
+                    .Include(v => v.Establishment)
+                    .Where(v => v.VisitorId == visitor.Id);
 
+                // Filtrar por establecimiento si no es SUPERADMIN
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
 
+                    visitsQuery = visitsQuery.Where(v => v.EstablishmentId == _userContext.EstablishmentId.Value);
+                }
 
+                // Ordenar por fecha (más reciente primero)
+                var visits = await visitsQuery
+                    .OrderByDescending(v => v.EntryDate)
+                    .ToListAsync();
 
+                if (!visits.Any())
+                {
+                    return new ResponseDto(404, message: "No se encontraron visitas para este visitante.");
+                }
 
+                // Crear el archivo Excel
+                using (var workbook = new XLWorkbook())
+                {
+                    var worksheet = workbook.Worksheets.Add("Visitas");
 
+                    // Encabezados
+                    worksheet.Cell(1, 1).Value = "ID Visita";
+                    worksheet.Cell(1, 2).Value = "Fecha y Hora";
+                    worksheet.Cell(1, 3).Value = "Visitante";
+                    worksheet.Cell(1, 4).Value = "Tipo de Visita";
+                    worksheet.Cell(1, 5).Value = "Establecimiento";
+                    worksheet.Cell(1, 6).Value = "Destino";
+                    worksheet.Cell(1, 7).Value = "Dirección";
+                    worksheet.Cell(1, 8).Value = "Vehículo";
+                    worksheet.Cell(1, 9).Value = "Patente";
+                    worksheet.Cell(1, 10).Value = "Estacionamiento";
+
+                    // Estilo para los encabezados
+                    var headerRange = worksheet.Range(1, 1, 1, 10);
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
+                    headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+                    // Datos
+                    int row = 2;
+                    foreach (var visit in visits)
+                    {
+                        worksheet.Cell(row, 1).Value = visit.Id;
+                        worksheet.Cell(row, 2).Value = visit.EntryDate;
+                        worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
+                        worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
+                        worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
+                        worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
+                        worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
+                        worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
+                        worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
+                        worksheet.Cell(row, 10).Value = visit.ParkingSpot?.Name ?? "N/A";
+
+                        // Formato de fecha
+                        worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
+
+                        row++;
+                    }
+
+                    // Autoajustar columnas
+                    worksheet.Columns().AdjustToContents();
+
+                    // Guardar en memoria
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+
+                        // Obtener nombre del archivo
+                        var fileName = $"Visitas_{visitor.Names}_{visitor.LastNames}_{visitor.IdentificationNumber}.xlsx";
+
+                        return new ResponseDto(200, new
+                        {
+                            FileContent = content,
+                            ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            FileName = fileName
+                        }, "Reporte generado correctamente.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en ExportVisitsToExcelByIdentificationNumberAsync: {ex.Message}");
+                return new ResponseDto(500, message: "Error al generar el reporte de visitas.");
+            }
+        }
     }
 }

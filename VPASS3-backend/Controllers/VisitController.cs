@@ -86,5 +86,31 @@ namespace VPASS3_backend.Controllers
 
             return File(fileContents, contentType, fileName);
         }
+
+        [Authorize(Policy = "ManageOwnProfile")]
+        [Audit("Descarga de visitas por RUT en Excel")]
+        [HttpPost("export/excel/byRut")]
+        public async Task<IActionResult> ExportVisitsToExcelByIdentificationNumber([FromBody] ExportVisitsExcelByIdentificationNumberDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ResponseDto(400, message: "Datos inválidos. Verifica el RUT ingresado."));
+            }
+
+            var response = await _visitService.ExportVisitsToExcelByIdentificationNumberAsync(dto);
+
+            if (response.StatusCode != 200 || response.Data == null)
+            {
+                return StatusCode(response.StatusCode, response);
+            }
+
+            // Extraer los datos del archivo del response
+            var fileData = (dynamic)response.Data;
+            byte[] fileContents = fileData.FileContent;
+            string contentType = fileData.ContentType;
+            string fileName = fileData.FileName;
+
+            return File(fileContents, contentType, fileName);
+        }
     }
 }
