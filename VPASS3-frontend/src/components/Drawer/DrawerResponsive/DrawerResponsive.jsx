@@ -14,8 +14,6 @@ import {
     ButtonBase,
   } from "@mui/material";
   import MenuIcon from "@mui/icons-material/Menu";
-  import InboxIcon from "@mui/icons-material/MoveToInbox";
-  import MailIcon from "@mui/icons-material/Mail";
   import { useState } from "react";
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
@@ -23,7 +21,10 @@ import {
   import { RUTA_BITACORA_INCIDENCIAS, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
-import { IconoLogs } from "../../../icons/iconos";
+  import { IconoLogs } from "../../../icons/iconos";
+  import SimCardDownloadIcon from '@mui/icons-material/SimCardDownload';
+  import InboxIcon from "@mui/icons-material/MoveToInbox";
+  import MailIcon from "@mui/icons-material/Mail";
     
   const drawerWidth = 280;
   
@@ -45,13 +46,8 @@ import { IconoLogs } from "../../../icons/iconos";
     },
     { 
       nombre: "Descargar registros", 
-      icono: <MailIcon />,
+      icono: <SimCardDownloadIcon sx={{color: "white"}} />,
       ruta: RUTA_DESCARGAR_REGISTROS
-    },
-    { 
-      nombre: "Enviar reporte rápido", 
-      icono: <InboxIcon />,
-      ruta: RUTA_GESTION_ESTACIONAMIENTO
     },
   ];
   
@@ -106,6 +102,10 @@ import { IconoLogs } from "../../../icons/iconos";
           ))}
         </List>
         <Divider className="DividerDrawerResponsive" />
+        {/* <Box sx={{backgroundColor: "red", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}>
+          <button>Click aca</button>
+          <button>Click aca</button>
+        </Box> */}
         <List>
           {["All mail", "Trash", "Spam"].map((text, index) => (
             <ListItem key={text} disablePadding>
