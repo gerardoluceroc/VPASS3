@@ -14,11 +14,13 @@ namespace VPASS3_backend.Services
     {
         private readonly AppDbContext _context;
         private readonly IUserContextService _userContext;
+        private readonly IAuditLogService _auditLogService;
 
-        public VisitService(AppDbContext context, IUserContextService userContext)
+        public VisitService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
         {
             _context = context;
             _userContext = userContext;
+            _auditLogService = auditLogService;
         }
 
 
@@ -239,9 +241,6 @@ namespace VPASS3_backend.Services
             }
         }
 
-
-
-
         public async Task<ResponseDto> UpdateVisitAsync(int id, VisitDto dto)
         {
             try
@@ -404,6 +403,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.ParkingSpot)
+                    .Include(v => v.Establishment)
                     .Where(v => v.EntryDate >= startDate && v.EntryDate <= endDate);
 
                 // Filtrar por establecimiento si no es SUPERADMIN
@@ -420,11 +420,6 @@ namespace VPASS3_backend.Services
                     .OrderByDescending(v => v.EntryDate)
                     .ToListAsync();
 
-                if (!visits.Any())
-                {
-                    return new ResponseDto(404, message: "No se encontraron visitas en el rango de fechas especificado.");
-                }
-
                 // Crear el archivo Excel
                 using (var workbook = new XLWorkbook())
                 {
@@ -435,36 +430,46 @@ namespace VPASS3_backend.Services
                     worksheet.Cell(1, 2).Value = "Fecha y Hora";
                     worksheet.Cell(1, 3).Value = "Visitante";
                     worksheet.Cell(1, 4).Value = "Tipo de Visita";
-                    worksheet.Cell(1, 5).Value = "Destino";
-                    worksheet.Cell(1, 6).Value = "Dirección";
-                    worksheet.Cell(1, 7).Value = "Vehículo";
-                    worksheet.Cell(1, 8).Value = "Patente";
-                    worksheet.Cell(1, 9).Value = "Estacionamiento";
+                    worksheet.Cell(1, 5).Value = "Establecimiento";
+                    worksheet.Cell(1, 6).Value = "Destino";
+                    worksheet.Cell(1, 7).Value = "Dirección";
+                    worksheet.Cell(1, 8).Value = "Vehículo";
+                    worksheet.Cell(1, 9).Value = "Patente";
+                    worksheet.Cell(1, 10).Value = "Estacionamiento";
 
                     // Estilo para los encabezados
-                    var headerRange = worksheet.Range(1, 1, 1, 9);
+                    var headerRange = worksheet.Range(1, 1, 1, 10);
                     headerRange.Style.Font.Bold = true;
                     headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                     headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Datos
-                    int row = 2;
-                    foreach (var visit in visits)
+                    // Datos (solo si hay visitas)
+                    if (visits.Any())
                     {
-                        worksheet.Cell(row, 1).Value = visit.Id;
-                        worksheet.Cell(row, 2).Value = visit.EntryDate;
-                        worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
-                        worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
-                        worksheet.Cell(row, 5).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
-                        worksheet.Cell(row, 6).Value = visit.Direction?.VisitDirection;
-                        worksheet.Cell(row, 7).Value = visit.VehicleIncluded ? "Sí" : "No";
-                        worksheet.Cell(row, 8).Value = visit.LicensePlate ?? "N/A";
-                        worksheet.Cell(row, 9).Value = visit.ParkingSpot?.Name ?? "N/A";
+                        int row = 2;
+                        foreach (var visit in visits)
+                        {
+                            worksheet.Cell(row, 1).Value = visit.Id;
+                            worksheet.Cell(row, 2).Value = visit.EntryDate;
+                            worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
+                            worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
+                            worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
+                            worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
+                            worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
+                            worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
+                            worksheet.Cell(row, 10).Value = visit.ParkingSpot?.Name ?? "N/A";
 
-                        // Formato de fecha
-                        worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
-
-                        row++;
+                            // Formato de fecha
+                            worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
+                            row++;
+                        }
+                    }
+                    else
+                    {
+                        // Mensaje cuando no hay datos
+                        worksheet.Cell(2, 1).Value = "No se encontraron visitas en el rango especificado";
+                        worksheet.Range(2, 1, 2, 10).Merge();
                     }
 
                     // Autoajustar columnas
@@ -477,15 +482,48 @@ namespace VPASS3_backend.Services
                         var content = stream.ToArray();
 
                         // Obtener nombre del archivo
-                        var establishmentName = visits.First().Establishment?.Name ?? "Establecimiento";
+                        string establishmentName;
+                        if (_userContext.UserRole == "SUPERADMIN")
+                        {
+                            establishmentName = "Todos_los_Establecimientos";
+                        }
+                        else if (visits.Any())
+                        {
+                            establishmentName = visits.First().Establishment?.Name ?? "Indeterminado";
+                        }
+                        else
+                        {
+                            // Si no hay visitas, obtenemos el nombre del establecimiento del usuario
+                            var establishment = await _context.Establishments
+                                .FirstOrDefaultAsync(e => e.Id == _userContext.EstablishmentId);
+                            establishmentName = establishment?.Name ?? "Indeterminado";
+                        }
+
                         var fileName = $"Visitas_{establishmentName}_{dto.StartDate:yyyyMMdd}_al_{dto.EndDate:yyyyMMdd}.xlsx";
+
+                        // Registro de auditoría
+                        var message = _userContext.UserRole == "SUPERADMIN"
+                            ? $"Se ha descargado el reporte de visitas de todos los establecimientos entre las fechas {dto.StartDate:dd/MM/yyyy} y {dto.EndDate:dd/MM/yyyy}"
+                            : $"Se ha descargado el reporte de visitas del establecimiento {establishmentName} entre las fechas {dto.StartDate:dd/MM/yyyy} y {dto.EndDate:dd/MM/yyyy}";
+
+                        await _auditLogService.LogManualAsync(
+                            action: message,
+                            email: _userContext.UserEmail,
+                            role: _userContext.UserRole,
+                            userId: _userContext.UserId ?? 0,
+                            endpoint: "/Visit/export/excel/byDates",
+                            httpMethod: "POST",
+                            statusCode: 200
+                        );
 
                         return new ResponseDto(200, new
                         {
                             FileContent = content,
                             ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             FileName = fileName
-                        }, "Reporte generado correctamente.");
+                        }, visits.Any()
+                            ? "Reporte generado correctamente."
+                            : "Reporte generado sin datos para el rango especificado.");
                     }
                 }
             }
@@ -495,7 +533,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error al generar el reporte de visitas.");
             }
         }
-
 
         public async Task<ResponseDto> ExportVisitsToExcelByIdentificationNumberAsync(ExportVisitsExcelByIdentificationNumberDto dto)
         {
@@ -535,11 +572,6 @@ namespace VPASS3_backend.Services
                     .OrderByDescending(v => v.EntryDate)
                     .ToListAsync();
 
-                if (!visits.Any())
-                {
-                    return new ResponseDto(404, message: "No se encontraron visitas para este visitante.");
-                }
-
                 // Crear el archivo Excel
                 using (var workbook = new XLWorkbook())
                 {
@@ -563,25 +595,33 @@ namespace VPASS3_backend.Services
                     headerRange.Style.Fill.BackgroundColor = XLColor.LightGray;
                     headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
 
-                    // Datos
-                    int row = 2;
-                    foreach (var visit in visits)
+                    // Datos (solo si hay visitas)
+                    if (visits.Any())
                     {
-                        worksheet.Cell(row, 1).Value = visit.Id;
-                        worksheet.Cell(row, 2).Value = visit.EntryDate;
-                        worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
-                        worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
-                        worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
-                        worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
-                        worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
-                        worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
-                        worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
-                        worksheet.Cell(row, 10).Value = visit.ParkingSpot?.Name ?? "N/A";
+                        int row = 2;
+                        foreach (var visit in visits)
+                        {
+                            worksheet.Cell(row, 1).Value = visit.Id;
+                            worksheet.Cell(row, 2).Value = visit.EntryDate;
+                            worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
+                            worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
+                            worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
+                            worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
+                            worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
+                            worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
+                            worksheet.Cell(row, 10).Value = visit.ParkingSpot?.Name ?? "N/A";
 
-                        // Formato de fecha
-                        worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
-
-                        row++;
+                            // Formato de fecha
+                            worksheet.Cell(row, 2).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
+                            row++;
+                        }
+                    }
+                    else
+                    {
+                        // Mensaje cuando no hay datos
+                        worksheet.Cell(2, 1).Value = $"No se encontraron visitas para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})";
+                        worksheet.Range(2, 1, 2, 10).Merge();
                     }
 
                     // Autoajustar columnas
@@ -594,14 +634,49 @@ namespace VPASS3_backend.Services
                         var content = stream.ToArray();
 
                         // Obtener nombre del archivo
+                        string establishmentName;
+                        if (_userContext.UserRole == "SUPERADMIN")
+                        {
+                            establishmentName = "Todos_los_Establecimientos";
+                        }
+                        else if (visits.Any())
+                        {
+                            establishmentName = visits.First().Establishment?.Name ?? "Indeterminado";
+                        }
+                        else
+                        {
+                            // Si no hay visitas, obtenemos el nombre del establecimiento del usuario
+                            var establishment = await _context.Establishments
+                                .FirstOrDefaultAsync(e => e.Id == _userContext.EstablishmentId);
+                            establishmentName = establishment?.Name ?? "Indeterminado";
+                        }
+
+                        // Obtener nombre del archivo
                         var fileName = $"Visitas_{visitor.Names}_{visitor.LastNames}_{visitor.IdentificationNumber}.xlsx";
+
+                        // Mensaje para el log de auditoría
+                        var message = _userContext.UserRole == "SUPERADMIN"
+                            ? $"Se ha descargado el reporte de visitas de {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber}) en todos los establecimientos"
+                            : $"Se ha descargado el reporte de visitas de {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber}) en el establecimiento {establishmentName}";
+
+                        await _auditLogService.LogManualAsync(
+                            action: message,
+                            email: _userContext.UserEmail,
+                            role: _userContext.UserRole,
+                            userId: _userContext.UserId ?? 0,
+                            endpoint: "/Visit/export/excel/byRut",
+                            httpMethod: "POST",
+                            statusCode: 200
+                        );
 
                         return new ResponseDto(200, new
                         {
                             FileContent = content,
                             ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             FileName = fileName
-                        }, "Reporte generado correctamente.");
+                        }, visits.Any()
+                            ? $"Reporte de visitas generado para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})"
+                            : $"Reporte generado sin visitas para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})");
                     }
                 }
             }

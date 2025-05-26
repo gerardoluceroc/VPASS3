@@ -62,8 +62,7 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
-        [Audit("Descarga de visitas en Excel")]
-        [HttpPost("export/excel")]
+        [HttpPost("export/excel/byDates")]
         public async Task<IActionResult> ExportVisitsToExcel([FromBody] GetVisitByDatesDto dto)
         {
             if (!ModelState.IsValid)
@@ -88,7 +87,6 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
-        [Audit("Descarga de visitas por RUT en Excel")]
         [HttpPost("export/excel/byRut")]
         public async Task<IActionResult> ExportVisitsToExcelByIdentificationNumber([FromBody] ExportVisitsExcelByIdentificationNumberDto dto)
         {
