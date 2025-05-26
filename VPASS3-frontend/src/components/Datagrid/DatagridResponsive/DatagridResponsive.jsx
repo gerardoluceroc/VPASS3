@@ -3,6 +3,7 @@
 // Source 2: https://codesandbox.io/p/sandbox/muidatatables-custom-toolbar-forked-j002q?file=%2Findex.js
 import MUIDataTable from "mui-datatables";
 import {
+  Box,
   ThemeProvider,
   createTheme,
 } from "@mui/material";
@@ -173,11 +174,14 @@ const DatagridResponsive = ({
   data, 
   columns, 
   selectableRows = "none",
-  downloadCsvButton = true,
+  downloadCsvButton = false,
+  searchButton = true,
+  viewColumnsButton = true,
+  width = "100%",
 }) => {  
 
   const options = {
-    search: true,
+    search: searchButton, // true o false para mostrar el botón de búsqueda
     download: downloadCsvButton,
     onDownload: (buildHead, buildBody, columns, data) => {
         // console.log("Botón de descarga presionado");
@@ -191,7 +195,7 @@ const DatagridResponsive = ({
         return false;
     },
     print: false,
-    viewColumns: true,
+    viewColumns: viewColumnsButton, // true o false para mostrar el botón de ver columnas
     filter: false,
     filterType: "dropdown",
     responsive: "simple", //"vertical", "standard", "simple", "scroll", "scrollMaxHeight", "stacked",
@@ -230,16 +234,18 @@ const DatagridResponsive = ({
   };
 
   return (
-    <CacheProvider value={muiCache}>
-      <ThemeProvider theme={tableTheme}>
-        <MUIDataTable 
-          title={title} 
-          data={data} 
-          columns={columns} 
-          options={options} 
-        />
-      </ThemeProvider>
-    </CacheProvider>
+    <Box sx={{width}}>
+      <CacheProvider value={muiCache}>
+        <ThemeProvider theme={tableTheme}>
+          <MUIDataTable 
+            title={title} 
+            data={data} 
+            columns={columns} 
+            options={options} 
+          />
+        </ThemeProvider>
+      </CacheProvider>
+    </Box>
   );
 };
 
