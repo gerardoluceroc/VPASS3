@@ -6,3 +6,4 @@ export const RUTA_GESTION_ESTACIONAMIENTO = "/estacionamientos";
 export const RUTA_BITACORA_INCIDENCIAS = "/incidencias";
 export const RUTA_LISTA_NEGRA = "/listaNegra";
 export const RUTA_DESCARGAR_REGISTROS = "/descargarRegistros"
+export const RUTA_GESTION_ZONAS = "/zonas";

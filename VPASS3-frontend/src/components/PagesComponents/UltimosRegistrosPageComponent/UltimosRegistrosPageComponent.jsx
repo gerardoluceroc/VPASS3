@@ -68,7 +68,7 @@ const UltimosRegistrosPageComponent = () => {
     <Box id="ContainerUltimosRegistrosPageComponent">
       <Fade in={!(!Array.isArray(rows))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
           <div>
-              <DatagridResponsive title="Últimos Registros" columns={columns} data={data} selectableRows="none" />
+              <DatagridResponsive title="Últimos Registros" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} />
               <ModalVerDetallesRegistros
                 open={openModalDetallesVerRegistro}
                 onClose={handleCloseModalDetallesVerRegistro}

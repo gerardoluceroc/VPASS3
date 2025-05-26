@@ -18,13 +18,14 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-  import { RUTA_BITACORA_INCIDENCIAS, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_HOME } from "../../../utils/rutasCliente";
+  import { RUTA_BITACORA_INCIDENCIAS, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
   import { IconoLogs } from "../../../icons/iconos";
   import SimCardDownloadIcon from '@mui/icons-material/SimCardDownload';
   import InboxIcon from "@mui/icons-material/MoveToInbox";
   import MailIcon from "@mui/icons-material/Mail";
+  import LocationCityIcon from '@mui/icons-material/LocationCity';
     
   const drawerWidth = 280;
   
@@ -45,9 +46,9 @@ import {
       ruta: RUTA_BITACORA_INCIDENCIAS
     },
     { 
-      nombre: "Descargar registros", 
-      icono: <SimCardDownloadIcon sx={{color: "white"}} />,
-      ruta: RUTA_DESCARGAR_REGISTROS
+      nombre: "Gestion de zonas", 
+      icono: <LocationCityIcon sx={{color: "white"}} />,
+      ruta: RUTA_GESTION_ZONAS
     },
   ];
   

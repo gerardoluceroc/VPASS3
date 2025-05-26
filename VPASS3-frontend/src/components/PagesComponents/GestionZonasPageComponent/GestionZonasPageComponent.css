@@ -1,0 +1,42 @@
+#ContainerGestionZonasPageComponent{
+    background-color:#213d4f;
+    height: 100%;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#BotonCrearNuevaZona{
+    width: 35%;
+}
+
+#AccordionSubZonas{
+    width: 100%;
+}
+
+#BoxDatagridResponsiveZonas{
+    width: 100%;
+}
+
+@media (max-width: 888px){
+    #BotonCrearNuevaZona{
+        width: 50%;
+    }
+}
+
+@media (max-width: 660px){
+    #BotonCrearNuevaZona{
+        width: 80%;
+    }
+}
+
+@media (max-width: 403px){
+    #BoxDatagridResponsiveZonas{
+        width: 90%;
+    }
+
+    #AccordionSubZonas{
+        width: 80%;
+    }
+}
