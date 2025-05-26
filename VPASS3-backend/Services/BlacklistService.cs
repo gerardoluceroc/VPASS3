@@ -40,7 +40,7 @@ namespace VPASS3_backend.Services
 
                 if (exists)
                     return new ResponseDto(409, message: "El visitante ya se encuentra en la lista negra de este establecimiento.");
-
+                 
                 var entry = new Blacklist
                 {
                     IdVisitor = dto.IdVisitor,
