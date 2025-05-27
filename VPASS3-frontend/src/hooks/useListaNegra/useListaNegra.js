@@ -33,9 +33,6 @@ const useListaNegra = () => {
         }
     }
 
-
-
-
     const actualizarListaNegra = async (id, listaNegra) => {
         setLoading(true);
         try {
@@ -55,9 +52,6 @@ const useListaNegra = () => {
             setLoading(false);
           }
     }
-
-
-
 
     const crearListaNegra = async ({
         nombres,
@@ -101,7 +95,6 @@ const useListaNegra = () => {
                     reason: motivo
                 }
             )
-
             const status = responseCrearListaNegra?.statusCode || null;
             const data = responseCrearListaNegra || null;
             setResponse(responseCrearListaNegra);
