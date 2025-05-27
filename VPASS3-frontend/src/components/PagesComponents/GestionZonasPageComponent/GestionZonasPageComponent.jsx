@@ -11,7 +11,10 @@ import { IconoBorrar } from "../../IconButtons/IconButtons";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
 import useSubZona from "../../../hooks/useSubZona/useSubZona";
-import { eliminarSubZonaFromRows, eliminarZonaFromRows } from "./funcionesGestionZonasPageComponent";
+import { eliminarSubZonaFromRows, eliminarZonaFromRowsById } from "./funcionesGestionZonasPageComponent";
+import ModalCrearZona from "../../Modal/ModalCrearZona/ModalCrearZona";
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ModalCrearSubZona from "../../Modal/ModalCrearSubZona/ModalCrearSubZona";
 
 const GestionZonasPageComponent = () => {
 
@@ -24,9 +27,9 @@ const GestionZonasPageComponent = () => {
 
     // Estado en donde se guardarán los datos de las zonas, es con el objetivo de manipular el arreglo
     const [rowsZonas, setRowsZonas] = useState();
-    const [rowsSubZonas, setRowsSubZonas] = useState();
-    useEffect(() => {console.log("- rows => ",JSON.stringify(rowsZonas))}, [rowsZonas]);
-    useEffect(() => {console.log("- rowsSubZonas => ",rowsSubZonas)}, [rowsSubZonas]);
+
+    // Estado para la zona seleccionada, se usa para el modal de crear subzona
+    const [idZonaSeleccionada, setIdZonaSeleccionada] = useState(null);
 
     // En el momento en que carguen las zonas se hace una copia para rows.
     useEffect(() => {
@@ -34,7 +37,14 @@ const GestionZonasPageComponent = () => {
         setRowsZonas(zonas);
     }, [zonas]);
 
-    /////////////// Acciones y estados para loading y confirmación ///////////////////////////////
+    /////////////// Acciones y estados para loading, confirmación y el modal de crear zona u subzona ///////////////////////////////
+    const [openModalCrearZona, setOpenModalCrearZona] = useState(false);
+    const handleOpenModalCrearZona = () => setOpenModalCrearZona(true);  
+    const handleCloseModalCrearZona = () => setOpenModalCrearZona(false);
+
+    const [openModalCrearSubZona, setOpenModalCrearSubZona] = useState(false);
+    const handleOpenModalCrearSubZona = () => setOpenModalCrearSubZona(true);  
+    const handleCloseModalCrearSubZona = () => setOpenModalCrearSubZona(false);
 
     // Se invoca la función para consultarle al usuario si está seguro de la acción a realizar
     const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -94,22 +104,6 @@ const GestionZonasPageComponent = () => {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     // Función a ejecutar para cuando el usuario presione el boton de eliminar una zona
     const handleBorrarZona = async (zona) => {
 
@@ -134,7 +128,7 @@ const GestionZonasPageComponent = () => {
                     setMessageLoadingRespuesta(messageBorrarZona);
 
                     // // Se actualizan las rows eliminando aquella zona seleccionada
-                    const updatedRows = eliminarZonaFromRows(rows, idZona);
+                    const updatedRows = eliminarZonaFromRowsById(rowsZonas, idZona);
                     setRowsZonas(updatedRows);
                 }
                 else if (statusBorrarZona === 500) {
@@ -155,7 +149,6 @@ const GestionZonasPageComponent = () => {
             }
         }
     }
-
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // Información que irá en la tabla
@@ -185,6 +178,17 @@ const GestionZonasPageComponent = () => {
                 >
                     <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
                     <Typography component="span">{`Subzonas de ${nameZona}`}</Typography>
+                    <IconButton
+                        onClick={(e) => {
+                        e.stopPropagation(); // Previene que se expanda el accordion
+                        handleOpenModalCrearSubZona(); // Abre el modal para crear una subzona
+                        setIdZonaSeleccionada(zona.id); // Guarda el id de la zona seleccionada para crear una subzona
+
+                        }}
+                        onFocus={(e) => e.stopPropagation()} // También para evitar comportamiento extraño con teclado
+                    >
+                        <AddCircleIcon />
+                    </IconButton>
                     </Box>
                 </AccordionSummary>
                 <AccordionDetails>
@@ -203,7 +207,7 @@ const GestionZonasPageComponent = () => {
         <Box id="BotonCrearNuevaZona">
             <ButtonTypeOne
                 defaultText="Crear nueva zona"
-                handleClick={()=>console.log("crear zona boton")}
+                handleClick={handleOpenModalCrearZona}
             />
         </Box>
         <Fade in={!(!Array.isArray(rowsZonas))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
@@ -214,10 +218,22 @@ const GestionZonasPageComponent = () => {
                     open={openLoadingRespuesta}
                     loading={loadingSubZona || loadingZonas}
                     message={messageLoadingRespuesta}
-                    loadingMessage="Eliminando persona de lista negra..."
+                    loadingMessage="Eliminando zona..."
                     successfulProcess={operacionExitosa}
                     accionPostCierre={accionPostCierreLoadingRespuesta}
                 />
+                <ModalCrearZona
+                    open={openModalCrearZona}
+                    onClose={handleCloseModalCrearZona}
+                    setRows={setRowsZonas}
+                />
+                <ModalCrearSubZona
+                    open={openModalCrearSubZona}
+                    onClose={handleCloseModalCrearSubZona}
+                    setRows={setRowsZonas}
+                    idZona={idZonaSeleccionada}
+                />
+
             </Box>
         </Fade>
 

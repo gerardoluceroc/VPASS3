@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { path_deleteZona, path_getAllZonas } from "../../services/API/API-VPASS3";
+import { path_createZona, path_deleteZona, path_getAllZonas } from "../../services/API/API-VPASS3";
 import axios from "axios";
 
 const useZonas = () => {
@@ -21,6 +21,31 @@ const useZonas = () => {
         const status = error?.response?.status || null;
         setResponse(errorMessage);
         setResponseStatus(status);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    const crearZona = async (idEstablecimiento, nombreZona) => {
+      setLoading(true);
+      try {
+        const {data: responseCrearZona} = await axios.post(path_createZona, {
+          name: nombreZona,
+          establishmentId: idEstablecimiento
+        });
+
+        // Primero se intenta crear una nueva zona
+        const { data: zonaCreada, statusCode: statusCrearZona, message: messageCrearZona } = responseCrearZona;
+        setResponse(zonaCreada);
+        setResponseStatus(statusCrearZona);
+        return responseCrearZona;
+
+      } catch (error) {
+          const errorMessage = error?.response?.data?.message || "Error desconocido";
+          const status = error?.response?.status || null;
+          setResponse(errorMessage);
+          setResponseStatus(status);
+          return error;
       } finally {
         setLoading(false);
       }
@@ -52,7 +77,8 @@ const useZonas = () => {
       responseStatus,
       getAllZonas,
       zonas,
-      eliminarZona
+      eliminarZona,
+      crearZona
     };
   }
   

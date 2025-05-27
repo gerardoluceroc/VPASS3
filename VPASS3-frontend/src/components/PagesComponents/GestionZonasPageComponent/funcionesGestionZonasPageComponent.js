@@ -13,6 +13,19 @@ export function eliminarSubZonaFromRows(rows, idSubZona) {
   });
 }
 
-export function eliminarZonaFromRows(rows, idZona) {
+export function eliminarZonaFromRowsById(rows, idZona) {
   return rows.filter(row => row.id !== idZona);
+}
+
+export function agregarSubZona(rows, idZona, dataSubZonaAgregada) {
+  return rows.map(zona => {
+    if (zona.id === idZona) {
+      // Retornamos una copia de la zona con la nueva subzona agregada
+      return {
+        ...zona,
+        zoneSections: [...zona.zoneSections, dataSubZonaAgregada]
+      };
+    }
+    return zona; // las demás zonas se retornan igual
+  });
 }

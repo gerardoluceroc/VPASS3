@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { path_deleteSubZona } from "../../services/API/API-VPASS3";
+import { path_createSubZona, path_deleteSubZona } from "../../services/API/API-VPASS3";
 import axios from "axios";
 
 const useSubZona = () => {
@@ -28,11 +28,37 @@ const useSubZona = () => {
           }
     }
 
+    const crearSubZona = async (idZona, nombreSubZona) => {
+      setLoading(true);
+      try {
+        const {data: responseCrearSubZona} = await axios.post(path_createSubZona, {
+          name: nombreSubZona,
+          idZone: idZona
+        });
+
+        // Primero se intenta crear una nueva subzona
+        const { data: subZonaCreada, statusCode: statusCrearSubZona, message: messageCrearSubZona } = responseCrearSubZona;
+        setResponse(subZonaCreada);
+        setResponseStatus(statusCrearSubZona);
+        return responseCrearSubZona;
+
+      } catch (error) {
+          const errorMessage = error?.response?.data?.message || "Error desconocido";
+          const status = error?.response?.status || null;
+          setResponse(errorMessage);
+          setResponseStatus(status);
+          return error;
+      } finally {
+        setLoading(false);
+      }
+    }
+
     return {
         loading,
         response,
         responseStatus,
         eliminarSubZona,
+        crearSubZona
     };
 };
 export default useSubZona;
