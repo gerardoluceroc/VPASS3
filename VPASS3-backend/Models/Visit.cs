@@ -44,7 +44,7 @@ namespace VPASS3_backend.Models
         [Required]
         [JsonIgnore]
         public int IdVisitType { get; set; }
-        
+
         //Propiedades de navegacion
         //[JsonIgnore]
         public ParkingSpot? ParkingSpot { get; set; }
