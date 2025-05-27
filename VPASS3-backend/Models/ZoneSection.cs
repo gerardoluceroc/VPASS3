@@ -14,6 +14,8 @@ namespace VPASS3_backend.Models
         [Required]
         public int IdZone { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         [JsonIgnore]
         public Zone Zone { get; set; }
 

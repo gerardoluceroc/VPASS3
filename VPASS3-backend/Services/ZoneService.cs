@@ -24,13 +24,14 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                // Se traen todas las zonas desde la base de datos
+                // Obtener zonas no eliminadas junto con sus subzonas
                 var zones = await _context.Zones
+                    .Where(z => !z.IsDeleted)
                     .Include(z => z.Establishment)
                     .Include(z => z.ZoneSections)
                     .ToListAsync();
 
-                // 2. Si el usuario NO es SUPERADMIN, se aplica el filtro en memoria
+                // Filtrar por establecimiento si no es SUPERADMIN
                 if (_userContext.UserRole != "SUPERADMIN")
                 {
                     if (!_userContext.EstablishmentId.HasValue)
@@ -38,6 +39,14 @@ namespace VPASS3_backend.Services
 
                     zones = zones
                         .Where(z => _userContext.CanAccessZone(z))
+                        .ToList();
+                }
+
+                // Filtrar las subzonas eliminadas manualmente
+                foreach (var zone in zones)
+                {
+                    zone.ZoneSections = zone.ZoneSections
+                        .Where(zs => !zs.IsDeleted)
                         .ToList();
                 }
 
@@ -58,13 +67,18 @@ namespace VPASS3_backend.Services
                 var zone = await _context.Zones
                     .Include(z => z.Establishment)
                     .Include(z => z.ZoneSections)
-                    .FirstOrDefaultAsync(z => z.Id == id);
+                    .FirstOrDefaultAsync(z => z.Id == id && !z.IsDeleted);
 
                 if (zone == null)
                     return new ResponseDto(404, message: "Zona no encontrada.");
 
                 if (!_userContext.CanAccessZone(zone))
                     return new ResponseDto(403, message: "No tienes permisos para acceder a esta zona.");
+
+                // Filtrar subzonas eliminadas
+                zone.ZoneSections = zone.ZoneSections
+                    .Where(zs => !zs.IsDeleted)
+                    .ToList();
 
                 return new ResponseDto(200, zone, message: "Zona obtenida correctamente.");
             }
@@ -76,29 +90,35 @@ namespace VPASS3_backend.Services
         }
 
 
-
         public async Task<ResponseDto> CreateZoneAsync(CreateZoneDto dto)
         {
             try
             {
-                // Verificar si el Establishment existe
                 var establishment = await _context.Establishments
                     .FirstOrDefaultAsync(e => e.Id == dto.EstablishmentId);
 
                 if (establishment == null)
                     return new ResponseDto(404, message: "Establecimiento no encontrado.");
 
-                // Crear la nueva zona
+                // Verificar duplicado (solo zonas activas)
+                var exists = await _context.Zones.AnyAsync(z =>
+                    !z.IsDeleted &&
+                    z.Name == dto.Name &&
+                    z.EstablishmentId == dto.EstablishmentId);
+
+                if (exists)
+                    return new ResponseDto(409, message: "Ya existe una zona con ese nombre en este establecimiento.");
+
                 var zone = new Zone
                 {
                     Name = dto.Name,
-                    EstablishmentId = dto.EstablishmentId
+                    EstablishmentId = dto.EstablishmentId,
+                    IsDeleted = false
                 };
 
                 if (!_userContext.CanAccessZone(zone))
                     return new ResponseDto(403, message: "No tienes permisos para acceder a esta zona.");
 
-                // Guardar la zona en la base de datos
                 _context.Zones.Add(zone);
                 await _context.SaveChangesAsync();
 
@@ -111,7 +131,7 @@ namespace VPASS3_backend.Services
                     userId: _userContext.UserId ?? 0,
                     endpoint: "/Zone/create",
                     httpMethod: "POST",
-                    statusCode: 200
+                    statusCode: 201
                 );
 
                 return new ResponseDto(201, zone, message: "Zona creada correctamente.");
@@ -129,26 +149,46 @@ namespace VPASS3_backend.Services
             {
                 var zone = await _context.Zones
                     .Include(z => z.Establishment)
-                    .FirstOrDefaultAsync(z => z.Id == id);
+                    .FirstOrDefaultAsync(z => z.Id == id && !z.IsDeleted);
 
                 if (zone == null)
                     return new ResponseDto(404, message: "Zona no encontrada.");
 
-                // Verificar si el Establishment existe
                 var establishment = await _context.Establishments
                     .FirstOrDefaultAsync(e => e.Id == dto.EstablishmentId);
 
                 if (establishment == null)
                     return new ResponseDto(404, message: "Establecimiento no encontrado.");
 
-                // Actualizar los datos de la zona
-                zone.Name = dto.Name;
-                zone.EstablishmentId = dto.EstablishmentId;
+                // Verificar nombre duplicado
+                var nameExists = await _context.Zones.AnyAsync(z =>
+                    !z.IsDeleted &&
+                    z.Id != id &&
+                    z.Name == dto.Name &&
+                    z.EstablishmentId == dto.EstablishmentId);
+
+                if (nameExists)
+                    return new ResponseDto(409, message: "Ya existe una zona con ese nombre en este establecimiento.");
 
                 if (!_userContext.CanAccessZone(zone))
                     return new ResponseDto(403, message: "No tienes permisos para acceder a esta zona.");
 
+                zone.Name = dto.Name;
+                zone.EstablishmentId = dto.EstablishmentId;
+
                 await _context.SaveChangesAsync();
+
+                var message = $"Se actualizó la zona '{zone.Name}'";
+
+                await _auditLogService.LogManualAsync(
+                    action: message,
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: $"/Zone/update/{id}",
+                    httpMethod: "PUT",
+                    statusCode: 200
+                );
 
                 return new ResponseDto(200, zone, message: "Zona actualizada correctamente.");
             }
@@ -163,30 +203,40 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var zone = await _context.Zones.FindAsync(id);
+                var zone = await _context.Zones
+                    .Include(z => z.ZoneSections)
+                    .FirstOrDefaultAsync(z => z.Id == id);
 
-                if (zone == null)
-                    return new ResponseDto(404, message: "Zona no encontrada.");
+                if (zone == null || zone.IsDeleted)
+                    return new ResponseDto(404, message: "Zona no encontrada o ya eliminada.");
 
                 if (!_userContext.CanAccessZone(zone))
-                    return new ResponseDto(403, message: "No tienes permisos para acceder a esta zona.");
+                    return new ResponseDto(403, message: "No tienes permisos para eliminar esta zona.");
 
-                _context.Zones.Remove(zone);
+                // Marcar zona como eliminada
+                zone.IsDeleted = true;
+
+                // Marcar todas sus subzonas como eliminadas
+                foreach (var section in zone.ZoneSections)
+                {
+                    section.IsDeleted = true;
+                }
+
                 await _context.SaveChangesAsync();
 
-                var message = $"Se eliminó la zona '{zone.Name}'";
+                var message = $"Se marcó como eliminada la zona '{zone.Name}' y todas sus subzonas asociadas.";
 
                 await _auditLogService.LogManualAsync(
                     action: message,
                     email: _userContext.UserEmail,
                     role: _userContext.UserRole,
                     userId: _userContext.UserId ?? 0,
-                    endpoint: "/Zone/delete/{id}",
+                    endpoint: $"/Zone/delete/{id}",
                     httpMethod: "DELETE",
                     statusCode: 200
                 );
 
-                return new ResponseDto(200, message:"Zona eliminada correctamente.");
+                return new ResponseDto(200, message: "Zona y subzonas eliminadas lógicamente.");
             }
             catch (Exception ex)
             {
@@ -194,5 +244,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al eliminar la zona.");
             }
         }
+
+
     }
 }

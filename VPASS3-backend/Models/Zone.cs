@@ -15,6 +15,8 @@ namespace VPASS3_backend.Models
         [Required]
         public int EstablishmentId { get; set; }
 
+        public bool IsDeleted { get; set; } = false;
+
         // Definición de la propiedad de navegación
         [JsonIgnore]  // Ignorar la propiedad en la serialización JSON para evitar ciclos infinitos
         public Establishment Establishment { get; set; }
