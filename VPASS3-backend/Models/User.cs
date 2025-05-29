@@ -8,6 +8,6 @@ namespace VPASS3_backend.Models
         public int? EstablishmentId { get; set; }
 
         [JsonIgnore]
-        public Establishment establishment { get; set; }
+        public Establishment Establishment { get; set; }
     }
 }

@@ -11,11 +11,9 @@ namespace VPASS3_backend.Models
         [Required]
         public string Name { get; set; }
 
-        public int IdUser { get; set; }
-
-        // Relación uno a uno: un establecimiento tiene un solo usuario
+        // Relación uno a muchos: un establecimiento tiene asociado muchos usuarios
         [JsonIgnore]
-        public User User { get; set; }
+        public ICollection<User> Users { get; set; } = new List<User>();
 
         // Relación de uno a muchos: Un Establishment tiene muchas Zonas
         public ICollection<Zone> Zones { get; set; } = new List<Zone>();
@@ -28,6 +26,5 @@ namespace VPASS3_backend.Models
 
         [JsonIgnore]
         public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
-
     }
 }

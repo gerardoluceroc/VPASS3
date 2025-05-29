@@ -28,7 +28,7 @@ namespace VPASS3_backend.Services
             try
             {
                 var establishments = await _context.Establishments
-                    .Include(e => e.User)
+                    .Include(e => e.Users)
                     .Include(e => e.Zones)
                         .ThenInclude(z => z.ZoneSections)  // Esto agrega las subzonas dentro de cada zona
                     .Include(e => e.ParkingSpots)
@@ -54,7 +54,7 @@ namespace VPASS3_backend.Services
                 }
 
                 var establishment = await _context.Establishments
-                    .Include(e => e.User)
+                    .Include(e => e.Users)
                     .Include(e => e.Zones)
                     .Include(e => e.ParkingSpots)
                     .FirstOrDefaultAsync(e => e.Id == id);
@@ -75,33 +75,24 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                // Buscar el usuario por el correo electrónico
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-
-                // Si no se encuentra el usuario, devolver un error
                 if (user == null)
                     return new ResponseDto(404, message: $"No se encontró ningún usuario con el email ingresado.");
 
-                // Comprobar si el usuario ya está asociado a un Establishment
                 if (user.EstablishmentId != null)
-                {
                     return new ResponseDto(409, message: "El usuario ya está asociado a un establecimiento y no puede ser asignado a otro.");
-                }
 
-                // Crear el nuevo establecimiento
+                // Crear establecimiento
                 var establishment = new Establishment
                 {
-                    Name = dto.Name,
-                    User = user // Propiedad de navegación uno a uno
+                    Name = dto.Name
                 };
 
-
-                // Asignar el nuevo establecimiento al usuario
-                user.EstablishmentId = establishment.Id;
-                user.establishment = establishment;
-
-                // Guardar los cambios en la base de datos
                 _context.Establishments.Add(establishment);
+                await _context.SaveChangesAsync(); // Aquí se genera el Id
+
+                // Asociar el usuario al establecimiento creado
+                user.EstablishmentId = establishment.Id;
                 await _context.SaveChangesAsync();
 
                 var message = $"El establecimiento {establishment.Name} con ID {establishment.Id} fue creado y asignado al usuario {user.Email}.";
@@ -113,7 +104,7 @@ namespace VPASS3_backend.Services
                     userId: _userContext.UserId ?? 0,
                     endpoint: "/establishment/create",
                     httpMethod: "POST",
-                    statusCode: 200
+                    statusCode: 201
                 );
 
                 return new ResponseDto(201, establishment, "Establecimiento creado correctamente.");
@@ -136,7 +127,7 @@ namespace VPASS3_backend.Services
                 }
 
                 var establishment = await _context.Establishments
-                    .Include(e => e.User)
+                    .Include(e => e.Users)
                     .FirstOrDefaultAsync(e => e.Id == id);
 
                 if (establishment == null)
@@ -157,17 +148,10 @@ namespace VPASS3_backend.Services
                         return new ResponseDto(409, message: "El usuario ya está asociado a otro establecimiento.");
                     }
 
-                    // Limpiar relación anterior si ya había un usuario asociado
-                    if (establishment.User != null && establishment.User.Id != user.Id)
-                    {
-                        establishment.User.EstablishmentId = null;
-                        establishment.User.establishment = null;
-                    }
-
-                    // Asociar el nuevo usuario
-                    establishment.User = user;
+                    // Asociar el usuario actual a este establecimiento
                     user.EstablishmentId = establishment.Id;
-                    user.establishment = establishment;
+
+                    // Nota: Ya no hay necesidad de modificar navegación inversa ya que se eliminó la relación uno a uno
                 }
 
                 await _context.SaveChangesAsync();
@@ -179,7 +163,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al actualizar el establecimiento.");
             }
         }
-
 
         public async Task<ResponseDto> DeleteEstablishmentAsync(int id)
         {

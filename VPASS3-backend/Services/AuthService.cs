@@ -32,7 +32,7 @@ namespace VPASS3_backend.Services
 
                 // Buscar al usuario por email
                 var user = await _userManager.Users
-                    .Include(u => u.establishment)
+                    .Include(u => u.Establishment)
                     .FirstOrDefaultAsync(u => u.Email == email);
 
                 if (user == null || !await _userManager.CheckPasswordAsync(user, password))
@@ -61,9 +61,9 @@ namespace VPASS3_backend.Services
             new Claim(ClaimTypes.Email, user.Email)
         };
 
-                if (user.establishment != null)
+                if (user.Establishment != null)
                 {
-                    claims.Add(new Claim("establishment_id", user.establishment.Id.ToString()));
+                    claims.Add(new Claim("establishment_id", user.Establishment.Id.ToString()));
                 }
 
                 var roles = await _userManager.GetRolesAsync(user);

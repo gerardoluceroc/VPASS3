@@ -218,17 +218,11 @@ namespace VPASS3_backend.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("IdUser")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IdUser")
-                        .IsUnique();
 
                     b.ToTable("Establishments");
                 });
@@ -347,6 +341,8 @@ namespace VPASS3_backend.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EstablishmentId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -582,17 +578,6 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("Visitor");
                 });
 
-            modelBuilder.Entity("VPASS3_backend.Models.Establishment", b =>
-                {
-                    b.HasOne("VPASS3_backend.Models.User", "User")
-                        .WithOne("establishment")
-                        .HasForeignKey("VPASS3_backend.Models.Establishment", "IdUser")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
                 {
                     b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
@@ -600,6 +585,16 @@ namespace VPASS3_backend.Migrations
                         .HasForeignKey("IdEstablishment")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Establishment");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.User", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
+                        .WithMany("Users")
+                        .HasForeignKey("EstablishmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Establishment");
                 });
@@ -705,6 +700,8 @@ namespace VPASS3_backend.Migrations
 
                     b.Navigation("ParkingSpots");
 
+                    b.Navigation("Users");
+
                     b.Navigation("Visits");
 
                     b.Navigation("Zones");
@@ -713,12 +710,6 @@ namespace VPASS3_backend.Migrations
             modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
                 {
                     b.Navigation("Visits");
-                });
-
-            modelBuilder.Entity("VPASS3_backend.Models.User", b =>
-                {
-                    b.Navigation("establishment")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>

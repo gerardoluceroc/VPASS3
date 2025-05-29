@@ -34,16 +34,16 @@ namespace VPASS3_backend.Context
 
             // Relación User - Establishment
             modelBuilder.Entity<User>()
-            .HasOne(u => u.establishment)
-            .WithOne(e => e.User)
-            .HasForeignKey<User>(u => u.EstablishmentId)
+            .HasOne(u => u.Establishment)
+            .WithMany(e => e.Users)
+            .HasForeignKey(u => u.EstablishmentId)
             .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Establishment>()
-            .HasOne(e => e.User)
-            .WithOne(u => u.establishment)
-            .HasForeignKey<Establishment>(e => e.IdUser)
-            .OnDelete(DeleteBehavior.Restrict); // evita eliminación en cascada si deseas proteger al usuario
+            modelBuilder.Entity<User>()
+            .HasOne(u => u.Establishment)
+            .WithMany(e => e.Users)
+            .HasForeignKey(u => u.EstablishmentId)
+            .OnDelete(DeleteBehavior.SetNull);// evita eliminación en cascada si deseas proteger al usuario
 
 
             // Relación entre Visit y ZoneSection (para que use IdZoneSection como FK)
