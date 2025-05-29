@@ -8,7 +8,8 @@ const TextFieldUno = ({
     label = "Movies",
     placeholder = "Search for movies",
     onChange = () => {},
-    defaultValue = "",
+    // defaultValue = "",
+    value = "",
     error = false,
     helperText = "",
     type = "text",
@@ -51,7 +52,8 @@ const TextFieldUno = ({
         name={name}
         fullWidth
         sx={{width: width}}
-        defaultValue={defaultValue}
+        // defaultValue={defaultValue}
+        value={value}
         label={label}
         placeholder={placeholder}
         onChange={onChange}

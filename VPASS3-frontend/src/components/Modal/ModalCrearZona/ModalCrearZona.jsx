@@ -5,7 +5,7 @@ import ModalLoadingMasRespuesta from "../ModalLoadingMasRespuesta/ModalLoadingMa
 import { useFormik } from "formik";
 import ValidationCrearZona from "./ValidationCrearZona";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Box, IconButton, Modal, Typography } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import TextFieldUno from "../../TextField/TextFieldUno/TextFieldUno";
@@ -54,6 +54,7 @@ const ModalCrearZona = ({ open, onClose, setRows }) => {
                     setOperacionExitosa(true);
                     setMessageLoadingRespuesta(messageCrearZona);
                     setRows(prevRows => [...prevRows, dataZonaAgregada]); // Agrega la nueva zona a las filas de la tabla
+                    formik.resetForm(); // Resetea el formulario después de crear la zona
                   }
                   else if (statusCodeCrearZona === 500) {
                       //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
@@ -75,6 +76,8 @@ const ModalCrearZona = ({ open, onClose, setRows }) => {
             } 
         }
     });
+
+    useEffect(() => {console.log("[ModalCrearZona.jsx] - formik => ",formik.values)}, [formik.values]);
 
   return (
     <Modal open={open} onClose={onClose}>
@@ -101,6 +104,7 @@ const ModalCrearZona = ({ open, onClose, setRows }) => {
                     name="nombreZona" 
                     label="Nombre de la zona" 
                     placeholder="Ej: Zona A" 
+                    value={formik.values.nombreZona}
                     onChange={formik.handleChange}
                     error={formik.touched.nombreZona && Boolean(formik.errors.nombreZona)}
                     helperText={formik.touched.nombreZona && formik.errors.nombreZona}

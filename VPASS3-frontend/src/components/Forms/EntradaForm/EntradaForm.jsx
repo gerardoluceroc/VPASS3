@@ -82,8 +82,9 @@ const EntradaForm = () => {
                 // Si el servidor responde con el Response dto que tiene configurado
                 if(statusCodeCrearVisita != null && statusCodeCrearVisita != undefined){
                     if (statusCodeCrearVisita === 200 || statusCodeCrearVisita === 201 && (statusCodeCrearVisita != null && statusCodeCrearVisita != undefined)) {
-                    setOperacionExitosa(true);
-                    setMessageLoadingRespuesta(messageCrearVisita);
+                        setOperacionExitosa(true);
+                        setMessageLoadingRespuesta(messageCrearVisita);
+                        formik.resetForm(); // Resetea el formulario después de crear la visita
                     }
                     else if (statusCodeCrearVisita === 500) {
                         //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
@@ -119,7 +120,8 @@ const EntradaForm = () => {
                 <TextFieldUno 
                     name="nombres" 
                     type="text" 
-                    label="Nombres" 
+                    label="Nombres"
+                    value={formik.values.nombres} 
                     placeholder="Ingrese los nombres del visitante" 
                     onChange={formik.handleChange}
                     error={formik.touched.nombres && Boolean(formik.errors.nombres)}
@@ -129,6 +131,7 @@ const EntradaForm = () => {
                     name="apellidos" 
                     type="text" 
                     label="Apellidos" 
+                    value={formik.values.apellidos}
                     placeholder="Ingrese los apellidos del visitante" 
                     onChange={formik.handleChange}
                     error={formik.touched.apellidos && Boolean(formik.errors.apellidos)}
@@ -140,6 +143,7 @@ const EntradaForm = () => {
                 name="rut" 
                 type="text" 
                 label="RUT" 
+                value={formik.values.rut}
                 placeholder="12345678-9" 
                 onChange={formik.handleChange}
                 error={formik.touched.rut && Boolean(formik.errors.rut)}
@@ -219,9 +223,9 @@ const EntradaForm = () => {
             {formik.values.incluyeVehiculo &&
                 <Box className="DosItemsEntradaForm">
                     <TextFieldUno 
-                        name="patenteVehiculo" 
-                        type="text" 
+                        name="patenteVehiculo"                         
                         label="Patente" 
+                        value={formik.values.patenteVehiculo}
                         placeholder="Ingrese la patente del vehículo" 
                         onChange={formik.handleChange}
                         error={formik.touched.patenteVehiculo && Boolean(formik.errors.patenteVehiculo)}

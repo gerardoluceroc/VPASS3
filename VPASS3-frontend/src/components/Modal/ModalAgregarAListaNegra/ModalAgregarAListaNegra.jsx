@@ -109,7 +109,7 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
                 <Box className ="DosItemsModalAgregarAListaNegra">
                     <TextFieldUno 
                     name="nombres" 
-                    type="text" 
+                    value={formik.values.nombres}
                     label="Nombres" 
                     placeholder="Ingrese los nombres de la persona" 
                     onChange={formik.handleChange}
@@ -118,7 +118,7 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
                     />
                     <TextFieldUno 
                     name="apellidos" 
-                    type="text" 
+                    value={formik.values.apellidos}
                     label="Apellidos" 
                     placeholder="Ingrese los apellidos de la persona" 
                     onChange={formik.handleChange}
@@ -129,7 +129,7 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
 
                 <TextFieldUno 
                     name="numeroIdentificacion" 
-                    type="text" 
+                    value={formik.values.numeroIdentificacion}
                     label="RUT/Pasaporte" 
                     placeholder="12345678-9" 
                     onChange={formik.handleChange}
@@ -139,7 +139,7 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
 
                 <TextFieldUno 
                     name="motivo" 
-                    type="text" 
+                    value={formik.values.motivo}
                     label="Motivo (Opcional)" 
                     placeholder="" 
                     onChange={formik.handleChange}

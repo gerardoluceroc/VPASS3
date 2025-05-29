@@ -103,6 +103,7 @@ const ModalCrearEstacionamiento = ({ open, onClose, setRows }) => {
         <Box id="CuerpoModalCrearEstacionamiento">
             <TextFieldUno 
             name='nombreNuevoEstacionamiento'
+            value={formik.values.nombreNuevoEstacionamiento}
             placeholder='Ingrese el nombre del nuevo estacionamiento'
             label='Nombre de estacionamiento'
             onChange={formik.handleChange}

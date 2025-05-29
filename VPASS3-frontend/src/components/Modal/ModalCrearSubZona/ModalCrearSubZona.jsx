@@ -14,8 +14,6 @@ import "./ModalCrearSubZona.css";
 
 const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
 
-
-
     useEffect(() => {console.log("- [ModalCrearSubZona.jsx] idZona => ",idZona)}, [idZona]);
 
     const {loading, crearSubZona} = useSubZona();
@@ -55,6 +53,7 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
                   if (statusCodeCrearSubZona === 200 || statusCodeCrearSubZona === 201) {
                     setOperacionExitosa(true);
                     setMessageLoadingRespuesta(messageCrearSubZona);
+                    formik.resetForm(); // Resetea el formulario después de crear la subzona
 
                     // Se actualizan las filas de la tabla con la nueva subzona agregada
                     setRows(prevRows => agregarSubZona(prevRows, idZona, dataSubZonaAgregada));
@@ -103,6 +102,7 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
             <Box id="CuerpoModalCrearSubZona">
                 <TextFieldUno 
                     name="nombreSubZona" 
+                    value={formik.values.nombreSubZona}
                     label="Nombre de la subzona" 
                     placeholder="Ej: SubZona A" 
                     onChange={formik.handleChange}
