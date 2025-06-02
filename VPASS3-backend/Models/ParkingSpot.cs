@@ -24,5 +24,9 @@ namespace VPASS3_backend.Models
         [JsonIgnore]
         public ICollection<Visit> Visits { get; set; } = new List<Visit>();
 
+        [JsonIgnore]
+        public ICollection<ParkingSpotUsageLog> UsageLogs { get; set; } = new List<ParkingSpotUsageLog>();
+
+
     }
 }

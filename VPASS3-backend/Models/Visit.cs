@@ -37,6 +37,9 @@ namespace VPASS3_backend.Models
         // Nueva propiedad opcional: patente del vehículo
         public string? LicensePlate { get; set; }
 
+        // Nueva propiedad opcional: tiempo autorizado para la visita para usar el estacionamiento
+        public TimeSpan? AuthorizedTime { get; set; }
+
         // Nueva propiedad opcional: FK al estacionamiento usado
         [JsonIgnore]
         public int? IdParkingSpot { get; set; }

@@ -195,6 +195,7 @@ builder.Services.AddScoped<IVisitTypeService, VisitTypeService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IBlacklistService, BlacklistService>();
+builder.Services.AddScoped<IParkingSpotUsageLogService, ParkingSpotUsageLogService>();
 
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)

@@ -350,6 +350,7 @@ namespace VPASS3_backend.Migrations
                     IdZoneSection = table.Column<int>(type: "int", nullable: true),
                     VehicleIncluded = table.Column<bool>(type: "bit", nullable: false),
                     LicensePlate = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorizedTime = table.Column<TimeSpan>(type: "time", nullable: true),
                     IdParkingSpot = table.Column<int>(type: "int", nullable: true),
                     IdVisitType = table.Column<int>(type: "int", nullable: false)
                 },
@@ -398,6 +399,48 @@ namespace VPASS3_backend.Migrations
                         principalTable: "Zones",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ParkingSpotUsageLogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IdParkingSpot = table.Column<int>(type: "int", nullable: false),
+                    IdVisitor = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndTime = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IdEntryVisit = table.Column<int>(type: "int", nullable: true),
+                    IdExitVisit = table.Column<int>(type: "int", nullable: true),
+                    AuthorizedTime = table.Column<TimeSpan>(type: "time", nullable: true),
+                    UsageTime = table.Column<TimeSpan>(type: "time", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ParkingSpotUsageLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ParkingSpotUsageLogs_ParkingSpots_IdParkingSpot",
+                        column: x => x.IdParkingSpot,
+                        principalTable: "ParkingSpots",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ParkingSpotUsageLogs_Visitors_IdVisitor",
+                        column: x => x.IdVisitor,
+                        principalTable: "Visitors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ParkingSpotUsageLogs_Visits_IdEntryVisit",
+                        column: x => x.IdEntryVisit,
+                        principalTable: "Visits",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ParkingSpotUsageLogs_Visits_IdExitVisit",
+                        column: x => x.IdExitVisit,
+                        principalTable: "Visits",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -458,6 +501,26 @@ namespace VPASS3_backend.Migrations
                 name: "IX_ParkingSpots_IdEstablishment",
                 table: "ParkingSpots",
                 column: "IdEstablishment");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkingSpotUsageLogs_IdEntryVisit",
+                table: "ParkingSpotUsageLogs",
+                column: "IdEntryVisit");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkingSpotUsageLogs_IdExitVisit",
+                table: "ParkingSpotUsageLogs",
+                column: "IdExitVisit");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkingSpotUsageLogs_IdParkingSpot_IdVisitor_StartTime",
+                table: "ParkingSpotUsageLogs",
+                columns: new[] { "IdParkingSpot", "IdVisitor", "StartTime" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ParkingSpotUsageLogs_IdVisitor",
+                table: "ParkingSpotUsageLogs",
+                column: "IdVisitor");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Visits_EstablishmentId",
@@ -535,13 +598,16 @@ namespace VPASS3_backend.Migrations
                 name: "Blacklists");
 
             migrationBuilder.DropTable(
-                name: "Visits");
+                name: "ParkingSpotUsageLogs");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Visits");
 
             migrationBuilder.DropTable(
                 name: "Directions");

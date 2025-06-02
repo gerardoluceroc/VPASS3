@@ -14,6 +14,8 @@
 
         public bool VehicleIncluded { get; set; }
 
+        public TimeSpan? AuthorizedTime { get; set; }
+
         public string? LicensePlate { get; set; }
 
         public int? IdParkingSpot { get; set; }

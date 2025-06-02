@@ -252,6 +252,51 @@ namespace VPASS3_backend.Migrations
                     b.ToTable("ParkingSpots");
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.ParkingSpotUsageLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan?>("AuthorizedTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("IdEntryVisit")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("IdExitVisit")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdParkingSpot")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdVisitor")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan?>("UsageTime")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdEntryVisit");
+
+                    b.HasIndex("IdExitVisit");
+
+                    b.HasIndex("IdVisitor");
+
+                    b.HasIndex("IdParkingSpot", "IdVisitor", "StartTime");
+
+                    b.ToTable("ParkingSpotUsageLogs");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -362,6 +407,9 @@ namespace VPASS3_backend.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan?>("AuthorizedTime")
+                        .HasColumnType("time");
 
                     b.Property<DateTime>("EntryDate")
                         .HasColumnType("datetime2");
@@ -589,6 +637,37 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("Establishment");
                 });
 
+            modelBuilder.Entity("VPASS3_backend.Models.ParkingSpotUsageLog", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Visit", "EntryVisit")
+                        .WithMany()
+                        .HasForeignKey("IdEntryVisit");
+
+                    b.HasOne("VPASS3_backend.Models.Visit", "ExitVisit")
+                        .WithMany()
+                        .HasForeignKey("IdExitVisit");
+
+                    b.HasOne("VPASS3_backend.Models.ParkingSpot", "ParkingSpot")
+                        .WithMany("UsageLogs")
+                        .HasForeignKey("IdParkingSpot")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.Visitor", "Visitor")
+                        .WithMany("UsageLogs")
+                        .HasForeignKey("IdVisitor")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("EntryVisit");
+
+                    b.Navigation("ExitVisit");
+
+                    b.Navigation("ParkingSpot");
+
+                    b.Navigation("Visitor");
+                });
+
             modelBuilder.Entity("VPASS3_backend.Models.User", b =>
                 {
                     b.HasOne("VPASS3_backend.Models.Establishment", "Establishment")
@@ -709,12 +788,16 @@ namespace VPASS3_backend.Migrations
 
             modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
                 {
+                    b.Navigation("UsageLogs");
+
                     b.Navigation("Visits");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>
                 {
                     b.Navigation("Blacklists");
+
+                    b.Navigation("UsageLogs");
 
                     b.Navigation("Visits");
                 });

@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Drawing;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 
 namespace VPASS3_backend.Services
 {
@@ -99,8 +100,6 @@ namespace VPASS3_backend.Services
             }
         }
 
-
-
         public async Task<ResponseDto> CreateVisitAsync(VisitDto dto)
         {
             try
@@ -108,6 +107,7 @@ namespace VPASS3_backend.Services
                 // Obtener el rol del usuario y el establecimiento directamente desde UserContext
                 var userRole = _userContext.UserRole;
                 int establishmentId;
+                var direction = await _context.Directions.FindAsync(dto.IdDirection);
 
                 if (userRole == "ADMIN")
                 {
@@ -183,8 +183,7 @@ namespace VPASS3_backend.Services
                     if (!_userContext.CanAccessParkingSpot(parkingSpot))
                         return new ResponseDto(403, message: "No tienes acceso al estacionamiento especificado.");
 
-                    // Nueva validación: Verificar disponibilidad del parking spot
-                    if (parkingSpot.IsAvailable.HasValue && !parkingSpot.IsAvailable.Value)
+                    if (parkingSpot.IsAvailable.HasValue && !parkingSpot.IsAvailable.Value && (direction.VisitDirection.ToLower() == "entrada" || direction.Id == 1))
                     {
                         return new ResponseDto(400, message: "El estacionamiento seleccionado se encuentra ocupado.");
                     }
@@ -216,17 +215,34 @@ namespace VPASS3_backend.Services
                     EntryDate = chileDateTime,
                     IdZoneSection = idZoneSectionValida,
                     IdVisitType = dto.IdVisitType,
+                    AuthorizedTime = dto.AuthorizedTime.HasValue ? dto.AuthorizedTime.Value : null
                 };
 
                 _context.Visits.Add(visit);
 
-                // Si se usó un parking spot, marcarlo como ocupado
+                // Si la visita incluye un estacionamiento
                 if (dto.VehicleIncluded && dto.IdParkingSpot.HasValue)
                 {
                     var parkingSpot = await _context.ParkingSpots.FindAsync(dto.IdParkingSpot.Value);
-                    if (parkingSpot != null)
+
+                    // Si la visita es de tipo salida
+                    if (direction.VisitDirection.ToLower() == "salida" || direction.Id == 2)
                     {
-                        parkingSpot.IsAvailable = false;
+                        // Se marca el estacionamiento como disponible ya que el visitante que lo ha utilizado se ha ido
+                        if (parkingSpot != null)
+                        {
+                            parkingSpot.IsAvailable = true;
+                        }
+                    }
+
+                    // Si la visita es de tipo entrada
+                    else if (direction.VisitDirection.ToLower() == "entrada" || direction.Id == 1)
+                    {
+                        // Se marca el estacionamiento como no disponible ya que lo utilizará el visitante
+                        if (parkingSpot != null)
+                        {
+                            parkingSpot.IsAvailable = false;
+                        }
                     }
                 }
 
@@ -353,7 +369,6 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al actualizar la visita.");
             }
         }
-
 
 
         public async Task<ResponseDto> DeleteVisitAsync(int id)

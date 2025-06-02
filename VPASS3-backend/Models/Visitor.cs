@@ -24,5 +24,9 @@ namespace VPASS3_backend.Models
 
         [JsonIgnore]
         public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
+
+        [JsonIgnore]
+        public ICollection<ParkingSpotUsageLog> UsageLogs { get; set; } = new List<ParkingSpotUsageLog>();
+
     }
 }

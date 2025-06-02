@@ -28,6 +28,8 @@ namespace VPASS3_backend.Context
 
         public DbSet<Blacklist> Blacklists { get; set; }
 
+        public DbSet<ParkingSpotUsageLog> ParkingSpotUsageLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -88,13 +90,6 @@ namespace VPASS3_backend.Context
                 .HasForeignKey(b => b.IdEstablishment)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            //// Relación Visit - Zone uno es a muchos
-            //modelBuilder.Entity<Visit>()
-            //    .HasOne(v => v.Zone)
-            //    .WithMany(z => z.Visits)
-            //    .HasForeignKey(v => v.ZoneId)
-            //    .OnDelete(DeleteBehavior.Cascade);
-
             // Relación Visit - Zone uno es a muchos
             modelBuilder.Entity<Visit>()
             .HasOne(v => v.Zone)
@@ -137,6 +132,36 @@ namespace VPASS3_backend.Context
             .WithMany() // <-- Sin navegación inversa
             .HasForeignKey(v => v.IdVisitType)
             .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ParkingSpotUsageLog>()
+            .HasOne(log => log.ParkingSpot)
+            .WithMany(p => p.UsageLogs)
+            .HasForeignKey(log => log.IdParkingSpot)
+            .OnDelete(DeleteBehavior.Restrict); // evita borrar el log si se elimina el estacionamiento
+
+            modelBuilder.Entity<ParkingSpotUsageLog>()
+            .HasOne(log => log.Visitor)
+            .WithMany(v => v.UsageLogs) // debes agregar esta propiedad en Visitor
+            .HasForeignKey(log => log.IdVisitor)
+            .OnDelete(DeleteBehavior.Restrict);
+
+            //// Relaciones opcionales con visitas de entrada/salida
+            //modelBuilder.Entity<ParkingSpotUsageLog>()
+            //    .HasOne<Visit>()
+            //    .WithMany()
+            //    .HasForeignKey(log => log.IdEntryVisit)
+            //    .OnDelete(DeleteBehavior.NoAction);
+
+            //modelBuilder.Entity<ParkingSpotUsageLog>()
+            //    .HasOne<Visit>()
+            //    .WithMany()
+            //    .HasForeignKey(log => log.IdExitVisit)
+            //    .OnDelete(DeleteBehavior.NoAction);
+
+            // Agrega un índice para que no se repita el mismo visitante en el mismo ParkingSpot en la misma hora
+            modelBuilder.Entity<ParkingSpotUsageLog>()
+            .HasIndex(log => new { log.IdParkingSpot, log.IdVisitor, log.StartTime });
+
         }
     }
 }
