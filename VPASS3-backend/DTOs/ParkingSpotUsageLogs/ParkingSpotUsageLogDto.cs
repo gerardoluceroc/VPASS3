@@ -6,8 +6,5 @@ namespace VPASS3_backend.DTOs.ParkingSpotUsageLogs
     {
         [Required]
         public int IdVisit { get; set; }
-
-        // Tiempo autorizado para usar el estacionamiento
-        public TimeSpan? AuthorizedTime { get; set; }
     }
 }
