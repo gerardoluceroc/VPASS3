@@ -25,6 +25,13 @@ export const path_createSubZona = `${URL_SERVER}/ZoneSection/create`
 export const path_updateSubZona = `${URL_SERVER}/ZoneSection/update`
 export const path_deleteSubZona = `${URL_SERVER}/ZoneSection/delete`
 
+/* Uso de estacionamiento */
+export const path_getAllUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/all`
+export const path_getUsoEstacionamientoById = `${URL_SERVER}/ParkingSpotUsageLog` // + / + id
+export const path_createUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/create`
+export const path_deleteUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/delete`
+
+
 /* Visita */
 export const path_getAllVisitas = `${URL_SERVER}/Visit/all`
 export const path_getVisitaById = `${URL_SERVER}/Visit/` // + id

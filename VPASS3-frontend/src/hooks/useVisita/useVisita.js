@@ -2,6 +2,9 @@ import { useState } from "react";
 import useVisitante from "../useVisitante/useVisitante";
 import axios from "axios";
 import { path_createVisita, path_getAllVisitas, path_getReportePorRangoDeFechas, path_getReportePorRut } from "../../services/API/API-VPASS3";
+import { cambiarAFormatoHoraMinutos } from "../../utils/funciones";
+import { idSentidoVisitaEntrada } from "../../utils/constantes";
+import useUsoEstacionamiento from "../useUsoEstacionamiento/useUsoEstacionamiento";
 
 const useVisita = () => {
 
@@ -10,6 +13,7 @@ const useVisita = () => {
     const [visitas, setVisitas] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
 
+    const {registrarUsoEstacionamiento} = useUsoEstacionamiento();
     const {crearVisitante, getVisitanteByIdentificationNumber} = useVisitante();
 
     const getAllVisitas = async () => {
@@ -35,16 +39,18 @@ const useVisita = () => {
     }
 
     const crearVisita = async ({
-      nombres,
-      apellidos,
-      numeroIdentificacion,
-      idTipoVisita,
-      idZona,
-      idSubZona,
-      idSentido,
-      incluyeVehiculo,
-      patenteVehiculo,
-      idEstacionamiento
+        nombres,
+        apellidos,
+        numeroIdentificacion,
+        idTipoVisita,
+        idZona,
+        idSubZona,
+        idSentido,
+        incluyeVehiculo,
+        patenteVehiculo,
+        idEstacionamiento,
+        horasUsoEstacionamiento,
+        minutosUsoEstacionamiento
     }) => {
       // Indica visualmente que el proceso está en curso (puede mostrar un spinner, desactivar botones, etc.)
       setLoading(true);
@@ -84,11 +90,19 @@ const useVisita = () => {
           vehicleIncluded: incluyeVehiculo,
           licensePlate: incluyeVehiculo ? patenteVehiculo : "",
           idParkingSpot: incluyeVehiculo ? idEstacionamiento : null,
-          idVisitType: idTipoVisita
+          idVisitType: idTipoVisita,
+          authorizedTime: idSentido === idSentidoVisitaEntrada && incluyeVehiculo ? cambiarAFormatoHoraMinutos(horasUsoEstacionamiento, minutosUsoEstacionamiento) : null
         });
 
         setResponse(respuestaCrearVisita);
         setResponseStatus(respuestaCrearVisita?.statusCode || null);
+
+        // Si la visita fue creada exitosamente e incluye vehiculo, se registra el uso del estacionamiento
+        if(incluyeVehiculo) {
+
+            const {data: visitaCreada} = respuestaCrearVisita;
+            const respuestaRegistrarUsoEstacionamiento = await registrarUsoEstacionamiento(visitaCreada?.id);
+        }
     
         // Si todo salió bien, se retorna la respuesta de la creación de la visita
         return respuestaCrearVisita;
@@ -195,8 +209,6 @@ const getReporteVisitasPorRut = async (rut) => {
                 responseType: 'blob' // Para manejar la respuesta como archivo
             }
         );
-
-        console.log("response de excel por rut es: ", response);
 
         // Crear URL del blob
         const url = window.URL.createObjectURL(new Blob([response.data]));
