@@ -72,8 +72,6 @@ const UltimosRegistrosPageComponent = () => {
               <ModalVerDetallesRegistros
                 open={openModalDetallesVerRegistro}
                 onClose={handleCloseModalDetallesVerRegistro}
-                title="Detalles del Registro"
-                message={`Detalles de la visita: ${JSON.stringify(visitaSeleccionada)}`}
                 visitaSeleccionada={visitaSeleccionada}
               />
           </div>
