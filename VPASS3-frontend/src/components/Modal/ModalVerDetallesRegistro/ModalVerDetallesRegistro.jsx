@@ -2,7 +2,9 @@ import { Modal, Box, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import './ModalVerDetallesRegistro.css';
 import TextFieldReadOnlyUno from '../../TextField/TextFieldReadOnlyUno/TextFieldReadOnlyUno';
-import { cambiarFormatoHoraFecha } from '../../../utils/funciones';
+import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString } from '../../../utils/funciones';
+import { useEffect } from 'react';
+import { idSentidoVisitaEntrada } from '../../../utils/constantes';
 
 const style = {
   position: 'absolute',
@@ -17,87 +19,102 @@ const style = {
   pt: 4,
 };
 
-const ModalVerDetallesRegistros = ({ open, onClose, title, message, visitaSeleccionada }) => {
-  return (
-    <Modal open={open} onClose={onClose}>
-      <Box id="ContainerModalVerDetallesRegistro" sx={style}>
-        <Box id="HeaderModalVerDetallesRegistro">
-            <IconButton
-            aria-label="close"
-            onClick={onClose}
-            sx={{
-                position: 'absolute',
-                right: 8,
-                top: 8,
-                color: "black",
-            }}
-            >
-            <CloseIcon />
-            </IconButton>
-        </Box>
-        <Box id="CuerpoModalVerDetallesRegistro">
+const ModalVerDetallesRegistros = ({ open, onClose, visitaSeleccionada }) => {
 
-            <Box className="DosItemsCuerpoModalVerDetallesRegistro">
-                <TextFieldReadOnlyUno
-                    label={"Nombre"}
-                    value={`${visitaSeleccionada?.visitor?.names || "Sin datos"} ${visitaSeleccionada?.visitor?.lastNames || ""}`}
-                />
+    useEffect(() => {console.log("📌 visitaSeleccionada => ",visitaSeleccionada)}, [visitaSeleccionada]);
 
-                <TextFieldReadOnlyUno
-                    label={"Rut/Pasaporte"}
-                    value={`${visitaSeleccionada?.visitor?.identificationNumber || "Sin datos"}`}
-                />
+    return (
+        <Modal open={open} onClose={onClose}>
+        <Box id="ContainerModalVerDetallesRegistro" sx={style}>
+            <Box id="HeaderModalVerDetallesRegistro">
+                <IconButton
+                aria-label="close"
+                onClick={onClose}
+                sx={{
+                    position: 'absolute',
+                    right: 8,
+                    top: 8,
+                    color: "black",
+                }}
+                >
+                <CloseIcon />
+                </IconButton>
             </Box>
-            
-            <Box className="DosItemsCuerpoModalVerDetallesRegistro">
-                <TextFieldReadOnlyUno
-                    label={"Destino"}
-                    value={`${visitaSeleccionada?.zone?.name || "Sin datos"} - ${visitaSeleccionada?.zoneSection?.name || ""}`}
-                />
+            <Box id="CuerpoModalVerDetallesRegistro">
 
-                <TextFieldReadOnlyUno
-                    label={"Sentido"}
-                    value={`${visitaSeleccionada?.direction?.visitDirection || "Sin datos"}`}
-                /> 
-            </Box>      
-
-            <Box className="DosItemsCuerpoModalVerDetallesRegistro">
-                <TextFieldReadOnlyUno
-                    label={"Fecha y Hora"}
-                    value={`${cambiarFormatoHoraFecha(visitaSeleccionada?.entryDate) || "Sin datos"}`}
-                />
-
-                <TextFieldReadOnlyUno
-                    label={"Tipo de Visita"}
-                    value={`${visitaSeleccionada?.visitType?.name || "Sin datos"}`}
-                /> 
-            </Box>
-
-            <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
-                <TextFieldReadOnlyUno
-                    label={"¿Incluye vehículo?"}
-                    width='50%'
-                    value={(visitaSeleccionada?.vehicleIncluded != null  && visitaSeleccionada?.vehicleIncluded != undefined) ? (visitaSeleccionada?.vehicleIncluded ? "Sí" : "No") : "Sin datos"}
-                />
-            </Box>
-
-            {visitaSeleccionada?.vehicleIncluded && (
                 <Box className="DosItemsCuerpoModalVerDetallesRegistro">
                     <TextFieldReadOnlyUno
-                        label={"Patente vehículo"}
-                        value={`${visitaSeleccionada?.licensePlate || "Sin datos"}`}
+                        label={"Nombre"}
+                        value={`${visitaSeleccionada?.visitor?.names || "Sin datos"} ${visitaSeleccionada?.visitor?.lastNames || ""}`}
                     />
 
                     <TextFieldReadOnlyUno
-                        label={"Estacionamiento"}
-                        value={`${visitaSeleccionada?.parkingSpot?.name || "Sin datos"}`}
+                        label={"Rut/Pasaporte"}
+                        value={`${visitaSeleccionada?.visitor?.identificationNumber || "Sin datos"}`}
                     />
                 </Box>
-            )}
+                
+                <Box className="DosItemsCuerpoModalVerDetallesRegistro">
+                    <TextFieldReadOnlyUno
+                        label={"Destino"}
+                        value={`${visitaSeleccionada?.zone?.name || "Sin datos"} - ${visitaSeleccionada?.zoneSection?.name || ""}`}
+                    />
+
+                    <TextFieldReadOnlyUno
+                        label={"Sentido"}
+                        value={`${visitaSeleccionada?.direction?.visitDirection || "Sin datos"}`}
+                    /> 
+                </Box>      
+
+                <Box className="DosItemsCuerpoModalVerDetallesRegistro">
+                    <TextFieldReadOnlyUno
+                        label={"Fecha y Hora"}
+                        value={`${cambiarFormatoHoraFecha(visitaSeleccionada?.entryDate) || "Sin datos"}`}
+                    />
+
+                    <TextFieldReadOnlyUno
+                        label={"Tipo de Visita"}
+                        value={`${visitaSeleccionada?.visitType?.name || "Sin datos"}`}
+                    /> 
+                </Box>
+
+                <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                    <TextFieldReadOnlyUno
+                        label={"¿Incluye vehículo?"}
+                        width='50%'
+                        value={(visitaSeleccionada?.vehicleIncluded != null  && visitaSeleccionada?.vehicleIncluded != undefined) ? (visitaSeleccionada?.vehicleIncluded ? "Sí" : "No") : "Sin datos"}
+                    />
+                </Box>
+
+                {visitaSeleccionada?.vehicleIncluded && (
+                    <Box className="DosItemsCuerpoModalVerDetallesRegistro">
+                        <TextFieldReadOnlyUno
+                            label={"Patente vehículo"}
+                            value={`${visitaSeleccionada?.licensePlate || "Sin datos"}`}
+                        />
+
+                        <TextFieldReadOnlyUno
+                            label={"Estacionamiento"}
+                            value={`${visitaSeleccionada?.parkingSpot?.name || "Sin datos"}`}
+                        />
+                    </Box>
+                )}
+
+                {visitaSeleccionada?.vehicleIncluded && visitaSeleccionada?.direction?.id === idSentidoVisitaEntrada &&(
+                    <Box sx={{display: "flex", alignItems: "center", justifyContent: "center"}}>
+                        <TextFieldReadOnlyUno
+                            label={"Tiempo de uso autorizado para el estacionamiento"}
+                            value={`${formatoLegibleDesdeHoraString(visitaSeleccionada?.authorizedTime) || "Sin datos"}`}
+                            width='70%'
+                        />
+                    </Box>
+                )
+
+                }
+            </Box>
         </Box>
-      </Box>
-    </Modal>
-  );
+        </Modal>
+    );
 };
 
 export default ModalVerDetallesRegistros;

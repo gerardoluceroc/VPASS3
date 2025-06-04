@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { idSentidoVisitaEntrada } from '../../../utils/constantes';
 
 export const ValidationVisitaForm = Yup.object().shape({
     nombres: Yup.string().required('El campo es requerido'),
@@ -36,6 +37,26 @@ export const ValidationVisitaForm = Yup.object().shape({
     .when('incluyeVehiculo', {
         is: true,
         then: (schema) =>
+        schema.typeError('El campo es requerido').required('El campo es requerido'),
+    }),
+
+    // Validación para horas de uso de estacionamiento en caso de que se incluya vehículo y el sentido sea entrada
+    horasUsoEstacionamiento: Yup.number()
+    .nullable()
+    .when(['incluyeVehiculo', 'idSentido'], {
+      is: (incluyeVehiculo, idSentido) =>
+        incluyeVehiculo === true && idSentido === idSentidoVisitaEntrada,
+      then: (schema) =>
+        schema.typeError('El campo es requerido').required('El campo es requerido'),
+    }),
+
+    // Validación para minutos de uso de estacionamiento en caso de que se incluya vehículo y el sentido sea entrada
+    minutosUsoEstacionamiento: Yup.number()
+    .nullable()
+    .when(['incluyeVehiculo', 'idSentido'], {
+      is: (incluyeVehiculo, idSentido) =>
+        incluyeVehiculo === true && idSentido === idSentidoVisitaEntrada,
+      then: (schema) =>
         schema.typeError('El campo es requerido').required('El campo es requerido'),
     }),
 
