@@ -4,6 +4,7 @@ using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
 using Microsoft.EntityFrameworkCore;
+using VPASS3_backend.DTOs.ParkingSpotUsageLogs;
 
 namespace VPASS3_backend.Services
 {
@@ -12,12 +13,14 @@ namespace VPASS3_backend.Services
         private readonly AppDbContext _context;
         private readonly IUserContextService _userContext;
         private readonly IAuditLogService _auditLogService;
+        private readonly IParkingSpotUsageLogService _parkingSpotUsageLogService;
 
-        public ParkingSpotService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService)
+        public ParkingSpotService(AppDbContext context, IUserContextService userContext, IAuditLogService auditLogService, IParkingSpotUsageLogService parkingSpotUsageLogService)
         {
             _context = context;
             _userContext = userContext;
-            _auditLogService = auditLogService; 
+            _auditLogService = auditLogService;
+            _parkingSpotUsageLogService = parkingSpotUsageLogService;
         }
 
         public async Task<ResponseDto> GetAllParkingSpotsAsync()
@@ -163,8 +166,53 @@ namespace VPASS3_backend.Services
                     string antes = spot.IsAvailable == true ? "disponible" : "ocupado";
                     string despues = dto.IsAvailable == true ? "disponible" : "ocupado";
                     cambios.Add($"estado cambiado de {antes} a {despues}");
-                    spot.IsAvailable = dto.IsAvailable;
+
+                    // Verificar si se pasa de ocupado (false) a disponible (true)
+                    if (spot.IsAvailable == false && dto.IsAvailable == true)
+                    {
+                        // Buscar el último log de uso abierto de este estacionamiento
+                        var lastUsage = await _context.ParkingSpotUsageLogs
+                            .Include(p => p.EntryVisit)
+                            .Where(p => p.EntryVisit.IdParkingSpot == spot.Id &&
+                                        p.EndTime == null &&
+                                        p.IdExitVisit == null)
+                            .OrderByDescending(p => p.StartTime)
+                            .FirstOrDefaultAsync();
+
+                        if (lastUsage != null && lastUsage.EntryVisit != null)
+                        {
+                            // Crear nueva visita de salida
+                            var exitVisit = new Visit
+                            {
+                                EstablishmentId = lastUsage.EntryVisit.EstablishmentId,
+                                VisitorId = lastUsage.EntryVisit.VisitorId,
+                                ZoneId = lastUsage.EntryVisit.ZoneId,
+                                EntryDate = DateTime.UtcNow.AddHours(-4), // Hora de Chile (ajuste si usas UTC en BD)
+                                IdDirection = 2, // Salida
+                                IdZoneSection = lastUsage.EntryVisit.IdZoneSection,
+                                VehicleIncluded = true,
+                                LicensePlate = lastUsage.EntryVisit.LicensePlate,
+                                IdParkingSpot = lastUsage.EntryVisit.IdParkingSpot,
+                                AuthorizedTime = lastUsage.EntryVisit.AuthorizedTime,
+                                IdVisitType = lastUsage.EntryVisit.IdVisitType
+                            };
+
+                            _context.Visits.Add(exitVisit);
+                            await _context.SaveChangesAsync();
+
+                            await _parkingSpotUsageLogService.CreateAsync(new ParkingSpotUsageLogDto
+                            {
+                                IdVisit = exitVisit.Id
+                            });
+
+                            // Actualizar disponibilidad
+                            spot.IsAvailable = dto.IsAvailable;
+
+                            await _context.SaveChangesAsync();
+                        }
+                    }
                 }
+
 
                 // Validar y aplicar el cambio de establecimiento, si corresponde
                 if (dto.IdEstablishment != spot.IdEstablishment)

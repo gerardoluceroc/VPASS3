@@ -43,12 +43,10 @@ namespace VPASS3_backend.Services
                 }
 
                 // Visita tipo ENTRADA
-                if (visit.Direction.VisitDirection.ToLower() == "entrada" || visit.IdDirection == 1)
+                if (visit.Direction.VisitDirection.ToLower() == "entrada" && visit.VehicleIncluded)
                 {
                     var newLog = new ParkingSpotUsageLog
                     {
-                        IdParkingSpot = visit.IdParkingSpot ?? throw new InvalidOperationException("IdParkingSpot no puede ser nulo."),
-                        IdVisitor = visit.VisitorId,
                         IdEntryVisit = visit.Id,
                         StartTime = visit.EntryDate,
                         AuthorizedTime = visit.AuthorizedTime,
@@ -60,11 +58,11 @@ namespace VPASS3_backend.Services
                     return new ResponseDto(201, newLog, "Registro de entrada al estacionamiento creado.");
                 }
 
-                // Visita tipo SALIDA
-                if (visit.Direction.VisitDirection.ToLower() == "salida" || visit.IdDirection == 2)
+                // Visita tipo SALIDA que incluye vehiculo
+                if (visit.Direction.VisitDirection.ToLower() == "salida" && visit.VehicleIncluded)
                 {
                     var openLog = await _context.ParkingSpotUsageLogs
-                        .Where(p => p.IdVisitor == visit.VisitorId && p.IdExitVisit == null && p.EndTime == null)
+                        .Where(p => p.EntryVisit.Visitor.Id == visit.VisitorId && p.IdExitVisit == null && p.EndTime == null)
                         .OrderByDescending(p => p.StartTime)
                         .FirstOrDefaultAsync();
 
@@ -94,9 +92,19 @@ namespace VPASS3_backend.Services
             try
             {
                 var logs = await _context.ParkingSpotUsageLogs
-                    .Include(p => p.ParkingSpot)
-                    .Include(p => p.Visitor)
-                    .ToListAsync();
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.Zone)
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.ZoneSection)
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.Direction)
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.VisitType)
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.ParkingSpot)
+                .Include(p => p.EntryVisit)
+                    .ThenInclude(v => v.Visitor)
+                .ToListAsync();
 
                 // Si el usuario no es SUPERADMIN, se filtra por su establecimiento
                 if (_userContext.UserRole != "SUPERADMIN")
@@ -105,7 +113,7 @@ namespace VPASS3_backend.Services
                         return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
 
                     logs = logs
-                        .Where(p => p.ParkingSpot.IdEstablishment == _userContext.EstablishmentId)
+                        .Where(p => p.EntryVisit.EstablishmentId == _userContext.EstablishmentId)
                         .ToList();
                 }
 
@@ -123,15 +131,13 @@ namespace VPASS3_backend.Services
             try
             {
                 var log = await _context.ParkingSpotUsageLogs
-                    .Include(p => p.ParkingSpot)
-                    .Include(p => p.Visitor)
                     .FirstOrDefaultAsync(p => p.Id == id);
 
                 if (log == null)
                     return new ResponseDto(404, message: "Registro no encontrado.");
 
                 if (_userContext.UserRole != "SUPERADMIN" &&
-                    log.ParkingSpot.IdEstablishment != _userContext.EstablishmentId)
+                    log.EntryVisit.ParkingSpot.Id != _userContext.EstablishmentId)
                 {
                     return new ResponseDto(403, message: "No tienes permisos para acceder a este registro.");
                 }
@@ -150,14 +156,13 @@ namespace VPASS3_backend.Services
             try
             {
                 var log = await _context.ParkingSpotUsageLogs
-                    .Include(p => p.ParkingSpot)
                     .FirstOrDefaultAsync(p => p.Id == id);
 
                 if (log == null)
                     return new ResponseDto(404, message: "Registro no encontrado.");
 
                 if (_userContext.UserRole != "SUPERADMIN" &&
-                    log.ParkingSpot.IdEstablishment != _userContext.EstablishmentId)
+                    log.EntryVisit.ParkingSpot.Id != _userContext.EstablishmentId)
                 {
                     return new ResponseDto(403, message: "No tienes permisos para eliminar este registro.");
                 }

@@ -10,12 +10,6 @@ namespace VPASS3_backend.Models
         public int Id { get; set; }
 
         [Required]
-        public int IdParkingSpot { get; set; }
-
-        [Required]
-        public int IdVisitor { get; set; }
-
-        [Required]
         public DateTime StartTime { get; set; }
 
         public DateTime? EndTime { get; set; }
@@ -29,13 +23,7 @@ namespace VPASS3_backend.Models
 
         public TimeSpan? UsageTime { get; set; }
 
-        [JsonIgnore]
-        public ParkingSpot ParkingSpot { get; set; }
-
-        [JsonIgnore]
-        public Visitor Visitor { get; set; }
-
-        [JsonIgnore]
+        //[JsonIgnore]
         [ForeignKey("IdEntryVisit")]
         public Visit? EntryVisit { get; set; }
 
