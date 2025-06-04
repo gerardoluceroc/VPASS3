@@ -132,36 +132,6 @@ namespace VPASS3_backend.Context
             .WithMany() // <-- Sin navegación inversa
             .HasForeignKey(v => v.IdVisitType)
             .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<ParkingSpotUsageLog>()
-            .HasOne(log => log.ParkingSpot)
-            .WithMany(p => p.UsageLogs)
-            .HasForeignKey(log => log.IdParkingSpot)
-            .OnDelete(DeleteBehavior.Restrict); // evita borrar el log si se elimina el estacionamiento
-
-            modelBuilder.Entity<ParkingSpotUsageLog>()
-            .HasOne(log => log.Visitor)
-            .WithMany(v => v.UsageLogs) // debes agregar esta propiedad en Visitor
-            .HasForeignKey(log => log.IdVisitor)
-            .OnDelete(DeleteBehavior.Restrict);
-
-            //// Relaciones opcionales con visitas de entrada/salida
-            //modelBuilder.Entity<ParkingSpotUsageLog>()
-            //    .HasOne<Visit>()
-            //    .WithMany()
-            //    .HasForeignKey(log => log.IdEntryVisit)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            //modelBuilder.Entity<ParkingSpotUsageLog>()
-            //    .HasOne<Visit>()
-            //    .WithMany()
-            //    .HasForeignKey(log => log.IdExitVisit)
-            //    .OnDelete(DeleteBehavior.NoAction);
-
-            // Agrega un índice para que no se repita el mismo visitante en el mismo ParkingSpot en la misma hora
-            modelBuilder.Entity<ParkingSpotUsageLog>()
-            .HasIndex(log => new { log.IdParkingSpot, log.IdVisitor, log.StartTime });
-
         }
     }
 }
