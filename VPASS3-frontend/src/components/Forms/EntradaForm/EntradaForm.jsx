@@ -16,6 +16,7 @@ import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDial
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta.jsx";
 import { generarRango } from "../../../utils/funciones.js";
 import { idSentidoVisitaEntrada, idSentidoVisitaSalida } from "../../../utils/constantes.js";
+import { useSelector } from "react-redux";
 
 const EntradaForm = () => {
 
@@ -115,8 +116,6 @@ const EntradaForm = () => {
             } 
         }
     });
-
-    useEffect(() => {console.log("- [EntradaForm.jsx] - formik => ",formik.values)}, [formik.values]);
 
     const [subZonasDisponibles, setSubZonasDisponibles] = useState([]);
     useEffect(() => {
