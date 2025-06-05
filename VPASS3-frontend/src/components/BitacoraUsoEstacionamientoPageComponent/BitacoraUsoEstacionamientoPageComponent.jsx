@@ -19,6 +19,8 @@ const BitacoraUsoEstacionamientoPageComponent = () => {
     // Estado donde se guardará la informacion del uso del estacionamiento
     const [rows, setRows] = useState()
 
+    // useEffect(() => {console.log("📌 - rows => ",rows)}, [rows]);
+
     // Cuando cargue la info del uso de los estacionamientos desde el servidor, se proceden a ordenar por fecha.
     useEffect(() => {
         if (!Array.isArray(usoEstacionamiento)) return;
@@ -29,17 +31,18 @@ const BitacoraUsoEstacionamientoPageComponent = () => {
         setRows(usoEstacionamientoOrdenadosPorFecha);
     }, [usoEstacionamiento]);
     
-    const columns = ["Nombre visita", "Rut visita", "Tiempo Autorizado", "Inicio de uso", "Fin de uso", "Tiempo de uso"];
+    const columns = ["Nombre visita", "Estacionamiento", "Tiempo Autorizado", "Inicio de uso", "Fin de uso", "Tiempo de uso"];
 
     const data = rows?.map((usoEstacionamiento) => {
         const {entryVisit, authorizedTime, startTime, endTime, usageTime} = usoEstacionamiento;
 
-        const {visitor} = entryVisit;
-        const {names = "", lastNames = "", identificationNumber} = visitor;
+        const {visitor, parkingSpot} = entryVisit;
+        const {names = "", lastNames = ""} = visitor;
+        const {name: parkingSpotName = ""} = parkingSpot;
 
         return [
             `${names} ${lastNames}`.trim() || "No disponible",
-            `${identificationNumber}` || "No disponible",
+            `${parkingSpotName}` || "No disponible",
             `${formatoLegibleDesdeHoraString(authorizedTime)}` || "No disponible",
             `${cambiarFormatoHoraFecha(startTime)}` || "No disponible",
             `${cambiarFormatoHoraFecha(endTime)}` || "Sin reportar",
