@@ -204,13 +204,12 @@ namespace VPASS3_backend.Services
                             {
                                 IdVisit = exitVisit.Id
                             });
-
-                            // Actualizar disponibilidad
-                            spot.IsAvailable = dto.IsAvailable;
-
-                            await _context.SaveChangesAsync();
                         }
                     }
+                    // Actualizar disponibilidad
+                    spot.IsAvailable = dto.IsAvailable;
+
+                    await _context.SaveChangesAsync();
                 }
 
 
