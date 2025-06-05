@@ -3,9 +3,7 @@ import { AxiosInterceptorProvider } from "./services/API/AxiosInterceptorProvide
 
 function App() {
   return (
-    <AxiosInterceptorProvider>
       <AppRoutes />
-    </AxiosInterceptorProvider>
   );
 }
 
