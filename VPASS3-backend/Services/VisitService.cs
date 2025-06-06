@@ -226,7 +226,7 @@ namespace VPASS3_backend.Services
                     var parkingSpot = await _context.ParkingSpots.FindAsync(dto.IdParkingSpot.Value);
 
                     // Si la visita es de tipo salida
-                    if (direction.VisitDirection.ToLower() == "salida" || direction.Id == 2)
+                    if (direction.VisitDirection.ToLower() == "salida")
                     {
                         // Se marca el estacionamiento como disponible ya que el visitante que lo ha utilizado se ha ido
                         if (parkingSpot != null)
@@ -236,7 +236,7 @@ namespace VPASS3_backend.Services
                     }
 
                     // Si la visita es de tipo entrada
-                    else if (direction.VisitDirection.ToLower() == "entrada" || direction.Id == 1)
+                    else if (direction.VisitDirection.ToLower() == "entrada")
                     {
                         // Se marca el estacionamiento como no disponible ya que lo utilizará el visitante
                         if (parkingSpot != null)
