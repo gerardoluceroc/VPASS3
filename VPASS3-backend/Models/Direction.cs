@@ -15,5 +15,4 @@ namespace VPASS3_backend.Models
         [JsonIgnore]
         public ICollection<Visit> Visits { get; set; }
     }
-
 }

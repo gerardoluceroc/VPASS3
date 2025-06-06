@@ -4,8 +4,6 @@ import storage from 'redux-persist/lib/storage';
 import { authReducer } from "./misSlice";
 import axios from "axios";
 
-
-
 // Configuración de persistencia para redux-persist
 const persistConfig = {
     key: 'root',        // Esta será la "clave raíz" usada en localStorage (por ejemplo: persist:root)
