@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.AccessControl;
 using System.Text.Json.Serialization;
+using VPASS3_backend.Models.CommonAreas;
 
 namespace VPASS3_backend.Models
 {
@@ -26,5 +28,8 @@ namespace VPASS3_backend.Models
 
         [JsonIgnore]
         public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
+
+        // Relación con todos los espacios comunes, sin importar el tipo
+        public ICollection<CommonArea> CommonAreas { get; set; } = new List<CommonArea>();
     }
 }
