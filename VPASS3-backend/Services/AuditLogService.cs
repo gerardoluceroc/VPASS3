@@ -5,6 +5,7 @@ using VPASS3_backend.DTOs;
 using VPASS3_backend.DTOs.AuditLogs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
+using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services
 {
@@ -17,26 +18,6 @@ namespace VPASS3_backend.Services
         {
             _context = context;
             _userContext = userContext;
-        }
-
-        private static DateTime GetSantiagoTime()
-        {
-            try
-            {
-                // Linux y contenedores (por ejemplo, Docker en Azure)
-                return TimeZoneInfo.ConvertTimeFromUtc(
-                    DateTime.UtcNow,
-                    TimeZoneInfo.FindSystemTimeZoneById("America/Santiago")
-                );
-            }
-            catch (TimeZoneNotFoundException)
-            {
-                // Windows Server o desarrollo local en Windows
-                return TimeZoneInfo.ConvertTimeFromUtc(
-                    DateTime.UtcNow,
-                    TimeZoneInfo.FindSystemTimeZoneById("Pacific SA Standard Time")
-                );
-            }
         }
 
         public async Task LogAsync(HttpContext context, string action, int statusCode)
@@ -65,7 +46,7 @@ namespace VPASS3_backend.Services
                 HttpMethod = method,
                 Endpoint = endpoint,
                 StatusCode = statusCode,
-                Timestamp = GetSantiagoTime()
+                Timestamp = TimeHelper.GetSantiagoTime()
             };
 
             _context.AuditLogs.Add(log);
@@ -84,7 +65,7 @@ namespace VPASS3_backend.Services
                 HttpMethod = httpMethod,
                 Endpoint = endpoint,
                 StatusCode = statusCode,
-                Timestamp = GetSantiagoTime()
+                Timestamp = TimeHelper.GetSantiagoTime()
             };
 
             _context.AuditLogs.Add(log);
