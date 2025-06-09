@@ -12,8 +12,6 @@ namespace VPASS3_backend.Models.CommonAreas
         [Required]
         public string Name { get; set; }
 
-        public string? Description { get; set; }
-
         [Required]
         public int IdEstablishment { get; set; }
 
@@ -22,8 +20,5 @@ namespace VPASS3_backend.Models.CommonAreas
 
         [Required]
         public CommonAreaType Type { get; set; } // Enum: Reservable, Utilizable
-
-        //public bool IsActive { get; set; } = true;
     }
-
 }

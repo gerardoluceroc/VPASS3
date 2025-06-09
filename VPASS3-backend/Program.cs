@@ -9,8 +9,10 @@ using System.Text.Json;
 using VPASS3_backend.Context;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
+using VPASS3_backend.Interfaces.CommonAreaInterfaces;
 using VPASS3_backend.Models;
 using VPASS3_backend.Services;
+using VPASS3_backend.Services.CommonAreaServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -196,7 +198,10 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IBlacklistService, BlacklistService>();
 builder.Services.AddScoped<IParkingSpotUsageLogService, ParkingSpotUsageLogService>();
-
+builder.Services.AddScoped<ICommonAreaService, CommonAreaService>();
+builder.Services.AddScoped<IUtilizationUsableCommonAreaLogService, UtilizationUsableCommonAreaLogService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IReservableCommonAreaReservationService, ReservableCommonAreaReservationService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 builder.Services.AddAuthorization(options =>

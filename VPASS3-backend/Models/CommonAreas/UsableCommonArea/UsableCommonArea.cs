@@ -8,7 +8,6 @@ namespace VPASS3_backend.Models.CommonAreas.UsableCommonArea
         public int MaxCapacity { get; set; }
 
         // Cada uso individual, con fecha y duración
-        public ICollection<UtilizationUsableCommonAreaLog> UtilizationUsableCommonAreaLog { get; set; } = new List<UtilizationUsableCommonAreaLog>();
+        public ICollection<UtilizationUsableCommonAreaLog> UtilizationUsableCommonAreaLogs { get; set; } = new List<UtilizationUsableCommonAreaLog>();
     }
-
 }

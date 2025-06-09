@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace VPASS3_backend.Models.CommonAreas.ReservableCommonArea
 {
@@ -9,23 +10,27 @@ namespace VPASS3_backend.Models.CommonAreas.ReservableCommonArea
         public int Id { get; set; }
 
         [Required]
-        public int IdReservableCommonArea { get; set; }
+        public TimeSpan? ReservationTime { get; set; }
 
         [Required]
         public DateTime ReservationStart { get; set; }
 
-        [Required]
-        public DateTime ReservationEnd { get; set; }
+        public DateTime? ReservationEnd { get; set; }
+
+        public ICollection<Person> Guests { get; set; } = new List<Person>();
 
         [Required]
-        public int IdVisitorReservedBy { get; set; }
+        [JsonIgnore]
+        public int IdPersonReservedBy { get; set; }
 
-        public Visitor ReservedBy { get; set; }
+        [ForeignKey("IdPersonReservedBy")]
+        public Person ReservedBy { get; set; }
 
-        public ICollection<ReservationCommonAreaGuest> Guests { get; set; } = new List<ReservationCommonAreaGuest>();
+        [Required]
+        public int IdReservableCommonArea { get; set; }
 
         [ForeignKey("IdReservableCommonArea")]
-        public ReservableCommonArea CommonArea { get; set; }
+        [JsonIgnore]
+        public ReservableCommonArea ReservableCommonArea { get; set; }
     }
-
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VPASS3_backend.Context;
 
@@ -11,9 +12,11 @@ using VPASS3_backend.Context;
 namespace VPASS3_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609135904_UpdateCommonAreasConfiguration")]
+    partial class UpdateCommonAreasConfiguration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace VPASS3_backend.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CommonAreaReservationPerson", b =>
-                {
-                    b.Property<int>("GuestsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InvitedCommonAreaReservationsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("GuestsId", "InvitedCommonAreaReservationsId");
-
-                    b.HasIndex("InvitedCommonAreaReservationsId");
-
-                    b.ToTable("ReservationCommonAreaGuestPerson", (string)null);
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
@@ -251,14 +239,11 @@ namespace VPASS3_backend.Migrations
                     b.Property<int>("IdReservableCommonArea")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("ReservationEnd")
+                    b.Property<DateTime>("ReservationEnd")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("ReservationStart")
                         .HasColumnType("datetime2");
-
-                    b.Property<TimeSpan>("ReservationTime")
-                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
@@ -267,6 +252,29 @@ namespace VPASS3_backend.Migrations
                     b.HasIndex("IdReservableCommonArea");
 
                     b.ToTable("CommonAreaReservations");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.ReservableCommonArea.ReservationCommonAreaGuest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("IdPerson")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdReservation")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdPerson");
+
+                    b.HasIndex("IdReservation");
+
+                    b.ToTable("ReservationCommonAreaGuests");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.UsableCommonArea.UtilizationUsableCommonAreaLog", b =>
@@ -427,7 +435,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Persons");
+                    b.ToTable("Person");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Role", b =>
@@ -693,6 +701,9 @@ namespace VPASS3_backend.Migrations
                 {
                     b.HasBaseType("VPASS3_backend.Models.CommonAreas.CommonArea");
 
+                    b.Property<TimeSpan?>("ReservationTime")
+                        .HasColumnType("time");
+
                     b.HasDiscriminator().HasValue(1);
                 });
 
@@ -704,21 +715,6 @@ namespace VPASS3_backend.Migrations
                         .HasColumnType("int");
 
                     b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("CommonAreaReservationPerson", b =>
-                {
-                    b.HasOne("VPASS3_backend.Models.Person", null)
-                        .WithMany()
-                        .HasForeignKey("GuestsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("VPASS3_backend.Models.CommonAreas.ReservableCommonArea.CommonAreaReservation", null)
-                        .WithMany()
-                        .HasForeignKey("InvitedCommonAreaReservationsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -819,6 +815,25 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("ReservableCommonArea");
 
                     b.Navigation("ReservedBy");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.ReservableCommonArea.ReservationCommonAreaGuest", b =>
+                {
+                    b.HasOne("VPASS3_backend.Models.Person", "Person")
+                        .WithMany()
+                        .HasForeignKey("IdPerson")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("VPASS3_backend.Models.CommonAreas.ReservableCommonArea.CommonAreaReservation", "CommonAreaReservation")
+                        .WithMany("Guests")
+                        .HasForeignKey("IdReservation")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CommonAreaReservation");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.UsableCommonArea.UtilizationUsableCommonAreaLog", b =>
@@ -972,6 +987,11 @@ namespace VPASS3_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Zone");
+                });
+
+            modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.ReservableCommonArea.CommonAreaReservation", b =>
+                {
+                    b.Navigation("Guests");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Direction", b =>

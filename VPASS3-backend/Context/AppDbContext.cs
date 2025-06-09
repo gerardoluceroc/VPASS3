@@ -34,6 +34,8 @@ namespace VPASS3_backend.Context
 
         public DbSet<ParkingSpotUsageLog> ParkingSpotUsageLogs { get; set; }
 
+        public DbSet<Person> Persons { get; set; }
+
         public DbSet<CommonArea> CommonAreas { get; set; }
 
         public DbSet<UsableCommonArea> UsableCommonAreas { get; set; }
@@ -43,8 +45,6 @@ namespace VPASS3_backend.Context
         public DbSet<ReservableCommonArea> ReservableCommonAreas { get; set; }
 
         public DbSet<CommonAreaReservation> CommonAreaReservations { get; set; }
-
-        public DbSet<ReservationCommonAreaGuest> ReservationCommonAreaGuests { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -162,19 +162,28 @@ namespace VPASS3_backend.Context
                 .HasValue<UsableCommonArea>(CommonAreaType.Usable)
                 .HasValue<ReservableCommonArea>(CommonAreaType.Reservable);
 
-            // ReservationCommonAreaGuest -> Visitor
-            modelBuilder.Entity<ReservationCommonAreaGuest>()
-                .HasOne(r => r.Visitor)
+            modelBuilder.Entity<CommonAreaReservation>()
+                .HasOne(r => r.ReservedBy)
                 .WithMany()
-                .HasForeignKey(r => r.IdVisitor)
+                .HasForeignKey(r => r.IdPersonReservedBy)
                 .OnDelete(DeleteBehavior.Restrict); // evita ciclo de cascada
 
-            // ReservationCommonAreaGuest -> CommonAreaReservation
-            modelBuilder.Entity<ReservationCommonAreaGuest>()
-                .HasOne(r => r.Reservation)
-                .WithMany(r => r.Guests)
-                .HasForeignKey(r => r.IdReservation)
-                .OnDelete(DeleteBehavior.Cascade); // permitido, ya que es interno a CommonAreaReservation
+            modelBuilder.Entity<CommonAreaReservation>()
+                .HasOne(r => r.ReservableCommonArea)
+                .WithMany(ca => ca.Reservations)
+                .HasForeignKey(r => r.IdReservableCommonArea)
+                .OnDelete(DeleteBehavior.Cascade); // permitido, ya que es interno a ReservableCommonArea
+
+            modelBuilder.Entity<CommonAreaReservation>()
+                .HasMany(r => r.Guests)
+                .WithMany(g => g.InvitedCommonAreaReservations)
+                .UsingEntity(j => j.ToTable("ReservationCommonAreaGuestPerson"));
+
+            modelBuilder.Entity<UtilizationUsableCommonAreaLog>()
+                .HasOne(l => l.UsableCommonArea)
+                .WithMany(ca => ca.UtilizationUsableCommonAreaLogs)
+                .HasForeignKey(l => l.IdUsableCommonArea)
+                .OnDelete(DeleteBehavior.Cascade); // permitido, ya que es interno a UsableCommonArea
         }
     }
 }
