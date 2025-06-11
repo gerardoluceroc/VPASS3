@@ -20,7 +20,6 @@ namespace VPASS3_backend.Controllers.CommonAreaControllers
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpPost("create")]
-        [Audit("Creación de reserva en área común")]
         public async Task<ActionResult<ResponseDto>> Create([FromBody] CreateReservableCommonAreaReservationDto dto)
         {
             if (!ModelState.IsValid)
@@ -61,7 +60,6 @@ namespace VPASS3_backend.Controllers.CommonAreaControllers
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpDelete("delete/{id}")]
-        [Audit("Eliminación de reserva en área común")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {
             var response = await _reservationService.DeleteAsync(id);
