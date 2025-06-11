@@ -38,31 +38,37 @@ import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDial
   
   const opcionesDrawner = [
     { 
+      id: 1,
       nombre: "Panel de control", 
       icono: <DashboardIcon sx={{color: "white"}} />,
       ruta: RUTA_HOME
     },
     { 
+      id: 2,
       nombre: "Gestion de estacionamientos", 
       icono: <DirectionsCarFilledIcon sx={{color: "white"}} />,
       ruta: RUTA_GESTION_ESTACIONAMIENTO
     },
     { 
+      id: 3,
       nombre: "Bitácora de incidencias", 
       icono: <IconoLogs />,
       ruta: RUTA_BITACORA_INCIDENCIAS
     },
     { 
+      id: 4,
       nombre: "Gestion de zonas", 
       icono: <LocationCityIcon sx={{color: "white"}} />,
       ruta: RUTA_GESTION_ZONAS
     },
     { 
+      id: 5,
       nombre: "Bitácora de uso de estacionamiento", 
       icono: <LocalParkingIcon sx={{color: "white"}} />, 
       ruta: RUTA_BITACORA_USO_ESTACIONAMIENTO
     },
     { 
+      id: 6,
       nombre: "Gestión de espacios comunes",
       icono: <WorkspacesIcon sx={{color: "white"}} />, 
       ruta: RUTA_GESTION_ESPACIOS_COMUNES
@@ -138,7 +144,7 @@ import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDial
         <Divider className="DividerDrawerResponsive" />
         <List id="MenuSuperiorOpcionesDrawerResponsive">
           {opcionesDrawner.map((opcion) => (
-            <ListItem key={opcion.nombre} sx={{color: "white"}} disablePadding>
+            <ListItem key={opcion.id} sx={{color: "white"}} disablePadding>
               <ListItemButton onClick={()=>navigate(opcion.ruta)}>
                 <ListItemIcon>{opcion.icono}</ListItemIcon>
                 <ListItemText primary={opcion.nombre} />

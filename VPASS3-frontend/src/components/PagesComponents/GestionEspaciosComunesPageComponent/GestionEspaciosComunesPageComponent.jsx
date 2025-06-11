@@ -44,14 +44,14 @@ const GestionEspaciosComunesPageComponent = () => {
         //En caso de ser un espacio utilizable
         if(type === idEspacioComunTipoUsable){
 
-            columnsRegistros = ["Nombres", "Apellidos", "RUT/Pasaporte", "Hora de inicio", "Tiempo autorizado", "Número de invitados"];
+            columnsRegistros = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
 
     
             const registrosUsoOrdenadosPorFecha = [...utilizationLogs].sort((a, b) =>
                 dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
             );
 
-           dataRegistros = registrosUsoOrdenadosPorFecha.map((utilizationLog) => {
+            dataRegistros = registrosUsoOrdenadosPorFecha.map((utilizationLog) => {
                 const {guestsNumber , person, startTime, usageTime} = utilizationLog || {};
                 const {names: namePersonaRegistradaEspacioUtilizable = "", lastNames: lastNamePersonaRegistradaEspacioUtilizable  = "", identificationNumber: rutPersonaRegistradaEspacioUtilizable = ""} = person || {};
 

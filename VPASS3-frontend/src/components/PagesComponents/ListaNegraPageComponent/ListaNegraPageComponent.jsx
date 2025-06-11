@@ -115,7 +115,6 @@ const ListaNegraPageComponent = () => {
   const [openModalCrearListaNegra, setOpenModalCrearListaNegra] = useState(false);
   const handleOpenModalCrearListaNegra = () => setOpenModalCrearListaNegra(true);  
   const handleCloseModalCrearListaNegra = () => setOpenModalCrearListaNegra(false);
-  
 
   return (
     <Box id="ContainerListaNegraPageComponent">
