@@ -12,13 +12,14 @@ import {
     ListItemText,
     Toolbar,
     ButtonBase,
+    Typography,
   } from "@mui/material";
   import MenuIcon from "@mui/icons-material/Menu";
   import { useState } from "react";
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-  import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME } from "../../../utils/rutasCliente";
+  import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESPACIOS_COMUNES, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME, RUTA_LOGIN } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
   import { IconoLogs } from "../../../icons/iconos";
@@ -27,6 +28,11 @@ import {
   import MailIcon from "@mui/icons-material/Mail";
   import LocalParkingIcon from '@mui/icons-material/LocalParking';
   import LocationCityIcon from '@mui/icons-material/LocationCity';
+  import WorkspacesIcon from '@mui/icons-material/Workspaces';
+  import PersonIcon from '@mui/icons-material/Person';
+  import { useSelector } from "react-redux";
+import useLogin from "../../../hooks/auth/useLogin";
+import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
     
   const drawerWidth = 280;
   
@@ -56,12 +62,46 @@ import {
       icono: <LocalParkingIcon sx={{color: "white"}} />, 
       ruta: RUTA_BITACORA_USO_ESTACIONAMIENTO
     },
+    { 
+      nombre: "Gestión de espacios comunes",
+      icono: <WorkspacesIcon sx={{color: "white"}} />, 
+      ruta: RUTA_GESTION_ESPACIOS_COMUNES
+    },
   ];
   
-  export default function DrawerResponsive({ children, handleOpcionSeleccionada }) {
+  export default function DrawerResponsive({ 
+    children, 
+  }) {
+    // Se invoca la función para consultarle al usuario si desea cerrar sesión
+    const { confirm, ConfirmDialogComponent } = useConfirmDialog();
+
+    const { email: emailUsuario = ""} = useSelector((state) => state.user);
+    const {logoutSession} = useLogin();
+    const navigate = useNavigate();
+
+    const menuInferiorOpciones = [
+    {
+      id: 1,
+      texto: "Cerrar sesión",
+      icono: <PersonIcon sx={{color: "white"}} />,
+      accion: async () => {
+
+        const confirmed = await confirm({
+            title: "Cerrar sesión",
+            message: "¿Estás seguro de que deseas cerrar sesión?"
+        });
+
+        if(confirmed) {
+          await logoutSession();
+          navigate(RUTA_LOGIN);
+        }
+      }
+    }
+  ];
+
     const [mobileOpen, setMobileOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
-  
+
     const handleDrawerToggle = () => {
       if (!isClosing) {
         setMobileOpen(!mobileOpen);
@@ -76,8 +116,6 @@ import {
     const handleDrawerTransitionEnd = () => {
       setIsClosing(false);
     };
-
-    const navigate = useNavigate();
 
     const handleOpcionClick = (ruta) => {
         navigate(ruta);
@@ -98,7 +136,7 @@ import {
           />
         </ButtonBase>
         <Divider className="DividerDrawerResponsive" />
-        <List>
+        <List id="MenuSuperiorOpcionesDrawerResponsive">
           {opcionesDrawner.map((opcion) => (
             <ListItem key={opcion.nombre} sx={{color: "white"}} disablePadding>
               <ListItemButton onClick={()=>navigate(opcion.ruta)}>
@@ -109,18 +147,17 @@ import {
           ))}
         </List>
         <Divider className="DividerDrawerResponsive" />
-        {/* <Box sx={{backgroundColor: "red", display: "flex", flexDirection: "column", justifyContent: "space-between", height: "100%"}}>
-          <button>Click aca</button>
-          <button>Click aca</button>
-        </Box> */}
-        <List>
-          {["All mail", "Trash", "Spam"].map((text, index) => (
-            <ListItem key={text} disablePadding>
-              <ListItemButton>
+        <List id="MenuInferiorOpcionesDrawerResponsive">
+          <Typography variant="subtitle1" sx={{display: "flex", alignItems: "center", justifyContent: "center", color: "white", padding: "0px 20px 20px 20px"}}>
+            {`Bienvenido ${emailUsuario}`}
+          </Typography>
+          {menuInferiorOpciones.map((opcion) => (
+            <ListItem key={opcion.id} sx={{color: "white"}} disablePadding>
+              <ListItemButton onClick={opcion.accion}>
                 <ListItemIcon>
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                  {opcion.icono}
                 </ListItemIcon>
-                <ListItemText primary={text} />
+                <ListItemText primary={opcion.texto} />
               </ListItemButton>
             </ListItem>
           ))}
@@ -149,6 +186,7 @@ import {
               <MenuIcon />
             </IconButton>
           </Toolbar>
+          {ConfirmDialogComponent}
         </AppBar>
   
         {/* Menú lateral para móvil */}

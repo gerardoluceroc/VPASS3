@@ -10,6 +10,7 @@ const authSlice = createSlice(
             rememberMe: false,
             idEstablishment: null,
             expirationTokenTimestamp: null,
+            email: null
         },
         reducers:
         {
@@ -19,6 +20,7 @@ const authSlice = createSlice(
                 state.rememberMe = action.payload.rememberMe;
                 state.expirationTokenTimestamp = action.payload.expirationTokenTimestamp;
                 state.idEstablishment = parseInt(action.payload.idEstablishment);
+                state.email = action.payload.email || null; // Agregar email si está presente
             },
             disconnect: (state) => {
                 state.authenticated = false;
@@ -26,6 +28,7 @@ const authSlice = createSlice(
                 state.rememberMe = false;
                 state.expirationTokenTimestamp = null;
                 state.idEstablishment = null;
+                state.email = null; // Limpiar el email al desconectar
             },            
         }
     }

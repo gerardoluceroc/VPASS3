@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
-import { url_loginSession } from "../../services/API/API-VPASS3";
+import { url_loginSession, url_logoutSession } from "../../services/API/API-VPASS3";
 import { useDispatch } from "react-redux";
 import { persistor } from "../../store/store";
 import { disconnect, setUser } from "../../store/misSlice";
@@ -28,8 +28,12 @@ const useLogin = () => {
 
           // Decodificar el token para obtener los claims
           const claims = obtenerClaimsToken(token);
-
-          const {exp: claimExpiracion, establishment_id} = claims; // Desestructuración para obtener el timestamp de la fecha de expiración del token
+          
+          const {
+            exp: claimExpiracion, 
+            establishment_id,
+            ["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"]: email
+          } = claims; // Desestructuración para obtener el timestamp de la fecha de expiración del token
           dispatch(setUser(
             {
               authenticated: true,
@@ -37,6 +41,7 @@ const useLogin = () => {
               rememberMe: true,
               idEstablishment: establishment_id,
               expirationTokenTimestamp: claimExpiracion, // Guardar la fecha de expiración en el estado
+              email: email
             }
           ))
           setResponse(token);
@@ -57,22 +62,37 @@ const useLogin = () => {
       }
   };
 
-  const logoutSession = () => {
+  const logoutSession = async () => {
+    setLoading(true);  // Indicamos que la petición está en proceso
+    try{
+      const response = await axios.post(url_logoutSession, {});
 
-    // Limpiar manualmente las cabeceras de axios
-    delete axios.defaults.headers.common['Authorization'];
+      // Limpiar manualmente las cabeceras de axios
+      delete axios.defaults.headers.common['Authorization'];
 
-    // Despacha la acción disconnect para limpiar el estado en Redux
-    dispatch(disconnect());
+      // Despacha la acción disconnect para limpiar el estado en Redux
+      dispatch(disconnect());
 
-    const handleReset = async () => {
-      // Despacha la acción RESET para limpiar el estado en Redux
-      dispatch({ type: 'RESET' });
+      const handleReset = async () => {
+        // Despacha la acción RESET para limpiar el estado en Redux
+        dispatch({ type: 'RESET' });
 
-      // Limpia los datos persistidos
-      await persistor.purge();
-    };
-    handleReset();
+        // Limpia los datos persistidos
+        await persistor.purge();
+      };
+      handleReset();
+    }
+    catch (error) {
+      const errorMessage = error?.response?.data?.message || "Error desconocido";
+      const status = error?.response?.status || null;
+      setResponse(errorMessage);
+      setResponseStatus(status);
+      return {status: status, message: errorMessage};
+    } 
+    finally {
+      setLoading(false);  // Se indica que la petición terminó, independientemente de si tuvo éxito o no
+
+    }
   }
   
     return {
