@@ -178,6 +178,8 @@ const DatagridResponsive = ({
   searchButton = true,
   viewColumnsButton = true,
   width = "100%",
+  rowsPerPage = 10,
+  rowsPerPageOptions = [5, 10, 20]
 }) => {  
 
   const options = {
@@ -201,8 +203,8 @@ const DatagridResponsive = ({
     responsive: "simple", //"vertical", "standard", "simple", "scroll", "scrollMaxHeight", "stacked",
     tableBodyHeight: "100%",
     tableBodyMaxHeight: "100%",
-    rowsPerPage: 10,
-    rowsPerPageOptions: [5, 10, 20],
+    rowsPerPage: rowsPerPage, // Número de filas por página
+    rowsPerPageOptions: rowsPerPageOptions, // Opciones de filas por página
     selectableRows: selectableRows, // 'multiple', 'single' o 'none'
     pagination: true,
     sort: false,
