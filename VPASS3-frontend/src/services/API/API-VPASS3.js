@@ -1,6 +1,7 @@
 export const URL_SERVER = "http://localhost:5113"
 
 export const url_loginSession = `${URL_SERVER}/auth/login`
+export const url_logoutSession = `${URL_SERVER}/auth/logout`
 export const path_getAllSentidos = `${URL_SERVER}/direction/all`
 export const path_getAllLugaresEstacionamiento = `${URL_SERVER}/ParkingSpot/all`
 export const path_getAllTiposVisita = `${URL_SERVER}/VisitType/all`
@@ -12,6 +13,16 @@ export const path_getAllBitacoraIncidencias = `${URL_SERVER}/AuditLog/all`
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
 export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
 export const path_createEstacionamiento = `${URL_SERVER}/ParkingSpot/create`
+
+/* Espacios Comunes */
+export const path_getAllEspaciosComunes = `${URL_SERVER}/CommonArea/all`
+export const path_createEspacioComun = `${URL_SERVER}/CommonArea/create`
+export const path_updateEspacioComun = `${URL_SERVER}/CommonArea/update`
+export const path_deleteEspacioComun = `${URL_SERVER}/CommonArea/delete`
+export const path_getAllReservasEspaciosComunes = `${URL_SERVER}/ReservableCommonAreaReservation/all`
+export const path_reservarEspacioComun = `${URL_SERVER}/ReservableCommonAreaReservation/create`
+export const path_getAllUsosEspaciosComunes = `${URL_SERVER}/UtilizationUsableCommonAreaLog/all`
+export const path_UsarEspacioComun = `${URL_SERVER}/UtilizationUsableCommonAreaLog/create`
 
 /* Lista Negra */
 export const path_getAllListaNegra = `${URL_SERVER}/Blacklist/all`

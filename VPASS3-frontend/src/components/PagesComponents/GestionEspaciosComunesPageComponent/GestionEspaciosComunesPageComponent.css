@@ -1,0 +1,44 @@
+#ContainerGestionEspaciosComunesPageComponent{
+    background-color:#213d4f;
+    height: 100%;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#BotonCrearNuevaListaNegra{
+    width: 25%;
+}
+
+#AccordionRegistroEspaciosComunes{
+    width: 100%;
+    background-color: white;
+    border-radius: 5px;
+}
+
+@media (max-width: 1000px){
+    #BotonCrearNuevaListaNegra{
+        width: 40%;
+    }
+}
+
+@media (max-width: 760px){
+    #BotonCrearNuevaListaNegra{
+        width: 70%;
+    }
+}
+
+@media (max-width: 403px){
+    #BoxDatagridResponsiveZonas{
+        width: 90%;
+    }
+
+    #AccordionRegistroEspaciosComunes{
+        width: 90%;
+    }
+
+    #ContainerGestionEspaciosComunesPageComponent{
+        padding: 10px;
+    }
+}
