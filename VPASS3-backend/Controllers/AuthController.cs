@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Services;
 
@@ -21,6 +22,14 @@ namespace VPASS3_backend.Controllers
             var response = await _authService.LoginAsync(loginDto.Email, loginDto.Password);
 
             // Se retorna el resultado con el mensaje adecuado
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var response = await _authService.LogoutAsync(User);
             return StatusCode(response.StatusCode, response);
         }
     }

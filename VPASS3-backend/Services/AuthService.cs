@@ -102,5 +102,36 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor.");
             }
         }
+
+        public async Task<ResponseDto> LogoutAsync(ClaimsPrincipal user)
+        {
+            try
+            {
+                var email = user.FindFirst(ClaimTypes.Email)?.Value;
+                var userIdStr = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var role = user.FindFirst(ClaimTypes.Role)?.Value;
+
+                if (!int.TryParse(userIdStr, out var userId))
+                    return new ResponseDto(400, message: "ID de usuario inválido.");
+
+                await _auditLogService.LogManualAsync(
+                    action: "Cierre de sesión",
+                    email: email,
+                    role: role ?? "DESCONOCIDO",
+                    userId: userId,
+                    endpoint: "/auth/logout",
+                    httpMethod: "POST",
+                    statusCode: 200
+                );
+
+                return new ResponseDto(200, message: "Sesión cerrada correctamente (el token sigue siendo válido hasta su expiración).");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error en LogoutAsync: " + ex.Message);
+                return new ResponseDto(500, message: "Error interno en el servidor.");
+            }
+        }
+
     }
 }
