@@ -24,31 +24,69 @@ namespace VPASS3_backend.Services.CommonAreaServices
         }
 
         public async Task<ResponseDto> GetAllCommonAreasAsync()
+{
+    try
+    {
+        //List<CommonArea> areas;
+
+        if (_userContext.UserRole != "SUPERADMIN" && !_userContext.EstablishmentId.HasValue)
         {
-            try
-            {
-                var areas = await _context.CommonAreas
-                    .Include(ca => ca.Establishment)
+            return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
+        }
+
+        var establishmentId = _userContext.EstablishmentId;
+
+                // Cargar las áreas usables con sus logs
+                var usableAreas = await _context.UsableCommonAreas
+                    .Include(u => u.UtilizationUsableCommonAreaLogs)
+                    .ThenInclude(r => r.Person)
+                    .Where(u => _userContext.UserRole == "SUPERADMIN" || u.IdEstablishment == establishmentId)
                     .ToListAsync();
 
-                if (_userContext.UserRole != "SUPERADMIN")
-                {
-                    if (!_userContext.EstablishmentId.HasValue)
-                        return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
+                // Cargar las áreas reservables con sus reservas
+                var reservableAreas = await _context.ReservableCommonAreas
+                    .Include(r => r.Reservations)
+                    .ThenInclude(r => r.ReservedBy)
+                    .Where(r => _userContext.UserRole == "SUPERADMIN" || r.IdEstablishment == establishmentId)
+                    .ToListAsync();
 
-                    areas = areas
-                        .Where(ca => ca.IdEstablishment == _userContext.EstablishmentId)
-                        .ToList();
-                }
+                //// Unir todas como CommonArea
+                //areas = usableAreas.Cast<CommonArea>()
+                //    .Concat(reservableAreas)
+                //    .ToList();
+
+                var areas = usableAreas.Select(a => new CommonAreaDto
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    IdEstablishment = a.IdEstablishment,
+                    Type = (int)a.Type,
+                    MaxCapacity = a.MaxCapacity,
+                    UtilizationLogs = a.UtilizationUsableCommonAreaLogs.ToList()
+                })
+                .Concat(reservableAreas.Select(a => new CommonAreaDto
+                {
+                    Id = a.Id,
+                    Name = a.Name,
+                    IdEstablishment = a.IdEstablishment,
+                    Type = (int)a.Type,
+                    Reservations = a.Reservations.ToList()
+                }))
+                .ToList();
+
 
                 return new ResponseDto(200, areas, "Áreas comunes obtenidas correctamente.");
+                //return new ResponseDto(200, usableAreas, "Áreas comunes obtenidas correctamente.");
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error en GetAllCommonAreasAsync: " + ex.Message);
-                return new ResponseDto(500, message: "Error al obtener las áreas comunes.");
-            }
-        }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error en GetAllCommonAreasAsync: " + ex.Message);
+        return new ResponseDto(500, message: "Error al obtener las áreas comunes.");
+    }
+}
+
+
+
 
         public async Task<ResponseDto> GetCommonAreaByIdAsync(int id)
         {
