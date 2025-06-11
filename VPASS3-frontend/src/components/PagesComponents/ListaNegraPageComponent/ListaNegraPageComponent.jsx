@@ -87,7 +87,7 @@ const ListaNegraPageComponent = () => {
   // Estado en donde se guardarán los datos de la lista negra, es con el objetivo de manipular el arreglo
   const [rows, setRows] = useState();
 
-  // En el momento en que carguen los estacionamientos, se hace una copia para rows.
+  // En el momento en que carguen los datos de la lista negra, se hace una copia para rows.
   useEffect(() => {
       if (!Array.isArray(listaNegra)) return;
       setRows(listaNegra);

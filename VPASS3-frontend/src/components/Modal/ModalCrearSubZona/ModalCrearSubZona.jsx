@@ -8,13 +8,11 @@ import { Box, IconButton, Modal, Typography } from "@mui/material";
 import TextFieldUno from "../../TextField/TextFieldUno/TextFieldUno";
 import CloseIcon from '@mui/icons-material/Close';
 import { agregarSubZona } from "../../PagesComponents/GestionZonasPageComponent/funcionesGestionZonasPageComponent";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import "./ModalCrearSubZona.css";
 
 
 const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
-
-    useEffect(() => {console.log("- [ModalCrearSubZona.jsx] idZona => ",idZona)}, [idZona]);
 
     const {loading, crearSubZona} = useSubZona();
 
