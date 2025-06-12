@@ -135,6 +135,13 @@ namespace VPASS3_backend.Services
                 if (!establishmentExists)
                     return new ResponseDto(404, message: "El establecimiento especificado no existe.");
 
+                // Verificar si el visitante está en la blacklist de este establecimiento
+                var isBlacklisted = await _context.Blacklists
+                    .AnyAsync(b => b.IdVisitor == dto.VisitorId && b.IdEstablishment == establishmentId);
+
+                if (isBlacklisted)
+                    return new ResponseDto(403, message: "El visitante se encuentra en la lista negra del establecimiento y no puede ingresar.");
+
                 // Validar tipo de visita
                 var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == dto.IdVisitType);
                 if (visitType == null)

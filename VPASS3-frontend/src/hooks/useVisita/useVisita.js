@@ -77,6 +77,7 @@ const useVisita = () => {
           idVisitante = visitanteCreado?.id;
     
         } else {
+
           // Si no se obtuvo un código 201 o 409, se considera un error inesperado
           throw responseCrearVisitante;
         }
@@ -108,11 +109,12 @@ const useVisita = () => {
         return respuestaCrearVisita;
     
       } catch (error) {
+            console.log("error => ", error);
           const dataError = error?.response?.data || error || "Error desconocido";
           const status = error?.status ?? error?.statusCode ?? null;
           setResponse(dataError);
           setResponseStatus(status);
-          return error;
+          return dataError;
       } finally {
           // Se indica que el proceso ha terminado, sea exitoso o con error
           setLoading(false);
