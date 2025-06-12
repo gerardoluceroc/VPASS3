@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children }) => {
 
   // Función que se ejecutará al presionar "Aceptar" en el AlertDialog
   const handleSessionExpiredAccept = () => {
-    logoutSession();
+    logoutSession({sesionExpirada: true});
   };
   const navigate = useNavigate();
 

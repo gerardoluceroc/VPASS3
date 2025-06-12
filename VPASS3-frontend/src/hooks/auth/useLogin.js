@@ -62,10 +62,13 @@ const useLogin = () => {
       }
   };
 
-  const logoutSession = async () => {
+  const logoutSession = async ({ sesionExpirada = false } = {}) => {
     setLoading(true);  // Indicamos que la petición está en proceso
     try{
-      const response = await axios.post(url_logoutSession, {});
+
+      if(!sesionExpirada) {
+        const response = await axios.post(url_logoutSession, {});
+      }
 
       // Limpiar manualmente las cabeceras de axios
       delete axios.defaults.headers.common['Authorization'];
