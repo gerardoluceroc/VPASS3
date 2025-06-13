@@ -1,0 +1,88 @@
+#ContainerModalReservarEspacioComun {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: auto;
+    min-width: 25%;
+    max-width: 70%;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    max-height: 90%;
+}
+
+#HeaderModalReservarEspacioComun {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px 0px 16px;
+}
+
+#CuerpoModalReservarEspacioComun {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 24px 10px;
+  gap: 30px;
+  width: 80%;
+  overflow-y: auto;
+}
+
+#ItemCuerpoModalReservarEspacioComun{
+    display: flex;
+    flex-direction: column;
+    gap: 18px
+}
+
+#BoxButtonSubmitModalReservarEspacioComun {
+  width: 60%;
+  margin-top: -10px;
+}
+
+#DosItemsModalReservarEspacioComun {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    justify-content: space-between;
+}
+
+@media (max-width: 1073px) {
+
+    #ContainerModalReservarEspacioComun {
+        width: 50%;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    #DosItemsModalReservarEspacioComun {
+      flex-direction: column;
+    }
+
+    #ContainerModalReservarEspacioComun {
+        width: 90%;
+        max-width: 90%;
+        max-height: 70%;
+    }
+
+    #CuerpoModalReservarEspacioComun {
+        width: 95%;
+    }
+
+    #BoxButtonSubmitModalReservarEspacioComun {
+        width: 70%;
+    }
+}

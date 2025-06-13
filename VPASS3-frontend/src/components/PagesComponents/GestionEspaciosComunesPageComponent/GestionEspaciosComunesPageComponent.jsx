@@ -9,6 +9,8 @@ import "./GestionEspaciosComunesPageComponent.css";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString } from "../../../utils/funciones";
 import dayjs from "dayjs";
+import { useFormik } from "formik";
+import ModalReservarEspacioComun from "../../Modal/ModalReservarEspacioComun/ModalReservarEspacioComun";
 
 const GestionEspaciosComunesPageComponent = () => {
     const {loading, getAllEspaciosComunes, espaciosComunes} = useEspaciosComunes();
@@ -22,7 +24,6 @@ const GestionEspaciosComunesPageComponent = () => {
 
     useEffect(() => {console.log("📌 - rows => ",rows)}, [rows]);
 
-
     // En el momento en que carguen los datos de los espacios comunes, se hace una copia para rows.
     useEffect(() => {
         if (!Array.isArray(espaciosComunes)) return;
@@ -35,6 +36,68 @@ const GestionEspaciosComunesPageComponent = () => {
         "Tipo de espacio",
     ];
 
+    const [openModalReservarEspacioComun, setOpenModalReservarEspacioComun] = useState(false);
+    const handleOpenModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(true);  
+    const handleCloseModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(false);
+
+    const formik = useFormik({
+        initialValues: {
+            nombreZona: ''
+        },
+        // validationSchema: ValidationCrearZona,
+        onSubmit: async (values) => {
+            // const confirmed = await confirm({
+            //     title: "¿Crear zona?",
+            //     message: "¿Deseas crear una nueva zona en el establecimiento?"
+            // });
+        
+            // if (confirmed) {
+            //     setOpenLoadingRespuesta(true);
+
+            //     // Se envía la información al backend para crear una nueva zona
+            //     const {statusCode: statusCodeCrearZona, data: dataZonaAgregada, message: messageCrearZona} = await crearZona(idEstablishment, values.nombreZona);
+
+            //     // Si el servidor responde con el Response dto que tiene configurado
+            //     if(statusCodeCrearZona != null && statusCodeCrearZona != undefined){
+    
+            //       if (statusCodeCrearZona === 200 || statusCodeCrearZona === 201) {
+            //         setOperacionExitosa(true);
+            //         setMessageLoadingRespuesta(messageCrearZona);
+            //         setRows(prevRows => [...prevRows, dataZonaAgregada]); // Agrega la nueva zona a las filas de la tabla
+            //         formik.resetForm(); // Resetea el formulario después de crear la zona
+            //       }
+            //       else if (statusCodeCrearZona === 500) {
+            //           //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+            //           setOperacionExitosa(false);
+            //           setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+            //       }
+            //       else{
+            //           //En caso de cualquier otro error, se muestra el mensaje de error del backend
+            //           setOperacionExitosa(false);
+            //           setMessageLoadingRespuesta(messageCrearZona);
+            //       }
+            //     }
+            //     else{
+            //       //Esto es para los casos que el servidor no responda el ResponseDto tipico
+            //       setOperacionExitosa(false);
+            //       setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+            //     }
+
+            // } 
+        }
+    });
+    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
+
+
+
+
+
+
+
+
+
+
+
     const data = rows?.map((espacioComun) => {
         const {name, type, reservations, utilizationLogs} = espacioComun;
         const tipoEspacio = type === idEspacioComunTipoReservable ? "Reservable" : type === idEspacioComunTipoUsable ? "Utilizable" : "Desconocido";
@@ -46,7 +109,6 @@ const GestionEspaciosComunesPageComponent = () => {
 
             columnsRegistros = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
 
-    
             const registrosUsoOrdenadosPorFecha = [...utilizationLogs].sort((a, b) =>
                 dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
             );
@@ -112,7 +174,7 @@ const GestionEspaciosComunesPageComponent = () => {
                     }
                 </AccordionSummary>
                 <AccordionDetails>
-                    <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={false} viewColumnsButton={false} columns={columnsRegistros} data={dataRegistros} selectableRows="none"/>
+                    <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistros} data={dataRegistros} selectableRows="none"/>
                 </AccordionDetails>
             </Accordion>,
             `${tipoEspacio}`.trim(),
@@ -121,15 +183,21 @@ const GestionEspaciosComunesPageComponent = () => {
     
     return (
         <Box id="ContainerGestionEspaciosComunesPageComponent">
-            <Box id="BotonCrearNuevaListaNegra">
+            <Box id="BotonCrearNuevaReservaEspacioComun">
                 <ButtonTypeOne
-                    defaultText="boton y la ctm"
-                    handleClick={()=> console.log("Agregar visitante a lista negra")}
+                    defaultText="Reservar espacio común"
+                    handleClick={handleOpenModalReservarEspacioComun}
                 />
             </Box>
             <Fade in={!(!Array.isArray(rows))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
                 <div>
                 <DatagridResponsive title="Espacios Comunes" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} /> 
+                <ModalReservarEspacioComun
+                    open={openModalReservarEspacioComun}
+                    onClose={handleCloseModalReservarEspacioComun}
+                    setEspaciosComunes={setRows}
+                    espaciosComunes={rows}
+                />
                 </div>
             </Fade>
 

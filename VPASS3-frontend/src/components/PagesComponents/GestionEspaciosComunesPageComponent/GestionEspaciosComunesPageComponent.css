@@ -7,7 +7,7 @@
     gap: 20px;
 }
 
-#BotonCrearNuevaListaNegra{
+#BotonCrearNuevaReservaEspacioComun{
     width: 25%;
 }
 
@@ -18,13 +18,13 @@
 }
 
 @media (max-width: 1000px){
-    #BotonCrearNuevaListaNegra{
+    #BotonCrearNuevaReservaEspacioComun{
         width: 40%;
     }
 }
 
 @media (max-width: 760px){
-    #BotonCrearNuevaListaNegra{
+    #BotonCrearNuevaReservaEspacioComun{
         width: 70%;
     }
 }
