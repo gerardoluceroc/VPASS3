@@ -15,14 +15,9 @@ import useVisita from "../../../hooks/useVisita/useVisita";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog.jsx";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta.jsx";
 import { generarRango } from "../../../utils/funciones.js";
-import { idSentidoVisitaEntrada, idSentidoVisitaSalida } from "../../../utils/constantes.js";
-import { useSelector } from "react-redux";
+import { cantidadHorasMaximasUsoEstacionamiento, cantidadHorasMinimasUsoEstacionamiento, idSentidoVisitaEntrada, idSentidoVisitaSalida } from "../../../utils/constantes.js";
 
 const EntradaForm = () => {
-
-    // Constantes para las horas mínimas y máximas de uso del estacionamiento que se usarán en el select
-    const cantidadHorasMinimasUsoEstacionamiento = 0;
-    const cantidadHorasMaximasUsoEstacionamiento = 24;
 
     const { sentidos, getAllSentidos} = useSentido();
     const { zonas, getAllZonas } = useZonas();
