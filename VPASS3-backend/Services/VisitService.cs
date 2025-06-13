@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Drawing;
 using ClosedXML.Excel;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services
 {
@@ -196,19 +197,6 @@ namespace VPASS3_backend.Services
                     }
                 }
 
-                // Obtener hora local Chile
-                TimeZoneInfo chileTimeZone;
-                try
-                {
-                    chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Pacific SA Standard Time");
-                }
-                catch
-                {
-                    chileTimeZone = TimeZoneInfo.FindSystemTimeZoneById("America/Santiago");
-                }
-
-                DateTime chileDateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, chileTimeZone);
-
                 // Crear la visita
                 var visit = new Visit
                 {
@@ -219,7 +207,7 @@ namespace VPASS3_backend.Services
                     VehicleIncluded = dto.VehicleIncluded,
                     LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null,
                     IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null,
-                    EntryDate = chileDateTime,
+                    EntryDate = TimeHelper.GetSantiagoTime(),
                     IdZoneSection = idZoneSectionValida,
                     IdVisitType = dto.IdVisitType,
                     AuthorizedTime = dto.AuthorizedTime.HasValue ? dto.AuthorizedTime.Value : null
