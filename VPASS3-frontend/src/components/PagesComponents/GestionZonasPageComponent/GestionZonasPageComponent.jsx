@@ -6,7 +6,6 @@ import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import TableSkeleton from "../../Skeleton/TableSkeleton/TableSkeleton";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import InfoIcon from '@mui/icons-material/Info';
 import { IconoBorrar } from "../../IconButtons/IconButtons";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
@@ -183,7 +182,6 @@ const GestionZonasPageComponent = () => {
                         e.stopPropagation(); // Previene que se expanda el accordion
                         handleOpenModalCrearSubZona(); // Abre el modal para crear una subzona
                         setIdZonaSeleccionada(zona.id); // Guarda el id de la zona seleccionada para crear una subzona
-
                         }}
                         onFocus={(e) => e.stopPropagation()} // También para evitar comportamiento extraño con teclado
                     >
@@ -233,7 +231,6 @@ const GestionZonasPageComponent = () => {
                     setRows={setRowsZonas}
                     idZona={idZonaSeleccionada}
                 />
-
             </Box>
         </Fade>
 

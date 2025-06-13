@@ -77,8 +77,6 @@ const ModalCrearZona = ({ open, onClose, setRows }) => {
         }
     });
 
-    useEffect(() => {console.log("[ModalCrearZona.jsx] - formik => ",formik.values)}, [formik.values]);
-
   return (
     <Modal open={open} onClose={onClose}>
         <Box id="ContainerModalCrearZona">

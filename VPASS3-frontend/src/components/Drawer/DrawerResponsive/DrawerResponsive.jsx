@@ -23,9 +23,6 @@ import {
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
   import { IconoLogs } from "../../../icons/iconos";
-  import SimCardDownloadIcon from '@mui/icons-material/SimCardDownload';
-  import InboxIcon from "@mui/icons-material/MoveToInbox";
-  import MailIcon from "@mui/icons-material/Mail";
   import LocalParkingIcon from '@mui/icons-material/LocalParking';
   import LocationCityIcon from '@mui/icons-material/LocationCity';
   import WorkspacesIcon from '@mui/icons-material/Workspaces';
