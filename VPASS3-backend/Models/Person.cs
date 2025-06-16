@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using VPASS3_backend.Models.CommonAreas.ReservableCommonArea;
+using VPASS3_backend.Models.CommonAreas;
 
 namespace VPASS3_backend.Models
 {
