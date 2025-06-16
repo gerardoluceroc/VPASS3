@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs.CommonAreas;
 using VPASS3_backend.DTOs;
-using VPASS3_backend.Filters;
+using VPASS3_backend.Interfaces.CommonAreaInterfaces;
 using VPASS3_backend.Interfaces;
 
 namespace VPASS3_backend.Controllers.CommonAreaControllers
@@ -11,12 +11,12 @@ namespace VPASS3_backend.Controllers.CommonAreaControllers
     [Route("[controller]")]
     public class CommonAreaController : ControllerBase
     {
-        private readonly ICommonAreaService _commonAreaService;
+        private readonly ICommonAreaService _service;
         private readonly IUserContextService _userContext;
 
-        public CommonAreaController(ICommonAreaService commonAreaService, IUserContextService userContext)
+        public CommonAreaController(ICommonAreaService service, IUserContextService userContext)
         {
-            _commonAreaService = commonAreaService;
+            _service = service;
             _userContext = userContext;
         }
 
@@ -25,45 +25,43 @@ namespace VPASS3_backend.Controllers.CommonAreaControllers
         public async Task<ActionResult<ResponseDto>> Create([FromBody] CreateCommonAreaDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ResponseDto(400, message: "Datos inválidos. Verifica los campos ingresados."));
-
-            var response = await _commonAreaService.CreateCommonAreaAsync(dto);
-            return StatusCode(response.StatusCode, response);
+                return BadRequest(new ResponseDto(400, message: "Datos inválidos."));
+            var res = await _service.CreateAsync(dto);
+            return StatusCode(res.StatusCode, res);
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("all")]
         public async Task<ActionResult<ResponseDto>> GetAll()
         {
-            var response = await _commonAreaService.GetAllCommonAreasAsync();
-            return StatusCode(response.StatusCode, response);
+            var res = await _service.GetAllAsync();
+            return StatusCode(res.StatusCode, res);
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ResponseDto>> GetById(int id)
         {
-            var response = await _commonAreaService.GetCommonAreaByIdAsync(id);
-            return StatusCode(response.StatusCode, response);
+            var res = await _service.GetByIdAsync(id);
+            return StatusCode(res.StatusCode, res);
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpPut("update/{id}")]
-        public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] CreateCommonAreaDto dto)
+        public async Task<ActionResult<ResponseDto>> Update(int id, [FromBody] UpdateCommonAreaDto dto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new ResponseDto(400, message: "Datos inválidos. Verifica los campos ingresados."));
-
-            var response = await _commonAreaService.UpdateCommonAreaAsync(id, dto);
-            return StatusCode(response.StatusCode, response);
+                return BadRequest(new ResponseDto(400, message: "Datos inválidos."));
+            var res = await _service.UpdateAsync(id, dto);
+            return StatusCode(res.StatusCode, res);
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpDelete("delete/{id}")]
         public async Task<ActionResult<ResponseDto>> Delete(int id)
         {
-            var response = await _commonAreaService.DeleteCommonAreaAsync(id);
-            return StatusCode(response.StatusCode, response);
+            var res = await _service.DeleteAsync(id);
+            return StatusCode(res.StatusCode, res);
         }
     }
 }

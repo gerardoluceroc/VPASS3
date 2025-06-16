@@ -1,4 +1,5 @@
 ﻿using VPASS3_backend.Models;
+using VPASS3_backend.Models.CommonAreas;
 
 namespace VPASS3_backend.Interfaces
 {
@@ -31,5 +32,6 @@ namespace VPASS3_backend.Interfaces
 
         bool CanAccessVisitor(Visitor visitor);
 
+        bool CanAccessArea(CommonArea area);
     }
 }

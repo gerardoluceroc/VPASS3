@@ -198,10 +198,10 @@ builder.Services.AddScoped<IUserContextService, UserContextService>();
 builder.Services.AddScoped<IAuditLogService, AuditLogService>();
 builder.Services.AddScoped<IBlacklistService, BlacklistService>();
 builder.Services.AddScoped<IParkingSpotUsageLogService, ParkingSpotUsageLogService>();
-builder.Services.AddScoped<ICommonAreaService, CommonAreaService>();
-builder.Services.AddScoped<IUtilizationUsableCommonAreaLogService, UtilizationUsableCommonAreaLogService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
-builder.Services.AddScoped<IReservableCommonAreaReservationService, ReservableCommonAreaReservationService>();
+builder.Services.AddScoped<ICommonAreaService, CommonAreaService>();
+builder.Services.AddScoped<ICommonAreaReservationService, CommonAreaReservationService>();
+builder.Services.AddScoped<ICommonAreaUsageLogService, CommonAreaUsageLogService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 builder.Services.AddAuthorization(options =>

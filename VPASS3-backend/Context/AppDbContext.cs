@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Enums;
 using VPASS3_backend.Models;
 using VPASS3_backend.Models.CommonAreas;
-using VPASS3_backend.Models.CommonAreas.ReservableCommonArea;
-using VPASS3_backend.Models.CommonAreas.UsableCommonArea;
 
 namespace VPASS3_backend.Context
 {
@@ -38,13 +36,9 @@ namespace VPASS3_backend.Context
 
         public DbSet<CommonArea> CommonAreas { get; set; }
 
-        public DbSet<UsableCommonArea> UsableCommonAreas { get; set; }
-
-        public DbSet<UtilizationUsableCommonAreaLog> UtilizationUsableCommonAreaLogs { get; set; }
-
-        public DbSet<ReservableCommonArea> ReservableCommonAreas { get; set; }
-
         public DbSet<CommonAreaReservation> CommonAreaReservations { get; set; }
+
+        public DbSet<CommonAreaUsageLog> CommonAreaUsageLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -149,41 +143,84 @@ namespace VPASS3_backend.Context
             .HasForeignKey(v => v.IdVisitType)
             .OnDelete(DeleteBehavior.Restrict);
 
-            // Relación Establishment - CommonAreas
+            // 1. Relación Establishment -> CommonAreas (uno a muchos)
             modelBuilder.Entity<CommonArea>()
                 .HasOne(ca => ca.Establishment)
                 .WithMany(e => e.CommonAreas)
                 .HasForeignKey(ca => ca.IdEstablishment)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configurar herencia TPH
-            modelBuilder.Entity<CommonArea>()
-                .HasDiscriminator<CommonAreaType>("Type")
-                .HasValue<UsableCommonArea>(CommonAreaType.Usable)
-                .HasValue<ReservableCommonArea>(CommonAreaType.Reservable);
+            // 2. CommonArea -> Reservations (uno a muchos)
+            modelBuilder.Entity<CommonAreaReservation>()
+                .HasOne(r => r.CommonArea)
+                .WithMany(ca => ca.Reservations)
+                .HasForeignKey(r => r.IdCommonArea)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // 3. CommonArea -> Usages (uno a muchos)
+            modelBuilder.Entity<CommonAreaUsageLog>()
+                .HasOne(u => u.CommonArea)
+                .WithMany(ca => ca.Usages)
+                .HasForeignKey(u => u.IdCommonArea)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 4. Relación Reservation -> Persona que reserva (muchos a uno)
             modelBuilder.Entity<CommonAreaReservation>()
                 .HasOne(r => r.ReservedBy)
                 .WithMany()
                 .HasForeignKey(r => r.IdPersonReservedBy)
-                .OnDelete(DeleteBehavior.Restrict); // evita ciclo de cascada
+                .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<CommonAreaReservation>()
-                .HasOne(r => r.ReservableCommonArea)
-                .WithMany(ca => ca.Reservations)
-                .HasForeignKey(r => r.IdReservableCommonArea)
-                .OnDelete(DeleteBehavior.Cascade); // permitido, ya que es interno a ReservableCommonArea
+            // 5. Relación Usage -> Persona que usa (muchos a uno)
+            modelBuilder.Entity<CommonAreaUsageLog>()
+                .HasOne(u => u.Person)
+                .WithMany()
+                .HasForeignKey(u => u.IdPerson)
+                .OnDelete(DeleteBehavior.Restrict);
 
+            // 6. Configurar relación muchos a muchos: Reservation <-> Person (invitados)
             modelBuilder.Entity<CommonAreaReservation>()
                 .HasMany(r => r.Guests)
-                .WithMany(g => g.InvitedCommonAreaReservations)
-                .UsingEntity(j => j.ToTable("ReservationCommonAreaGuestPerson"));
+                .WithMany(p => p.InvitedCommonAreaReservations)
+                .UsingEntity<Dictionary<string, object>>(
+                    "CommonAreaReservationGuest",
+                    j => j
+                        .HasOne<Person>()
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<CommonAreaReservation>()
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.ToTable("CommonAreaReservationGuests");
+                        j.HasKey("ReservationId", "PersonId");
+                    });
 
-            modelBuilder.Entity<UtilizationUsableCommonAreaLog>()
-                .HasOne(l => l.UsableCommonArea)
-                .WithMany(ca => ca.UtilizationUsableCommonAreaLogs)
-                .HasForeignKey(l => l.IdUsableCommonArea)
-                .OnDelete(DeleteBehavior.Cascade); // permitido, ya que es interno a UsableCommonArea
+            // 7. (Opcional) Si también quieres invitados para CommonAreaUsageLog:
+            modelBuilder.Entity<CommonAreaUsageLog>()
+                .HasMany(u => u.InvitedGuests)
+                .WithMany()
+                .UsingEntity<Dictionary<string, object>>(
+                    "CommonAreaUsageLogGuest",
+                    j => j
+                        .HasOne<Person>()
+                        .WithMany()
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<CommonAreaUsageLog>()
+                        .WithMany()
+                        .HasForeignKey("UsageLogId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j =>
+                    {
+                        j.ToTable("CommonAreaUsageLogGuests");
+                        j.HasKey("UsageLogId", "PersonId");
+                    });
         }
     }
 }
