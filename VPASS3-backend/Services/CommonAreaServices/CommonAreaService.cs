@@ -25,7 +25,12 @@ namespace VPASS3_backend.Services.CommonAreaServices
         {
             try
             {
-                var query = _context.CommonAreas.AsQueryable();
+                var query = _context.CommonAreas
+                    .Include(ca => ca.Reservations)
+                        .ThenInclude(r => r.ReservedBy)
+                    .Include(ca => ca.Usages)
+                        .ThenInclude(u => u.Person)
+                    .AsQueryable();
 
                 if (_userContext.UserRole != "SUPERADMIN")
                 {
@@ -48,7 +53,12 @@ namespace VPASS3_backend.Services.CommonAreaServices
         {
             try
             {
-                var ca = await _context.CommonAreas.FindAsync(id);
+                var ca = await _context.CommonAreas
+                    .Include(ca => ca.Reservations)
+                        .ThenInclude(r => r.ReservedBy)
+                    .Include(ca => ca.Usages)
+                        .ThenInclude(u => u.Person)
+                    .FirstOrDefaultAsync(e => e.Id == id);
                 if (ca == null)
                     return new ResponseDto(404, message: "Área común no encontrada.");
 

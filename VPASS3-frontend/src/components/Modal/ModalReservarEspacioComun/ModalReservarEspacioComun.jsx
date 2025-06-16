@@ -129,8 +129,8 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             // } 
         }
     });
-    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
-    useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
+    // useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
+    // useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
 
     //Cada vez que se abra el modal se reseteará el formulario
     useEffect(() => {
