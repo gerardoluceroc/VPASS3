@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
+using VPASS3_backend.Models.CommonAreas;
 
 namespace VPASS3_backend.Services
 {
@@ -168,5 +169,18 @@ namespace VPASS3_backend.Services
             // Validar si al menos una visita pertenece al establecimiento del usuario
             return visitor.Visits.Any(v => v.EstablishmentId == EstablishmentId.Value);
         }
+
+        // Este método permite verificar si el usuario autenticado tiene acceso al área común basándose en su EstablishmentId
+        public bool CanAccessArea(CommonArea area)
+        {
+            if (area == null)
+                return false;
+
+            if (UserRole == "SUPERADMIN")
+                return true;
+
+            return EstablishmentId.HasValue && EstablishmentId.Value == area.IdEstablishment;
+        }
+
     }
 }
