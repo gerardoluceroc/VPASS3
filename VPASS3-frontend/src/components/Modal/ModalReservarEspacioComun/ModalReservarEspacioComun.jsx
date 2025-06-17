@@ -1,4 +1,4 @@
-import { Box, IconButton, Modal, Typography } from "@mui/material";
+import { Box, Fade, IconButton, Modal, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import { useSelector } from "react-redux";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
@@ -10,11 +10,19 @@ import TextFieldUno from "../../TextField/TextFieldUno/TextFieldUno";
 import SelectMui from "../../Select/SelectMui/SelectMui";
 import RadioGroupMui from "../../RadioGroupMui/RadioGroupMui";
 import TextFieldDate from "../../TextField/TextFieldDate/TextFieldDate";
-import { cantidadHorasMaximasReserva, cantidadHorasMinimasReserva } from "../../../utils/constantes";
+import { cantidadHorasMaximasReserva, cantidadHorasMinimasReserva, idReservacionTipoReserva, idReservacionTipoUso, opcionesReservacionEspacioComun } from "../../../utils/constantes";
 import { generarRango } from "../../../utils/funciones";
 import ValidationReservarEspacioComun from "./ValidationReservarEspacioComun";
+import ProgressStepperMui from "../../StepperMui/ProgressStepperMui/ProgressStepperMui";
 
 const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espaciosComunes }) => {
+
+    // Con esta función se evita que el modal se cierre al presionar fuera de él
+    const handleClose = (event, reason) => {
+        if (reason !== 'backdropClick') {
+            onClose();
+        }
+    };
 
     const { idEstablishment } = useSelector((state) => state.user);
 
@@ -31,6 +39,14 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
         setOpenLoadingRespuesta(false);
         setMessageLoadingRespuesta('');
     }
+
+    // Estados y funciones para manejar los pasos llevados en el formulario
+    const [pasoActualFormulario, setPasoActualFormulario] = useState(0);
+    const cantidadPasosFormulario = 5;
+    const handleNextClick = () => {setPasoActualFormulario(prev => prev + 1)}
+    const handleBackClick = () => {setPasoActualFormulario(prev => prev - 1)}
+    const opcionesReserva = opcionesReservacionEspacioComun;
+    console.log("🚀 - opcionesReserva:", opcionesReserva);
 
     const opcionesRadioFechaReserva =       
     [
@@ -70,6 +86,8 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
 
     const formik = useFormik({
         initialValues: {
+            idTipoReservacion: '',
+
             nombres: '',
             apellidos: '',
             numeroIdentificacion: '',
@@ -94,7 +112,7 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                 title: "¿Reservar espacio común?",
                 message: "¿Deseas reservar este espacio común para la persona ingresada?"
             });
-        
+
             // if (confirmed) {
             //     setOpenLoadingRespuesta(true);
 
@@ -136,12 +154,13 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
     useEffect(() => {
       if(open){
         formik.resetForm();
+        setPasoActualFormulario(0);
       }
     }, [open])
     
 
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
         <Box id="ContainerModalReservarEspacioComun">
             <Box id="HeaderModalReservarEspacioComun">
                 <Typography variant="h5" component="h5" gutterBottom>
@@ -160,207 +179,271 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             </Box>
 
             <Box id="CuerpoModalReservarEspacioComun">
-                <Box id="DosItemsModalReservarEspacioComun">
-                    <TextFieldUno 
-                        name="nombres" 
-                        label="Nombres" 
-                        placeholder="" 
-                        value={formik.values.nombres}
-                        onChange={formik.handleChange}
-                        error={formik.touched.nombres && Boolean(formik.errors.nombres)}
-                        helperText={formik.touched.nombres && formik.errors.nombres}
-                    />
-
-                    <TextFieldUno 
-                        name="apellidos" 
-                        label="Apellidos" 
-                        placeholder="" 
-                        value={formik.values.apellidos}
-                        onChange={formik.handleChange}
-                        error={formik.touched.apellidos && Boolean(formik.errors.apellidos)}
-                        helperText={formik.touched.apellidos && formik.errors.apellidos}
-                    />
-                </Box>
-
-                <TextFieldUno 
-                    name="numeroIdentificacion" 
-                    label="Rut/Pasaporte" 
-                    placeholder="Ej: 12345678-9" 
-                    value={formik.values.numeroIdentificacion}
-                    onChange={formik.handleChange}
-                    error={formik.touched.numeroIdentificacion && Boolean(formik.errors.numeroIdentificacion)}
-                    helperText={formik.touched.numeroIdentificacion && formik.errors.numeroIdentificacion}
-                />
-
-                <SelectMui
-                    label = "Seleccione el espacio común a utilizar"
-                    name="idEspacioComunSeleccionado"
-                    width={"100%"}
-                    listadoElementos={espaciosComunes || []}
-                    keyListadoElementos={"id"}
-                    mostrarElemento={(option)=> option["name"]}
-                    handleChange = {formik.handleChange}
-                    elementoSeleccionado = {formik.values.idEspacioComunSeleccionado}
-                    atributoValue={"id"}
-                    helperText={formik.touched.idEspacioComunSeleccionado && formik.errors.idEspacioComunSeleccionado}
-                    error={formik.touched.idEspacioComunSeleccionado && Boolean(formik.errors.idEspacioComunSeleccionado)}
-                />
-
-                <Box id="ItemCuerpoModalReservarEspacioComun">
-                    <RadioGroupMui
-                        label="¿Cuándo desea reservar el espacio?"
-                        name="idOpcionRadioFechaReserva"
-                        listadoElementos={opcionesRadioFechaReserva}
-                        keyListadoElementos="id"
-                        atributoValue="id"
-                        mostrarElemento={(option) => option.opcion}
-                        handleChange={(e) => {
-                            formik.setFieldValue('idOpcionRadioFechaReserva', parseInt(e.target.value));
-                        }}
-                        elementoSeleccionado={formik.values.idOpcionRadioFechaReserva}
-                        helperText={formik.touched.idOpcionRadioFechaReserva && formik.errors.idOpcionRadioFechaReserva}
-                        error={formik.touched.idOpcionRadioFechaReserva && Boolean(formik.errors.idOpcionRadioFechaReserva)}
-                        row={true} // Para mostrar los radios en horizontal
-                    />
-
-                    {formik.values.idOpcionRadioFechaReserva === 2 &&
+                {pasoActualFormulario === 0 &&
+                    <Fade in={pasoActualFormulario === 0} timeout={300}>
                         <Box id="ItemCuerpoModalReservarEspacioComun">
-                            <TextFieldDate
-                                name="fechaReserva"
-                                label="Fecha de la reserva"
-                                onChange={formik.handleChange}
-                                error={formik.touched.fechaReserva && Boolean(formik.errors.fechaReserva)}
-                                helperText={formik.touched.fechaReserva && formik.errors.fechaReserva}
+                            <SelectMui
+                                label = "Seleccione el espacio común a reservar"
+                                name="idEspacioComunSeleccionado"
+                                width={"100%"}
+                                listadoElementos={espaciosComunes || []}
+                                keyListadoElementos={"id"}
+                                mostrarElemento={(option)=> option["name"]}
+                                handleChange = {formik.handleChange}
+                                elementoSeleccionado = {formik.values.idEspacioComunSeleccionado}
+                                atributoValue={"id"}
+                                helperText={formik.touched.idEspacioComunSeleccionado && formik.errors.idEspacioComunSeleccionado}
+                                error={formik.touched.idEspacioComunSeleccionado && Boolean(formik.errors.idEspacioComunSeleccionado)}
                             />
 
-                            <Typography color="#00000099">Hora de reserva</Typography>
+                            <SelectMui
+                                label = "Seleccione el tipo de reservación"
+                                name="idTipoReservacion"
+                                width={"100%"}
+                                listadoElementos={opcionesReserva || []}
+                                keyListadoElementos={"id"}
+                                mostrarElemento={(option)=> option["name"]}
+                                handleChange = {formik.handleChange}
+                                elementoSeleccionado = {formik.values.idTipoReservacion}
+                                atributoValue={"id"}
+                                helperText={
+                                    formik.touched.idTipoReservacion && formik.errors.idTipoReservacion
+                                        ? 
+                                            formik.errors.idTipoReservacion
+                                        : 
+                                            formik.values.idTipoReservacion === idReservacionTipoUso ?
 
+                                                "Este tipo de reservación permite que el espacio común sea utilizado por varias personas al mismo tiempo. El usuario indica que estará usando el espacio, pero otros también pueden acceder durante ese horario. Ejemplo: gimnasio, piscina, etc."
+                                            :
+
+                                            formik.values.idTipoReservacion === idReservacionTipoReserva ? 
+
+                                                "Este tipo de reservación es exclusiva. Solo el usuario que realiza la reserva e invitados autorizados pueden usar el espacio durante ese horario; no se permite que otros lo reserven al mismo tiempo. Ej: Centro de eventos."
+                                            :
+                                                null
+                                }
+
+                                error={formik.touched.idTipoReservacion && Boolean(formik.errors.idTipoReservacion)}
+                            />
+                        </Box>
+                    </Fade>
+                }
+
+                {pasoActualFormulario === 1 &&
+                    <Fade in={pasoActualFormulario === 1} timeout={300}>
+                        <Box id="ItemCuerpoModalReservarEspacioComun">
                             <Box id="DosItemsModalReservarEspacioComun">
-                                <SelectMui
-                                    label = "Hora"
-                                    name="horaReserva"
-                                    width={"100%"}
-                                    listadoElementos={generarRango(0,23)}
-                                    keyListadoElementos={"id"}
-                                    mostrarElemento={(option)=> `${option["valor"]}`}
-                                    handleChange = {formik.handleChange}
-                                    elementoSeleccionado = {formik.values.horaReserva}
-                                    atributoValue={"valor"}
-                                    helperText={(formik.touched.horaReserva && formik.errors.horaReserva)}
-                                    error={formik.touched.horaReserva && Boolean(formik.errors.horaReserva)}
+                                <TextFieldUno 
+                                    name="nombres" 
+                                    label="Nombres" 
+                                    placeholder="" 
+                                    value={formik.values.nombres}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.nombres && Boolean(formik.errors.nombres)}
+                                    helperText={formik.touched.nombres && formik.errors.nombres}
                                 />
 
-                                <SelectMui
-                                    label = "Minutos"
-                                    name="minutosHoraReserva"
-                                    width={"100%"}
-                                    listadoElementos={generarRango(0, 59)}
-                                    keyListadoElementos={"id"}
-                                    mostrarElemento={(option)=> `${option["valor"]}`}
-                                    handleChange = {formik.handleChange}
-                                    elementoSeleccionado = {formik.values.minutosHoraReserva}
-                                    atributoValue={"valor"}
-                                    helperText={formik.touched.minutosHoraReserva && formik.errors.minutosHoraReserva}
-                                    error={formik.touched.minutosHoraReserva && Boolean(formik.errors.minutosHoraReserva)}
+                                <TextFieldUno 
+                                    name="apellidos" 
+                                    label="Apellidos" 
+                                    placeholder="" 
+                                    value={formik.values.apellidos}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.apellidos && Boolean(formik.errors.apellidos)}
+                                    helperText={formik.touched.apellidos && formik.errors.apellidos}
                                 />
                             </Box>
-                        </Box>
-                    }
-                </Box>
 
-                <Box id="ItemCuerpoModalReservarEspacioComun">
-                    <RadioGroupMui
-                        label="Duración de la reserva"
-                        name="idOpcionRadioHorasReserva"
-                        listadoElementos={opcionesRadioHorasReserva}
-                        keyListadoElementos="id"
-                        atributoValue="id"
-                        mostrarElemento={(option) => option.opcion}
-                        handleChange={(e) => {
-                            formik.setFieldValue('idOpcionRadioHorasReserva', parseInt(e.target.value));
-                        }}
-                        elementoSeleccionado={formik.values.idOpcionRadioHorasReserva}
-                        helperText={formik.touched.idOpcionRadioHorasReserva && formik.errors.idOpcionRadioHorasReserva}
-                        error={formik.touched.idOpcionRadioHorasReserva && Boolean(formik.errors.idOpcionRadioHorasReserva)}
-                        row={true} // Mostrar en horizontal
-                    />
-
-                    {formik.values.idOpcionRadioHorasReserva === 2 && 
-
-                        <Box id="DosItemsModalReservarEspacioComun">
-                            <SelectMui
-                                label = "Horas"
-                                name="cantidadHorasReserva"
-                                width={"100%"}
-                                listadoElementos={generarRango(cantidadHorasMinimasReserva, cantidadHorasMaximasReserva)}
-                                keyListadoElementos={"id"}
-                                mostrarElemento={(option)=> `${option["valor"]} hora(s)`}
-                                handleChange = {formik.handleChange}
-                                elementoSeleccionado = {formik.values.cantidadHorasReserva}
-                                atributoValue={"valor"}
-                                helperText={formik.touched.cantidadHorasReserva && formik.errors.cantidadHorasReserva}
-                                error={formik.touched.cantidadHorasReserva && Boolean(formik.errors.cantidadHorasReserva)}
-                            />
-
-                            <SelectMui
-                                label = "Minutos"
-                                name="cantidadMinutosReserva"
-                                width={"100%"}
-                                listadoElementos={generarRango(0, 59)}
-                                keyListadoElementos={"id"}
-                                mostrarElemento={(option)=> `${option["valor"]} minuto(s)`}
-                                handleChange = {formik.handleChange}
-                                elementoSeleccionado = {formik.values.cantidadMinutosReserva}
-                                atributoValue={"valor"}
-                                helperText={formik.touched.cantidadMinutosReserva && formik.errors.cantidadMinutosReserva}
-                                error={formik.touched.cantidadMinutosReserva && Boolean(formik.errors.cantidadMinutosReserva)}
+                            <TextFieldUno 
+                                name="numeroIdentificacion" 
+                                label="Rut/Pasaporte" 
+                                placeholder="Ej: 12345678-9" 
+                                value={formik.values.numeroIdentificacion}
+                                onChange={formik.handleChange}
+                                error={formik.touched.numeroIdentificacion && Boolean(formik.errors.numeroIdentificacion)}
+                                helperText={formik.touched.numeroIdentificacion && formik.errors.numeroIdentificacion}
                             />
                         </Box>
-                    }
-                </Box>
+                    </Fade>
+                }
 
-                <Box id="ItemCuerpoModalReservarEspacioComun">
-                    <RadioGroupMui
-                        label="¿La reserva incluye invitados?"
-                        name="idOpcionRadioIncluyeInvitados"
-                        listadoElementos={opcionesRadioIncluyeInvitados}
-                        keyListadoElementos="id"
-                        atributoValue="id"
-                        mostrarElemento={(option) => option.opcion}
-                        handleChange={(e) => {
-                            formik.setFieldValue('idOpcionRadioIncluyeInvitados', parseInt(e.target.value));
-                        }}
-                        elementoSeleccionado={formik.values.idOpcionRadioIncluyeInvitados}
-                        helperText={formik.touched.idOpcionRadioIncluyeInvitados && formik.errors.idOpcionRadioIncluyeInvitados}
-                        error={formik.touched.idOpcionRadioIncluyeInvitados && Boolean(formik.errors.idOpcionRadioIncluyeInvitados)}
-                        row={true} // Mostrar en horizontal
-                    />
+                {pasoActualFormulario === 2 &&
+                    <Fade in={pasoActualFormulario === 2} timeout={300}>
+                        <Box id="ItemCuerpoModalReservarEspacioComun">
+                            <Box id="ItemCuerpoModalReservarEspacioComun">
+                                <RadioGroupMui
+                                    label="¿Cuándo desea reservar el espacio?"
+                                    name="idOpcionRadioFechaReserva"
+                                    listadoElementos={opcionesRadioFechaReserva}
+                                    keyListadoElementos="id"
+                                    atributoValue="id"
+                                    mostrarElemento={(option) => option.opcion}
+                                    handleChange={(e) => {
+                                        formik.setFieldValue('idOpcionRadioFechaReserva', parseInt(e.target.value));
+                                    }}
+                                    elementoSeleccionado={formik.values.idOpcionRadioFechaReserva}
+                                    helperText={formik.touched.idOpcionRadioFechaReserva && formik.errors.idOpcionRadioFechaReserva}
+                                    error={formik.touched.idOpcionRadioFechaReserva && Boolean(formik.errors.idOpcionRadioFechaReserva)}
+                                    row={true} // Para mostrar los radios en horizontal
+                                />
 
-                    {formik.values.idOpcionRadioIncluyeInvitados === 1 && 
-                        <TextFieldUno 
-                            name="cantidadInvitados" 
-                            label="Indique la cantidad de invitados" 
-                            placeholder="Ej: 2" 
-                            width="100%"
-                            value={formik.values.cantidadInvitados}
-                            onChange={formik.handleChange}
-                            error={formik.touched.cantidadInvitados && Boolean(formik.errors.cantidadInvitados)}
-                            helperText={formik.touched.cantidadInvitados && formik.errors.cantidadInvitados}
-                        />
-                    }
-                </Box>
+                                {formik.values.idOpcionRadioFechaReserva === 2 &&
+                                    <Box id="ItemCuerpoModalReservarEspacioComun">
+                                        <TextFieldDate
+                                            name="fechaReserva"
+                                            label="Fecha de la reserva"
+                                            onChange={formik.handleChange}
+                                            error={formik.touched.fechaReserva && Boolean(formik.errors.fechaReserva)}
+                                            helperText={formik.touched.fechaReserva && formik.errors.fechaReserva}
+                                        />
+
+                                        <Typography color="#00000099">Hora de reserva</Typography>
+
+                                        <Box id="DosItemsModalReservarEspacioComun">
+                                            <SelectMui
+                                                label = "Hora"
+                                                name="horaReserva"
+                                                width={"100%"}
+                                                listadoElementos={generarRango(0,23)}
+                                                keyListadoElementos={"id"}
+                                                mostrarElemento={(option)=> `${option["valor"]}`}
+                                                handleChange = {formik.handleChange}
+                                                elementoSeleccionado = {formik.values.horaReserva}
+                                                atributoValue={"valor"}
+                                                helperText={(formik.touched.horaReserva && formik.errors.horaReserva)}
+                                                error={formik.touched.horaReserva && Boolean(formik.errors.horaReserva)}
+                                            />
+
+                                            <SelectMui
+                                                label = "Minutos"
+                                                name="minutosHoraReserva"
+                                                width={"100%"}
+                                                listadoElementos={generarRango(0, 59)}
+                                                keyListadoElementos={"id"}
+                                                mostrarElemento={(option)=> `${option["valor"]}`}
+                                                handleChange = {formik.handleChange}
+                                                elementoSeleccionado = {formik.values.minutosHoraReserva}
+                                                atributoValue={"valor"}
+                                                helperText={formik.touched.minutosHoraReserva && formik.errors.minutosHoraReserva}
+                                                error={formik.touched.minutosHoraReserva && Boolean(formik.errors.minutosHoraReserva)}
+                                            />
+                                        </Box>
+                                    </Box>
+                                }
+                            </Box>
+                        </Box>
+                    </Fade>
+                }
+
+                {pasoActualFormulario === 3 &&
+                    <Fade in={pasoActualFormulario === 3} timeout={300}>
+                        <Box id="ItemCuerpoModalReservarEspacioComun">
+                            <RadioGroupMui
+                                label="Duración de la reserva"
+                                name="idOpcionRadioHorasReserva"
+                                listadoElementos={opcionesRadioHorasReserva}
+                                keyListadoElementos="id"
+                                atributoValue="id"
+                                mostrarElemento={(option) => option.opcion}
+                                handleChange={(e) => {
+                                    formik.setFieldValue('idOpcionRadioHorasReserva', parseInt(e.target.value));
+                                }}
+                                elementoSeleccionado={formik.values.idOpcionRadioHorasReserva}
+                                helperText={formik.touched.idOpcionRadioHorasReserva && formik.errors.idOpcionRadioHorasReserva}
+                                error={formik.touched.idOpcionRadioHorasReserva && Boolean(formik.errors.idOpcionRadioHorasReserva)}
+                                row={true} // Mostrar en horizontal
+                            />
+
+                            {formik.values.idOpcionRadioHorasReserva === 2 && 
+
+                                <Box id="DosItemsModalReservarEspacioComun">
+                                    <SelectMui
+                                        label = "Horas"
+                                        name="cantidadHorasReserva"
+                                        width={"100%"}
+                                        listadoElementos={generarRango(cantidadHorasMinimasReserva, cantidadHorasMaximasReserva)}
+                                        keyListadoElementos={"id"}
+                                        mostrarElemento={(option)=> `${option["valor"]} hora(s)`}
+                                        handleChange = {formik.handleChange}
+                                        elementoSeleccionado = {formik.values.cantidadHorasReserva}
+                                        atributoValue={"valor"}
+                                        helperText={formik.touched.cantidadHorasReserva && formik.errors.cantidadHorasReserva}
+                                        error={formik.touched.cantidadHorasReserva && Boolean(formik.errors.cantidadHorasReserva)}
+                                    />
+
+                                    <SelectMui
+                                        label = "Minutos"
+                                        name="cantidadMinutosReserva"
+                                        width={"100%"}
+                                        listadoElementos={generarRango(0, 59)}
+                                        keyListadoElementos={"id"}
+                                        mostrarElemento={(option)=> `${option["valor"]} minuto(s)`}
+                                        handleChange = {formik.handleChange}
+                                        elementoSeleccionado = {formik.values.cantidadMinutosReserva}
+                                        atributoValue={"valor"}
+                                        helperText={formik.touched.cantidadMinutosReserva && formik.errors.cantidadMinutosReserva}
+                                        error={formik.touched.cantidadMinutosReserva && Boolean(formik.errors.cantidadMinutosReserva)}
+                                    />
+                                </Box>
+                            }
+                        </Box>
+                    </Fade>
+                }
+
+                {pasoActualFormulario === 4 &&
+                    <Fade in={pasoActualFormulario === 4} timeout={300}>
+                        <Box id="ItemCuerpoModalReservarEspacioComun">
+                            <RadioGroupMui
+                                label="¿La reserva incluye invitados?"
+                                name="idOpcionRadioIncluyeInvitados"
+                                listadoElementos={opcionesRadioIncluyeInvitados}
+                                keyListadoElementos="id"
+                                atributoValue="id"
+                                mostrarElemento={(option) => option.opcion}
+                                handleChange={(e) => {
+                                    formik.setFieldValue('idOpcionRadioIncluyeInvitados', parseInt(e.target.value));
+                                }}
+                                elementoSeleccionado={formik.values.idOpcionRadioIncluyeInvitados}
+                                helperText={formik.touched.idOpcionRadioIncluyeInvitados && formik.errors.idOpcionRadioIncluyeInvitados}
+                                error={formik.touched.idOpcionRadioIncluyeInvitados && Boolean(formik.errors.idOpcionRadioIncluyeInvitados)}
+                                row={true} // Mostrar en horizontal
+                            />
+
+                            {formik.values.idOpcionRadioIncluyeInvitados === 1 && 
+                                <TextFieldUno 
+                                    name="cantidadInvitados" 
+                                    label="Indique la cantidad de invitados" 
+                                    placeholder="Ej: 2" 
+                                    width="100%"
+                                    value={formik.values.cantidadInvitados}
+                                    onChange={formik.handleChange}
+                                    error={formik.touched.cantidadInvitados && Boolean(formik.errors.cantidadInvitados)}
+                                    helperText={formik.touched.cantidadInvitados && formik.errors.cantidadInvitados}
+                                />
+                            }
+                        </Box>
+                    </Fade>
+                }
             </Box>
 
-            <Box id="BoxButtonSubmitModalReservarEspacioComun">
+            <ProgressStepperMui
+                activeStep={pasoActualFormulario}
+                handleNext={handleNextClick}
+                handleBack={handleBackClick}
+                steps={cantidadPasosFormulario}
+                width="95%"
+            />
+
+            {/* <Box id="BoxButtonSubmitModalReservarEspacioComun">
                 <ButtonTypeOne
                     defaultText="Reservar"
                     loadingText="Reservando..."
                     handleClick={formik.handleSubmit}
                     disabled={formik.isSubmitting}
                 />
-            </Box>
+            </Box> */}
 
-            {ConfirmDialogComponent}
+            {/* {ConfirmDialogComponent} */}
 
             {/* <ModalLoadingMasRespuesta
                 open={openLoadingRespuesta}
