@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import 'dayjs/locale/es' // Para español
+import { CommonAreaMode, idReservacionTipoReserva, idReservacionTipoUso } from './constantes'
 
 // Activar plugin
 dayjs.extend(localizedFormat)
@@ -85,10 +86,3 @@ export function formatoLegibleDesdeHoraString(horaString) {
 
   return partes.length > 0 ? partes.join(' con ') : '0 minutos';
 }
-
-
-
-
-
-
-
