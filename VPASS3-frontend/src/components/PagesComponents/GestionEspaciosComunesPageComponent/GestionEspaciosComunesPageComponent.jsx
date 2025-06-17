@@ -4,7 +4,7 @@ import { Accordion, AccordionDetails, AccordionSummary, Box, Fade, Typography } 
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import TableSkeleton from "../../Skeleton/TableSkeleton/TableSkeleton";
-import { idEspacioComunTipoReservable, idEspacioComunTipoUsable } from "../../../utils/constantes";
+import { CommonAreaMode } from "../../../utils/constantes";
 import "./GestionEspaciosComunesPageComponent.css";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString } from "../../../utils/funciones";
@@ -33,7 +33,6 @@ const GestionEspaciosComunesPageComponent = () => {
     const columns = [
         "Nombre",
         "Registros",
-        "Tipo de espacio",
     ];
 
     const [openModalReservarEspacioComun, setOpenModalReservarEspacioComun] = useState(false);
@@ -99,85 +98,81 @@ const GestionEspaciosComunesPageComponent = () => {
 
 
     const data = rows?.map((espacioComun) => {
-        const {name, type, reservations, utilizationLogs} = espacioComun;
-        const tipoEspacio = type === idEspacioComunTipoReservable ? "Reservable" : type === idEspacioComunTipoUsable ? "Utilizable" : "Desconocido";
-        let columnsRegistros;
-        let dataRegistros;
+        const {name, mode, reservations, usages} = espacioComun;
+        const registrosUsoOrdenadosPorFecha = [...usages].sort((a, b) =>
+            dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
+        );
+        const columnsRegistrosUso = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
+        const dataRegistrosUso = registrosUsoOrdenadosPorFecha.map((usage) => {
+            const {guestsNumber , person, startTime, usageTime} = usage || {};
+            const {names: namePersonaRegistradaEspacioUtilizable = "", lastNames: lastNamePersonaRegistradaEspacioUtilizable  = "", identificationNumber: rutPersonaRegistradaEspacioUtilizable = ""} = person || {};
 
-        //En caso de ser un espacio utilizable
-        if(type === idEspacioComunTipoUsable){
+            return [
+                `${namePersonaRegistradaEspacioUtilizable}`.trim(),
+                `${lastNamePersonaRegistradaEspacioUtilizable}`.trim(),
+                `${rutPersonaRegistradaEspacioUtilizable}`.trim(),
+                `${cambiarFormatoHoraFecha(startTime)}`,
+                `${formatoLegibleDesdeHoraString(usageTime)}`.trim(),
+                guestsNumber !== null ? `${guestsNumber}`.trim() : 0
+            ]
+        });
 
-            columnsRegistros = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
+        const registrosReservasOrdenadosPorFecha = [...reservations].sort((a, b) =>
+            dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
+        );
+        const columnsRegistrosReservas = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
+        const dataRegistrosReservas = registrosReservasOrdenadosPorFecha.map((reservation) => {
+            const {reservationTime, reservationStart, reservedBy, guestsCount} = reservation || {};
+            const {names: namesReservado = "", lastNames: lastNamesReservado = "", identificationNumber: rutReservado = ""} = reservedBy || {};
 
-            const registrosUsoOrdenadosPorFecha = [...utilizationLogs].sort((a, b) =>
-                dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
-            );
-
-            dataRegistros = registrosUsoOrdenadosPorFecha.map((utilizationLog) => {
-                const {guestsNumber , person, startTime, usageTime} = utilizationLog || {};
-                const {names: namePersonaRegistradaEspacioUtilizable = "", lastNames: lastNamePersonaRegistradaEspacioUtilizable  = "", identificationNumber: rutPersonaRegistradaEspacioUtilizable = ""} = person || {};
-
-                return [
-                    `${namePersonaRegistradaEspacioUtilizable}`.trim(),
-                    `${lastNamePersonaRegistradaEspacioUtilizable}`.trim(),
-                    `${rutPersonaRegistradaEspacioUtilizable}`.trim(),
-                    `${cambiarFormatoHoraFecha(startTime)}`,
-                    `${formatoLegibleDesdeHoraString(usageTime)}`.trim(),
-                    guestsNumber !== null ? `${guestsNumber}`.trim() : 0
-                ]
-            })
-        }
-
-        //En caso de ser un espacio reservable
-        if(type === idEspacioComunTipoReservable){
-
-            columnsRegistros = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
-
-            const registrosReservasOrdenadosPorFecha = [...reservations].sort((a, b) =>
-                dayjs(b.reservationStart).valueOf() - dayjs(a.reservationStart).valueOf()
-            );
-
-            dataRegistros = registrosReservasOrdenadosPorFecha.map((reservation) => {
-                const {reservationTime, reservationStart, reservedBy, guests} = reservation || {};
-                const {names: namesReservado = "", lastNames: lastNamesReservado = "", identificationNumber: rutReservado = ""} = reservedBy || {};
-
-                return [
-                    `${namesReservado}`.trim(),
-                    `${lastNamesReservado}`.trim(),
-                    `${rutReservado}`.trim(),
-                    `${cambiarFormatoHoraFecha(reservationStart)}`,
-                    `${formatoLegibleDesdeHoraString(reservationTime)}`,
-                    `${guests}`.trim() || 0
-                ]
-            })
-        }
+            return [
+                `${namesReservado}`.trim(),
+                `${lastNamesReservado}`.trim(),
+                `${rutReservado}`.trim(),
+                `${cambiarFormatoHoraFecha(reservationStart)}`,
+                `${formatoLegibleDesdeHoraString(reservationTime)}`,
+                guestsCount !== null ? `${guestsCount}`.trim() : 0
+            ]
+        })
 
         return[
             `${name}`.trim(),
-            <Accordion id="AccordionRegistroEspaciosComunes">
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                >
-                    {type === idEspacioComunTipoUsable ?
-                        <Typography variant="h6">{`Registros de uso`}</Typography> 
+            <Box id="RegistrosUsoReservaGestionEspaciosComunes">
 
-                    :
+                {/* Si el espacio es de tipo usable se muestran sus registros de uso */}
+                {((mode & CommonAreaMode.Usable) !== 0) &&
+                    <Accordion id="AccordionRegistroEspaciosComunes">
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
 
-                    type === idEspacioComunTipoReservable ?
-                        <Typography variant="h6">{`Registros de Reservas`}</Typography>
+                            <Typography variant="h6">{`Registros de uso`}</Typography> 
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistrosUso} data={dataRegistrosUso} selectableRows="none"/>
+                        </AccordionDetails>
+                    </Accordion> 
+                }
+                
+                {/* Si el espacio es reservable se muestran sus registros */}
+                {((mode & CommonAreaMode.Reservable) !== 0) &&
+                    <Accordion id="AccordionRegistroEspaciosComunes">
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1-content"
+                            id="panel1-header"
+                        >
+                            <Typography variant="h6">{`Registros de Reservas`}</Typography>
 
-                    : 
-
-                    null
-                    }
-                </AccordionSummary>
-                <AccordionDetails>
-                    <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistros} data={dataRegistros} selectableRows="none"/>
-                </AccordionDetails>
-            </Accordion>,
-            `${tipoEspacio}`.trim(),
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistrosReservas} data={dataRegistrosReservas} selectableRows="none"/>
+                        </AccordionDetails>
+                    </Accordion>       
+                }
+            </Box>
         ]
     })
     
