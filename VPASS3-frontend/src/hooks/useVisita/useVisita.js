@@ -7,7 +7,6 @@ import { idSentidoVisitaEntrada } from "../../utils/constantes";
 import useUsoEstacionamiento from "../useUsoEstacionamiento/useUsoEstacionamiento";
 
 const useVisita = () => {
-
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState(null);
     const [visitas, setVisitas] = useState(null);
