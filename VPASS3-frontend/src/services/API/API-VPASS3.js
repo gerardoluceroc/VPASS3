@@ -20,15 +20,20 @@ export const path_createEspacioComun = `${URL_SERVER}/CommonArea/create`
 export const path_updateEspacioComun = `${URL_SERVER}/CommonArea/update`
 export const path_deleteEspacioComun = `${URL_SERVER}/CommonArea/delete`
 export const path_getAllReservasEspaciosComunes = `${URL_SERVER}/ReservableCommonAreaReservation/all`
-export const path_reservarEspacioComun = `${URL_SERVER}/ReservableCommonAreaReservation/create`
 export const path_getAllUsosEspaciosComunes = `${URL_SERVER}/UtilizationUsableCommonAreaLog/all`
-export const path_UsarEspacioComun = `${URL_SERVER}/UtilizationUsableCommonAreaLog/create`
+export const path_createReservaExclusivaEspacioComun = `${URL_SERVER}/CommonAreaReservation/create`
+export const path_createReservaUsoCompartido = `${URL_SERVER}/CommonAreaUsageLog/create`;
 
 /* Lista Negra */
 export const path_getAllListaNegra = `${URL_SERVER}/Blacklist/all`
 export const path_updateListaNegra = `${URL_SERVER}/Blacklist/Update`
 export const path_createListaNegra = `${URL_SERVER}/Blacklist/create`
 export const path_deleteListaNegraPorIdPersona = `${URL_SERVER}/Blacklist/deleteByVisitorId`
+
+/* Persona */
+export const path_getAllPersonas = `${URL_SERVER}/Person/all`;
+export const path_getPersonaByIdentificationNumber = `${URL_SERVER}/Person/idnumber/`; // + rut ó pasaporte
+export const path_createPersona = `${URL_SERVER}/Person/create`;
 
 /* SubZona */
 export const path_getAllSubZonas = `${URL_SERVER}/ZoneSection/all`
@@ -41,7 +46,6 @@ export const path_getAllUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/
 export const path_getUsoEstacionamientoById = `${URL_SERVER}/ParkingSpotUsageLog` // + / + id
 export const path_createUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/create`
 export const path_deleteUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/delete`
-
 
 /* Visita */
 export const path_getAllVisitas = `${URL_SERVER}/Visit/all`
