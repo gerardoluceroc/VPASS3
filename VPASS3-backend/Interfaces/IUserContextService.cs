@@ -32,6 +32,8 @@ namespace VPASS3_backend.Interfaces
 
         bool CanAccessVisitor(Visitor visitor);
 
+        bool CanAccessPerson(Person person);
+
         bool CanAccessArea(CommonArea area);
     }
 }

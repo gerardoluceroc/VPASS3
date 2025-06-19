@@ -12,10 +12,11 @@ namespace VPASS3_backend.Models.CommonAreas
         [Required]
         public DateTime ReservationStart { get; set; }
 
-        [Required]
-        public TimeSpan ReservationTime { get; set; }
+        public TimeSpan? ReservationTime { get; set; }
 
-        public DateTime? ReservationEnd => ReservationStart + ReservationTime;
+        public DateTime? ReservationEnd => ReservationTime.HasValue
+        ? ReservationStart + ReservationTime.Value
+        : (DateTime?)null;
 
         [Required]
         public int IdPersonReservedBy { get; set; }
@@ -24,11 +25,13 @@ namespace VPASS3_backend.Models.CommonAreas
         public Person ReservedBy { get; set; }
 
         // Invitados opcionales
-        public ICollection<Person> Guests { get; set; } = new List<Person>();
+        //public ICollection<Person> Guests { get; set; } = new List<Person>();
 
-        // Número de invitados calculado
-        [NotMapped]
-        public int GuestsCount => Guests?.Count ?? 0;
+        //// Número de invitados calculado
+        //[NotMapped]
+        //public int GuestsCount => Guests?.Count ?? 0;
+
+        public int? GuestsNumber { get; set; } = 0;
 
         [Required]
         public int IdCommonArea { get; set; }
@@ -37,5 +40,4 @@ namespace VPASS3_backend.Models.CommonAreas
         [JsonIgnore]
         public CommonArea CommonArea { get; set; }
     }
-
 }

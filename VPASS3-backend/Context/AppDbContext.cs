@@ -178,49 +178,49 @@ namespace VPASS3_backend.Context
                 .HasForeignKey(u => u.IdPerson)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 6. Configurar relación muchos a muchos: Reservation <-> Person (invitados)
-            modelBuilder.Entity<CommonAreaReservation>()
-                .HasMany(r => r.Guests)
-                .WithMany(p => p.InvitedCommonAreaReservations)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CommonAreaReservationGuest",
-                    j => j
-                        .HasOne<Person>()
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j => j
-                        .HasOne<CommonAreaReservation>()
-                        .WithMany()
-                        .HasForeignKey("ReservationId")
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j =>
-                    {
-                        j.ToTable("CommonAreaReservationGuests");
-                        j.HasKey("ReservationId", "PersonId");
-                    });
+            //// 6. Configurar relación muchos a muchos: Reservation <-> Person (invitados)
+            //modelBuilder.Entity<CommonAreaReservation>()
+            //    .HasMany(r => r.Guests)
+            //    .WithMany(p => p.InvitedCommonAreaReservations)
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "CommonAreaReservationGuest",
+            //        j => j
+            //            .HasOne<Person>()
+            //            .WithMany()
+            //            .HasForeignKey("PersonId")
+            //            .OnDelete(DeleteBehavior.Cascade),
+            //        j => j
+            //            .HasOne<CommonAreaReservation>()
+            //            .WithMany()
+            //            .HasForeignKey("ReservationId")
+            //            .OnDelete(DeleteBehavior.Cascade),
+            //        j =>
+            //        {
+            //            j.ToTable("CommonAreaReservationGuests");
+            //            j.HasKey("ReservationId", "PersonId");
+            //        });
 
-            // 7. (Opcional) Si también quieres invitados para CommonAreaUsageLog:
-            modelBuilder.Entity<CommonAreaUsageLog>()
-                .HasMany(u => u.InvitedGuests)
-                .WithMany()
-                .UsingEntity<Dictionary<string, object>>(
-                    "CommonAreaUsageLogGuest",
-                    j => j
-                        .HasOne<Person>()
-                        .WithMany()
-                        .HasForeignKey("PersonId")
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j => j
-                        .HasOne<CommonAreaUsageLog>()
-                        .WithMany()
-                        .HasForeignKey("UsageLogId")
-                        .OnDelete(DeleteBehavior.Cascade),
-                    j =>
-                    {
-                        j.ToTable("CommonAreaUsageLogGuests");
-                        j.HasKey("UsageLogId", "PersonId");
-                    });
+            //// 7. (Opcional) Si también quieres invitados para CommonAreaUsageLog:
+            //modelBuilder.Entity<CommonAreaUsageLog>()
+            //    .HasMany(u => u.InvitedGuests)
+            //    .WithMany()
+            //    .UsingEntity<Dictionary<string, object>>(
+            //        "CommonAreaUsageLogGuest",
+            //        j => j
+            //            .HasOne<Person>()
+            //            .WithMany()
+            //            .HasForeignKey("PersonId")
+            //            .OnDelete(DeleteBehavior.Cascade),
+            //        j => j
+            //            .HasOne<CommonAreaUsageLog>()
+            //            .WithMany()
+            //            .HasForeignKey("UsageLogId")
+            //            .OnDelete(DeleteBehavior.Cascade),
+            //        j =>
+            //        {
+            //            j.ToTable("CommonAreaUsageLogGuests");
+            //            j.HasKey("UsageLogId", "PersonId");
+            //        });
         }
     }
 }

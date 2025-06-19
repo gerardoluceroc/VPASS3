@@ -6,6 +6,7 @@ using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models.CommonAreas;
 using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Enums;
+using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services.CommonAreaServices
 {
@@ -65,40 +66,50 @@ namespace VPASS3_backend.Services.CommonAreaServices
         public async Task<ResponseDto> CreateAsync(CreateCommonAreaReservationDto dto)
         {
             var area = await _ctx.CommonAreas.FindAsync(dto.IdCommonArea);
+
             if (area == null) return new ResponseDto(404, message: "Área común no existe.");
+
             if (!_userCtx.CanAccessArea(area))
                 return new ResponseDto(403, message: "No puedes reservar este espacio.");
+
             if (!area.Mode.HasFlag(CommonAreaMode.Reservable))
                 return new ResponseDto(400, message: "El área no está habilitada para reservas.");
 
             var person = await _ctx.Persons.FindAsync(dto.IdPersonReservedBy);
+
             if (person == null)
                 return new ResponseDto(404, message: "Persona que reserva no encontrada.");
 
-            var invalid = dto.GuestIds?
-                .Where(id => !_ctx.Persons.Any(p => p.Id == id))
-                .ToList();
+            //var invalid = dto.GuestIds?
+            //    .Where(id => !_ctx.Persons.Any(p => p.Id == id))
+            //    .ToList();
 
-            if (invalid?.Any() == true)
-                return new ResponseDto(404, message: $"Guests no encontrados: {string.Join(',', invalid)}");
+            //if (invalid?.Any() == true)
+            //    return new ResponseDto(404, message: $"Guests no encontrados: {string.Join(',', invalid)}");
+
+            // Manejo de fecha inválida o nula desde el front
+            var reservationStart = dto.ReservationStart.HasValue && dto.ReservationStart.Value != default
+                ? dto.ReservationStart.Value
+                : TimeHelper.GetSantiagoTime();
 
             var reservation = new CommonAreaReservation
             {
                 IdCommonArea = dto.IdCommonArea,
-                ReservationStart = dto.ReservationStart,
+                ReservationStart = reservationStart,
                 ReservationTime = dto.ReservationTime,
                 IdPersonReservedBy = dto.IdPersonReservedBy,
+                GuestsNumber = dto.GuestsNumber ?? 0
             };
 
             _ctx.CommonAreaReservations.Add(reservation);
             await _ctx.SaveChangesAsync();
 
-            if (dto.GuestIds?.Any() == true)
-            {
-                var guests = await _ctx.Persons.Where(p => dto.GuestIds.Contains(p.Id)).ToListAsync();
-                reservation.Guests = guests;
-                await _ctx.SaveChangesAsync();
-            }
+            //if (dto.GuestIds?.Any() == true)
+            //{
+            //    var guests = await _ctx.Persons.Where(p => dto.GuestIds.Contains(p.Id)).ToListAsync();
+            //    reservation.Guests = guests;
+            //    await _ctx.SaveChangesAsync();
+            //}
 
             return new ResponseDto(201, reservation, "Reserva creada.");
         }
@@ -107,7 +118,7 @@ namespace VPASS3_backend.Services.CommonAreaServices
         {
             var r = await _ctx.CommonAreaReservations
                 .Include(r => r.CommonArea)
-                .Include(r => r.Guests)
+                //.Include(r => r.Guests)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (r == null)
@@ -119,16 +130,16 @@ namespace VPASS3_backend.Services.CommonAreaServices
             r.ReservationStart = dto.ReservationStart;
             r.ReservationTime = dto.ReservationTime;
 
-            // Actualización de la lista de invitados
-            r.Guests.Clear();
-            if (dto.GuestIds?.Any() == true)
-            {
-                var guests = await _ctx.Persons
-                    .Where(p => dto.GuestIds.Contains(p.Id))
-                    .ToListAsync();
+            //// Actualización de la lista de invitados
+            //r.Guests.Clear();
+            //if (dto.GuestIds?.Any() == true)
+            //{
+            //    var guests = await _ctx.Persons
+            //        .Where(p => dto.GuestIds.Contains(p.Id))
+            //        .ToListAsync();
 
-                r.Guests = guests;
-            }
+            //    r.Guests = guests;
+            //}
 
             await _ctx.SaveChangesAsync();
             return new ResponseDto(200, r, "Reserva actualizada.");

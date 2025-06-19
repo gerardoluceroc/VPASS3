@@ -14,7 +14,9 @@ namespace VPASS3_backend.Models.CommonAreas
 
         public TimeSpan? UsageTime { get; set; }
 
-        public DateTime? EndTime => StartTime + UsageTime;
+        public DateTime? EndTime => UsageTime.HasValue
+            ? StartTime + UsageTime.Value
+            : (DateTime?)null;
 
         [Required]
         public int IdPerson { get; set; }
@@ -22,12 +24,15 @@ namespace VPASS3_backend.Models.CommonAreas
         [ForeignKey("IdPerson")]
         public Person Person { get; set; }
 
-        // Invitados opcionales al uso
-        public ICollection<Person> InvitedGuests { get; set; } = new List<Person>();
+        //// Invitados opcionales al uso
+        //public ICollection<Person> InvitedGuests { get; set; } = new List<Person>();
 
-        // Número de invitados calculado
-        [NotMapped]
-        public int GuestsNumber => InvitedGuests?.Count ?? 0;
+        //// Número de invitados calculado dinámicamente
+        //[NotMapped]
+        //public int GuestsNumber => InvitedGuests?.Count ?? 0;
+
+        // Número de invitados manual
+        public int? GuestsNumber { get; set; } = 0;
 
         [Required]
         public int IdCommonArea { get; set; }
@@ -37,3 +42,4 @@ namespace VPASS3_backend.Models.CommonAreas
         public CommonArea CommonArea { get; set; }
     }
 }
+

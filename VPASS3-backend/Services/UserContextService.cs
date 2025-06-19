@@ -170,6 +170,25 @@ namespace VPASS3_backend.Services
             return visitor.Visits.Any(v => v.EstablishmentId == EstablishmentId.Value);
         }
 
+        public bool CanAccessPerson(Person person)
+        {
+            if (person == null)
+                return false;
+
+            if (UserRole == "SUPERADMIN")
+                return true;
+
+            if (!EstablishmentId.HasValue)
+                return false;
+
+            // Si no hay reservas, permitir el acceso (por ejemplo, para crear futuras)
+            if (person.InvitedCommonAreaReservations == null || person.InvitedCommonAreaReservations.Count == 0)
+                return true;
+
+            return person.InvitedCommonAreaReservations.Any(r => r.CommonArea.IdEstablishment == EstablishmentId.Value);
+        }
+
+
         // Este método permite verificar si el usuario autenticado tiene acceso al área común basándose en su EstablishmentId
         public bool CanAccessArea(CommonArea area)
         {
