@@ -2,7 +2,7 @@
 
 namespace VPASS3_backend.DTOs.Persons
 {
-    public class CreatePersonDto
+    public class PersonDto
     {
         [Required]
         public string Names { get; set; }

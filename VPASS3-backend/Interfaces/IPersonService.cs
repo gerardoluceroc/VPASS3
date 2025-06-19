@@ -5,10 +5,11 @@ namespace VPASS3_backend.Interfaces
 {
     public interface IPersonService
     {
-        Task<ResponseDto> GetAllAsync();
-        Task<ResponseDto> GetByIdAsync(int id);
-        Task<ResponseDto> CreateAsync(CreatePersonDto dto);
-        Task<ResponseDto> UpdateAsync(int id, CreatePersonDto dto);
-        Task<ResponseDto> DeleteAsync(int id);
+        Task<ResponseDto> GetAllPersonsAsync();
+        Task<ResponseDto> GetPersonByIdAsync(int id);
+        Task<ResponseDto> GetPersonByIdentificationNumberAsync(string identificationNumber);
+        Task<ResponseDto> CreatePersonAsync(PersonDto dto);
+        Task<ResponseDto> UpdatePersonAsync(int id, PersonDto dto);
+        Task<ResponseDto> DeletePersonAsync(int id);
     }
 }
