@@ -11,11 +11,18 @@ import SelectMui from "../../Select/SelectMui/SelectMui";
 import RadioGroupMui from "../../RadioGroupMui/RadioGroupMui";
 import TextFieldDate from "../../TextField/TextFieldDate/TextFieldDate";
 import { cantidadHorasMaximasReserva, cantidadHorasMinimasReserva, idReservacionTipoReserva, idReservacionTipoUso, opcionesReservacionEspacioComun } from "../../../utils/constantes";
-import { generarRango } from "../../../utils/funciones";
+import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString, generarRango, transformarAFormatoDateTime, transformarAFormatoTimeSpan } from "../../../utils/funciones";
 import ValidationReservarEspacioComun from "./ValidationReservarEspacioComun";
 import ProgressStepperMui from "../../StepperMui/ProgressStepperMui/ProgressStepperMui";
+import TextFieldReadOnlyUno from "../../TextField/TextFieldReadOnlyUno/TextFieldReadOnlyUno";
+import useReservarEspacioComun from "../../../hooks/useReservarEspacioComun/useReservarEspacioComun";
+import ModalLoadingMasRespuesta from "../ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
 
 const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espaciosComunes }) => {
+
+    useEffect(() => {console.log("📌 - [ModalReservarEspacioComun.jsx] - Line [25] - espaciosComunes => ", espaciosComunes)}, [espaciosComunes]);
+
+    const {crearReservaExclusivaEspacioComun, crearReservaUsoCompartido, loading} = useReservarEspacioComun();
 
     // Con esta función se evita que el modal se cierre al presionar fuera de él
     const handleClose = (event, reason) => {
@@ -25,8 +32,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
     };
 
     const { idEstablishment } = useSelector((state) => state.user);
-
-    // const {loading, crearZona} = useZonas();
 
     // Se invoca la función para consultarle al usuario si desea enviar el formulario
     const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -38,15 +43,86 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
     const accionPostCierreLoadingRespuesta = () => {
         setOpenLoadingRespuesta(false);
         setMessageLoadingRespuesta('');
+        onClose();
     }
 
     // Estados y funciones para manejar los pasos llevados en el formulario
     const [pasoActualFormulario, setPasoActualFormulario] = useState(0);
-    const cantidadPasosFormulario = 5;
-    const handleNextClick = () => {setPasoActualFormulario(prev => prev + 1)}
+    const cantidadPasosFormulario = 6;
+    // const handleNextClick = () => {setPasoActualFormulario(prev => prev + 1)}
+
+    // Se define una función para avanzar al siguiente paso del formulario.
+    // Esta función incluirá la lógica de validación para el paso actual.
+    const handleNextClick = async () => {
+        // Se inicializa un arreglo para almacenar los nombres de los campos que deben ser validados en el paso actual.
+        let fieldsToValidate = [];
+
+        // Se usa un switch para determinar qué campos corresponden al 'pasoActualFormulario'.
+        // Esto asegura que solo los campos relevantes para la vista actual sean considerados para la validación.
+        switch (pasoActualFormulario) {
+            case 0:
+                fieldsToValidate = ['idEspacioComunSeleccionado', 'idTipoReservacion'];
+                break;
+            case 1:
+                fieldsToValidate = ['nombres', 'apellidos', 'numeroIdentificacion'];
+                break;
+            case 2:
+                // Los campos de fecha y hora son condicionales, solo se validan si el usuario eligió "Seleccionar fecha".
+                fieldsToValidate = ['idOpcionRadioFechaReserva']; // Este siempre se valida en este paso
+                if (formik.values.idOpcionRadioFechaReserva === 2) {
+                    fieldsToValidate.push('fechaReserva', 'horaReserva', 'minutosHoraReserva');
+                }
+                break;
+            case 3:
+                // Los campos de duración son condicionales, solo se validan si el usuario eligió "Seleccionar horas".
+                fieldsToValidate = ['idOpcionRadioHorasReserva']; // Este siempre se valida en este paso
+                if (formik.values.idOpcionRadioHorasReserva === 2) {
+                    fieldsToValidate.push('cantidadHorasReserva', 'cantidadMinutosReserva');
+                }
+                break;
+            case 4:
+                // El campo de cantidad de invitados es condicional, solo se valida si el usuario eligió "Sí".
+                fieldsToValidate = ['idOpcionRadioIncluyeInvitados']; // Este siempre se valida en este paso
+                if (formik.values.idOpcionRadioIncluyeInvitados === 1) {
+                    fieldsToValidate.push('cantidadInvitados');
+                }
+                break;
+            default:
+                break;
+        }
+
+        // Se crea un objeto para marcar los campos del paso actual como 'touched' (visitados).
+        // Esto es crucial para que Formik muestre visualmente los mensajes de error y los estados de error
+        // (como bordes rojos) en los componentes de Material-UI. Si un campo no está 'touched', Formik
+        // no mostrará sus errores aunque existan.
+        const touchedFields = {};
+        fieldsToValidate.forEach(field => {
+            touchedFields[field] = true;
+        });
+        // Se actualiza el estado 'touched' de Formik. El segundo argumento 'false' evita que Formik
+        // ejecute una validación automática inmediatamente después de setear los 'touched',
+        // ya que la validación se ejecutará de forma explícita a continuación.
+        formik.setTouched(touchedFields, false);
+
+        // Se ejecuta la validación de todo el formulario. `validateForm()` devuelve un objeto con todos los errores.
+        // Aunque valida todo, solo nos interesan los errores de los campos del paso actual.
+        const errors = await formik.validateForm();
+
+        // Se verifica si hay errores en los campos que pertenecen al paso actual.
+        // `some()` devuelve true si al menos uno de los campos en 'fieldsToValidate' tiene un error.
+        const currentStepErrors = fieldsToValidate.some(field => errors[field]);
+
+        // Si no hay errores en los campos del paso actual, se permite al usuario avanzar al siguiente paso.
+        if (!currentStepErrors) {
+            setPasoActualFormulario(prev => prev + 1);
+        }
+    };
+    
+    // Funcion para retroceder en el formulario con el boton "volver"
     const handleBackClick = () => {setPasoActualFormulario(prev => prev - 1)}
+
+    //Arreglo con las opciones de reserva, se encuentra en la carpeta utils en el archivo constantes.js
     const opcionesReserva = opcionesReservacionEspacioComun;
-    console.log("🚀 - opcionesReserva:", opcionesReserva);
 
     const opcionesRadioFechaReserva =       
     [
@@ -94,71 +170,159 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             idEspacioComunSeleccionado: '',
 
             idOpcionRadioFechaReserva: '',
-            fechaReserva: '',
-            horaReserva: '',
-            minutosHoraReserva: '',
+            fechaReserva: null,
+            horaReserva: null,
+            minutosHoraReserva: null,
+            fechaFinalReserva: null, // Este será la mezcla de lo que hay en fechaReserva, horaReserva y minutosHoraReserva todo junto y en formato DateTime
 
             idOpcionRadioHorasReserva: '',
-            cantidadHorasReserva: '',
-            cantidadMinutosReserva: '',
+            cantidadHorasReserva: null,
+            cantidadMinutosReserva: null,
+            cantidadTiempoReserva: null, // Este será la mezcla de lo que hay en cantidadHorasReserva y cantidadMinutos reserva en formato timespan
 
             idOpcionRadioIncluyeInvitados: '',
-            cantidadInvitados: ''
+            cantidadInvitados: null
         },
         validationSchema: ValidationReservarEspacioComun,
         onSubmit: async (values) => {
-            console.log("es submit del formik");
             const confirmed = await confirm({
                 title: "¿Reservar espacio común?",
                 message: "¿Deseas reservar este espacio común para la persona ingresada?"
             });
 
-            // if (confirmed) {
-            //     setOpenLoadingRespuesta(true);
+            if(confirmed){
+                const idAreaComun = values.idEspacioComunSeleccionado;
+                const fechaReserva = values.fechaFinalReserva;
+                const duracionReserva = values.cantidadTiempoReserva;
+                const cantidadInvitados = values.cantidadInvitados;
+                const nombresPersonaReservada = values.nombres;
+                const apellidosPersonaReservada = values.apellidos;
+                const rutPersonaReserva = values.numeroIdentificacion;
 
-            //     // Se envía la información al backend para crear una nueva zona
-            //     const {statusCode: statusCodeCrearZona, data: dataZonaAgregada, message: messageCrearZona} = await crearZona(idEstablishment, values.nombreZona);
+                setOpenLoadingRespuesta(true);
 
-            //     // Si el servidor responde con el Response dto que tiene configurado
-            //     if(statusCodeCrearZona != null && statusCodeCrearZona != undefined){
-    
-            //       if (statusCodeCrearZona === 200 || statusCodeCrearZona === 201) {
-            //         setOperacionExitosa(true);
-            //         setMessageLoadingRespuesta(messageCrearZona);
-            //         setRows(prevRows => [...prevRows, dataZonaAgregada]); // Agrega la nueva zona a las filas de la tabla
-            //         formik.resetForm(); // Resetea el formulario después de crear la zona
-            //       }
-            //       else if (statusCodeCrearZona === 500) {
-            //           //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
-            //           setOperacionExitosa(false);
-            //           setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
-            //       }
-            //       else{
-            //           //En caso de cualquier otro error, se muestra el mensaje de error del backend
-            //           setOperacionExitosa(false);
-            //           setMessageLoadingRespuesta(messageCrearZona);
-            //       }
-            //     }
-            //     else{
-            //       //Esto es para los casos que el servidor no responda el ResponseDto tipico
-            //       setOperacionExitosa(false);
-            //       setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
-            //     }
-            // } 
+                if(values.idTipoReservacion === idReservacionTipoReserva){
+                    const respuestaCrearReservaExclusiva = await crearReservaExclusivaEspacioComun(nombresPersonaReservada, apellidosPersonaReservada, rutPersonaReserva, idAreaComun, fechaReserva, duracionReserva, cantidadInvitados);
+
+                    const {statusCode: statusCodeCrearReservaExclusiva, data: dataCrearReservaExclusiva, message: messageCrearReservaExclusiva} = respuestaCrearReservaExclusiva;
+
+                    // Si el servidor responde con el Response dto que tiene configurado
+                    if(statusCodeCrearReservaExclusiva != null && statusCodeCrearReservaExclusiva != undefined){
+        
+                    if (statusCodeCrearReservaExclusiva === 200 || statusCodeCrearReservaExclusiva === 201) {
+                        setOperacionExitosa(true);
+                        setMessageLoadingRespuesta(messageCrearReservaExclusiva);
+                        // setRows(prevRows => [...prevRows, dataCrearReservaExclusiva]); // Agrega la nueva reserva a las filas de la tabla de registros de reservas
+                        // formik.resetForm(); // Resetea el formulario después de crear la reserva exclusiva
+                        // onClose();
+                    }
+                    else if (statusCodeCrearReservaExclusiva === 500) {
+                        //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                    else{
+                        //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta(messageCrearReservaExclusiva);
+                    }
+                    }
+                    else{
+                        //Esto es para los casos que el servidor no responda el ResponseDto tipico
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                }
+
+                else if(values.idTipoReservacion === idReservacionTipoUso){
+                    const respuestaCrearReservaUsoCompartido = await crearReservaUsoCompartido(nombresPersonaReservada, apellidosPersonaReservada, rutPersonaReserva, idAreaComun, fechaReserva, duracionReserva, cantidadInvitados);
+
+                    const {statusCode: statusCodeCrearReservaUsoCompartido, data: dataCrearReservaUsoCompartido, message: messageCrearReservaUsoCompartido} = respuestaCrearReservaUsoCompartido;
+
+                    // Si el servidor responde con el Response dto que tiene configurado
+                    if(statusCodeCrearReservaUsoCompartido != null && statusCodeCrearReservaUsoCompartido != undefined){
+        
+                    if (statusCodeCrearReservaUsoCompartido === 200 || statusCodeCrearReservaUsoCompartido === 201) {
+                        setOperacionExitosa(true);
+                        setMessageLoadingRespuesta(messageCrearReservaUsoCompartido);
+                    }
+                    else if (statusCodeCrearReservaUsoCompartido === 500) {
+                        //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                    else{
+                        //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta(messageCrearReservaUsoCompartido);
+                    }
+                    }
+                    else{
+                        //Esto es para los casos que el servidor no responda el ResponseDto tipico
+                        setOperacionExitosa(false);
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                    }
+                }
+            }
         }
     });
-    // useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
-    // useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
+    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
+    useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
 
-    //Cada vez que se abra el modal se reseteará el formulario
+    //Cada vez que se abra el modal se reseteará el formulario y se muestra en el primer paso
     useEffect(() => {
       if(open){
         formik.resetForm();
         setPasoActualFormulario(0);
       }
     }, [open])
-    
 
+    // Si el usuario en la parte de la duracion de la reserva, selecciona el valor "No indicar"
+    // Se debe resetear lo que habia puesto anteriormente en las horas seleccionadas
+    useEffect(() => {
+        if(formik.values.idOpcionRadioHorasReserva === 1){
+            formik.setFieldValue("cantidadHorasReserva", null);
+            formik.setFieldValue("cantidadMinutosReserva", null);
+        }
+    }, [formik.values.idOpcionRadioHorasReserva]);
+
+    // Si se setean las horas y minutos de la reserva, se transoforma a formato timespan y se guarda en el atributo cantidadTiempoReserva del formik.
+    useEffect(() => {
+        if(formik.values.cantidadHorasReserva !== null && formik.values.cantidadMinutosReserva !== null){
+            const formatoTimeSpan = transformarAFormatoTimeSpan(formik.values.cantidadHorasReserva, formik.values.cantidadMinutosReserva);
+            formik.setFieldValue("cantidadTiempoReserva", formatoTimeSpan);
+        }
+      
+    }, [formik.values.cantidadHorasReserva, formik.values.cantidadMinutosReserva]);
+
+    // Si el usuario en la parte de la fecha de la reserva, selecciona el valor "Ahora"
+    // Se debe resetear lo que habia puesto anteriormente en la informacion de la fecha
+    useEffect(() => {
+        // Si selecciona la opcion de "ahora", se resetean los otros valores del formik relacionados
+        if(formik.values.idOpcionRadioFechaReserva === 1){
+            formik.setFieldValue("fechaReserva", null);
+            formik.setFieldValue("horaReserva", null);
+            formik.setFieldValue("minutosHoraReserva", null);
+            formik.setFieldValue("fechaFinalReserva", null);
+        }
+    }, [formik.values.idOpcionRadioFechaReserva]);
+
+    // Si se setean la fecha, hora y minuto de la reserva, se transoforma a formato datetime y se guarda en el atributo fechaFinalReserva del formik.
+    useEffect(() => {
+        if(formik.values.fechaReserva !== null && formik.values.horaReserva !== null && formik.values.minutosHoraReserva !== null){
+            const formatoFechaFinal = transformarAFormatoDateTime(formik.values.fechaReserva, formik.values.horaReserva, formik.values.minutosHoraReserva);
+            formik.setFieldValue("fechaFinalReserva", formatoFechaFinal);
+        }
+    }, [formik.values.fechaReserva, formik.values.horaReserva, formik.values.minutosHoraReserva]);
+
+    // Si el usuario en la parte de indicar los invitados, selecciona el valor "No"
+    // Se debe resetear lo que habia puesto en la cantidad de invitados
+    useEffect(() => {
+        if(formik.values.idOpcionRadioIncluyeInvitados === 2){
+            formik.setFieldValue("cantidadInvitados", null);
+        }
+    }, [formik.values.idOpcionRadioIncluyeInvitados]);
+    
   return (
     <Modal open={open} onClose={handleClose}>
         <Box id="ContainerModalReservarEspacioComun">
@@ -424,6 +588,89 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                         </Box>
                     </Fade>
                 }
+
+                {pasoActualFormulario === 5 &&
+                    <Fade in={pasoActualFormulario === 5} timeout={300}>
+                        <Box id="ItemCuerpoModalReservarEspacioComun">
+                            <Box id="DosItemsModalReservarEspacioComun">
+                                <TextFieldReadOnlyUno
+                                    label={"Nombres"}
+                                    value={`${formik.values.nombres}`}
+                                />
+                                <TextFieldReadOnlyUno
+                                    label={"Apellidos"}
+                                    value={`${formik.values.apellidos}`}
+                                />
+                                <TextFieldReadOnlyUno
+                                    label={"Rut/Pasaporte"}
+                                    value={`${formik.values.numeroIdentificacion}`}
+                                />
+                            </Box>
+                            <Box id="DosItemsModalReservarEspacioComun">
+                                <TextFieldReadOnlyUno
+                                    label={"Espacio reservado"}
+                                    value={`${espaciosComunes?.find(espacioComun => espacioComun.id === formik.values.idEspacioComunSeleccionado).name || "Sin datos"}`}
+                                />
+                                <TextFieldReadOnlyUno
+                                    label="Tipo de reserva"
+                                    value={
+                                        opcionesReserva?.find(opcion => opcion.id === formik.values.idTipoReservacion)?.name 
+                                        || "Sin datos"
+                                    }
+                                />
+
+                            </Box>
+
+                            <Box id="DosItemsModalReservarEspacioComun">
+                                <TextFieldReadOnlyUno
+                                    label={"Fecha de reserva"}
+                                    value={`${formik.values.fechaFinalReserva === null ? "Ahora" : cambiarFormatoHoraFecha(formik.values.fechaFinalReserva)}`}
+                                />
+
+                                <TextFieldReadOnlyUno
+                                    label={"Tiempo de reserva"}
+                                    value={`${formik.values.cantidadTiempoReserva === null ? "No indicado" : formatoLegibleDesdeHoraString(formik.values.cantidadTiempoReserva)}`}
+                                />
+                            </Box>
+
+                            <Box id="DosItemsModalReservarEspacioComun">
+                                <TextFieldReadOnlyUno
+                                    label={"¿Incluye invitados?"}
+                                    value={`${formik.values.cantidadInvitados === null ? "No" : "Sí"}`}
+                                />
+
+                                {/* Si la reserva incluye invitados, se muestra la cantidad */}
+                                {formik.values.idOpcionRadioIncluyeInvitados === 1 && formik.values.cantidadInvitados !== null ? 
+                                    <TextFieldReadOnlyUno
+                                        label={"Cantidad de invitados"}
+                                        value={`${formik.values.cantidadInvitados}` || "No informado"}
+                                    />
+
+                                    :
+
+                                    null
+                                }
+                            </Box>
+                            <Box id="BoxButtonSubmitModalReservarEspacioComun">
+                                <ButtonTypeOne
+                                    defaultText="Confirmar reserva"
+                                    loadingText="Reservando..."
+                                    handleClick={formik.handleSubmit}
+                                    disabled={formik.isSubmitting}
+                                />
+                            </Box>
+                            {ConfirmDialogComponent}
+                            <ModalLoadingMasRespuesta
+                                open={openLoadingRespuesta}
+                                loading={loading}
+                                message={messageLoadingRespuesta}
+                                loadingMessage="Creando reserva..."
+                                successfulProcess={operacionExitosa}
+                                accionPostCierre={accionPostCierreLoadingRespuesta}
+                            />
+                        </Box>
+                    </Fade>
+                }
             </Box>
 
             <ProgressStepperMui
@@ -433,26 +680,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                 steps={cantidadPasosFormulario}
                 width="95%"
             />
-
-            {/* <Box id="BoxButtonSubmitModalReservarEspacioComun">
-                <ButtonTypeOne
-                    defaultText="Reservar"
-                    loadingText="Reservando..."
-                    handleClick={formik.handleSubmit}
-                    disabled={formik.isSubmitting}
-                />
-            </Box> */}
-
-            {/* {ConfirmDialogComponent} */}
-
-            {/* <ModalLoadingMasRespuesta
-                open={openLoadingRespuesta}
-                loading={loading}
-                message={messageLoadingRespuesta}
-                loadingMessage="Creando zona..."
-                successfulProcess={operacionExitosa}
-                accionPostCierre={accionPostCierreLoadingRespuesta}
-            /> */}
         </Box>
     </Modal>
   )

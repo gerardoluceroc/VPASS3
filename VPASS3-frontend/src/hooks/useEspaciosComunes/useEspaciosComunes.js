@@ -6,8 +6,6 @@ const useEspaciosComunes = () => {
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState(null);
     const [espaciosComunes, setEspaciosComunes] = useState(null);
-    const [usosEspaciosComunes, setUsosEspaciosComunes] = useState(null);
-    const [reservasEspaciosComunes, setReservasEspaciosComunes] = useState(null);
     const [reservasTotales, setReservasTotales] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
   

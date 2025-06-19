@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 40%;
+    width: 50%;
     text-align: center;
     overflow: hidden;
     display: flex;
@@ -42,11 +42,16 @@
     display: flex;
     flex-direction: column;
     gap: 25px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
 }
 
 #BoxButtonSubmitModalReservarEspacioComun {
-  width: 60%;
-  margin-top: -10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
 }
 
 #DosItemsModalReservarEspacioComun {
@@ -57,15 +62,15 @@
     justify-content: space-between;
 }
 
-@media (max-width: 1073px) {
+@media (max-width: 1173px) {
 
     #ContainerModalReservarEspacioComun {
-        width: 50%;
+        width: 70%;
     }
 
 }
 
-@media (max-width: 650px) {
+@media (max-width: 780px) {
 
     #DosItemsModalReservarEspacioComun {
       flex-direction: column;
@@ -74,7 +79,7 @@
     #ContainerModalReservarEspacioComun {
         width: 90%;
         max-width: 90%;
-        max-height: 70%;
+        max-height: 90%;
     }
 
     #CuerpoModalReservarEspacioComun {
@@ -82,6 +87,6 @@
     }
 
     #BoxButtonSubmitModalReservarEspacioComun {
-        width: 70%;
+        width: 100%;
     }
 }

@@ -39,64 +39,6 @@ const GestionEspaciosComunesPageComponent = () => {
     const handleOpenModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(true);  
     const handleCloseModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(false);
 
-    const formik = useFormik({
-        initialValues: {
-            nombreZona: ''
-        },
-        // validationSchema: ValidationCrearZona,
-        onSubmit: async (values) => {
-            // const confirmed = await confirm({
-            //     title: "¿Crear zona?",
-            //     message: "¿Deseas crear una nueva zona en el establecimiento?"
-            // });
-        
-            // if (confirmed) {
-            //     setOpenLoadingRespuesta(true);
-
-            //     // Se envía la información al backend para crear una nueva zona
-            //     const {statusCode: statusCodeCrearZona, data: dataZonaAgregada, message: messageCrearZona} = await crearZona(idEstablishment, values.nombreZona);
-
-            //     // Si el servidor responde con el Response dto que tiene configurado
-            //     if(statusCodeCrearZona != null && statusCodeCrearZona != undefined){
-    
-            //       if (statusCodeCrearZona === 200 || statusCodeCrearZona === 201) {
-            //         setOperacionExitosa(true);
-            //         setMessageLoadingRespuesta(messageCrearZona);
-            //         setRows(prevRows => [...prevRows, dataZonaAgregada]); // Agrega la nueva zona a las filas de la tabla
-            //         formik.resetForm(); // Resetea el formulario después de crear la zona
-            //       }
-            //       else if (statusCodeCrearZona === 500) {
-            //           //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
-            //           setOperacionExitosa(false);
-            //           setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
-            //       }
-            //       else{
-            //           //En caso de cualquier otro error, se muestra el mensaje de error del backend
-            //           setOperacionExitosa(false);
-            //           setMessageLoadingRespuesta(messageCrearZona);
-            //       }
-            //     }
-            //     else{
-            //       //Esto es para los casos que el servidor no responda el ResponseDto tipico
-            //       setOperacionExitosa(false);
-            //       setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
-            //     }
-
-            // } 
-        }
-    });
-    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
-
-
-
-
-
-
-
-
-
-
-
     const data = rows?.map((espacioComun) => {
         const {name, mode, reservations, usages} = espacioComun;
         const registrosUsoOrdenadosPorFecha = [...usages].sort((a, b) =>
@@ -112,7 +54,7 @@ const GestionEspaciosComunesPageComponent = () => {
                 `${lastNamePersonaRegistradaEspacioUtilizable}`.trim(),
                 `${rutPersonaRegistradaEspacioUtilizable}`.trim(),
                 `${cambiarFormatoHoraFecha(startTime)}`,
-                `${formatoLegibleDesdeHoraString(usageTime)}`.trim(),
+                `${formatoLegibleDesdeHoraString(usageTime)}`.trim() || "No indicado",
                 guestsNumber !== null ? `${guestsNumber}`.trim() : 0
             ]
         });
@@ -122,7 +64,7 @@ const GestionEspaciosComunesPageComponent = () => {
         );
         const columnsRegistrosReservas = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
         const dataRegistrosReservas = registrosReservasOrdenadosPorFecha.map((reservation) => {
-            const {reservationTime, reservationStart, reservedBy, guestsCount} = reservation || {};
+            const {reservationTime, reservationStart, reservedBy, guestsNumber} = reservation || {};
             const {names: namesReservado = "", lastNames: lastNamesReservado = "", identificationNumber: rutReservado = ""} = reservedBy || {};
 
             return [
@@ -130,8 +72,8 @@ const GestionEspaciosComunesPageComponent = () => {
                 `${lastNamesReservado}`.trim(),
                 `${rutReservado}`.trim(),
                 `${cambiarFormatoHoraFecha(reservationStart)}`,
-                `${formatoLegibleDesdeHoraString(reservationTime)}`,
-                guestsCount !== null ? `${guestsCount}`.trim() : 0
+                `${formatoLegibleDesdeHoraString(reservationTime) || "No indicado"}`,
+                guestsNumber !== null ? `${guestsNumber}`.trim() : 0
             ]
         })
 

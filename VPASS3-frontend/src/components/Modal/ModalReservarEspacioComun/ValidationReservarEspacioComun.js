@@ -1,6 +1,9 @@
 import * as Yup from 'yup';
 
 const ValidationReservarEspacioComun = Yup.object().shape({
+  idEspacioComunSeleccionado: Yup.string()
+    .required('El campo es requerido'),
+
   nombres: Yup.string()
     .trim()
     .required('El campo es requerido'),
@@ -11,22 +14,25 @@ const ValidationReservarEspacioComun = Yup.object().shape({
     .trim()
     .required('El campo es requerido'),
 
-  idEspacioComunSeleccionado: Yup.string()
-    .required('El campo es requerido'),
+  idTipoReservacion: Yup.string()
+    .required("El campo es requerido"),
 
   idOpcionRadioFechaReserva: Yup.string()
     .required('El campo es requerido'),
   fechaReserva: Yup.string()
+    .nullable()
     .when('idOpcionRadioFechaReserva', {
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
     }),
   horaReserva: Yup.string()
+    .nullable()
     .when('idOpcionRadioFechaReserva', {
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
     }),
   minutosHoraReserva: Yup.string()
+    .nullable()
     .when('idOpcionRadioFechaReserva', {
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
@@ -35,11 +41,13 @@ const ValidationReservarEspacioComun = Yup.object().shape({
   idOpcionRadioHorasReserva: Yup.string()
     .required('El campo es requerido'),
   cantidadHorasReserva: Yup.string()
+    .nullable()
     .when('idOpcionRadioHorasReserva', {
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
     }),
   cantidadMinutosReserva: Yup.string()
+    .nullable()
     .when('idOpcionRadioHorasReserva', {
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
@@ -48,10 +56,14 @@ const ValidationReservarEspacioComun = Yup.object().shape({
   idOpcionRadioIncluyeInvitados: Yup.string()
     .required('El campo es requerido'),
   cantidadInvitados: Yup.string()
-    .when('idOpcionRadioIncluyeInvitados', {
-      is: '1',
-      then: (schema) => schema.required('El campo es requerido')
-    }),
+  .nullable()
+  .when('idOpcionRadioIncluyeInvitados', {
+    is: '1',
+    then: (schema) =>
+      schema
+        .required('El campo es requerido')
+        .matches(/^[1-9]\d*$/, 'Debe ser un número entero mayor a cero')
+  }),
 });
 
 export default ValidationReservarEspacioComun;
