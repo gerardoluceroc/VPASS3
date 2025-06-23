@@ -65,7 +65,7 @@ const useReservarEspacioComun = () => {
             const status = error?.response?.status || null;
             setResponse(errorMessage);
             setResponseStatus(status);
-            return error;
+            return error?.response?.data || error;
         } finally {
             setLoading(false);
         }

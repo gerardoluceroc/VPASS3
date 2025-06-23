@@ -43,7 +43,7 @@ const ButtonTypeOne = ({
     letterSpacing,
     textTransform,
     color: loadingTextColor,
-    gap: "10px"
+    gap: "10px",
   };
 
   //  loadingIndicator según posición
