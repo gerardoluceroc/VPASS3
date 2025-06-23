@@ -67,7 +67,8 @@ namespace VPASS3_backend.Services.CommonAreaServices
         {
             var area = await _ctx.CommonAreas.FindAsync(dto.IdCommonArea);
 
-            if (area == null) return new ResponseDto(404, message: "Área común no existe.");
+            if (area == null)
+                return new ResponseDto(404, message: "Área común no existe.");
 
             if (!_userCtx.CanAccessArea(area))
                 return new ResponseDto(403, message: "No puedes reservar este espacio.");
@@ -76,22 +77,37 @@ namespace VPASS3_backend.Services.CommonAreaServices
                 return new ResponseDto(400, message: "El área no está habilitada para reservas.");
 
             var person = await _ctx.Persons.FindAsync(dto.IdPersonReservedBy);
-
             if (person == null)
                 return new ResponseDto(404, message: "Persona que reserva no encontrada.");
 
-            //var invalid = dto.GuestIds?
-            //    .Where(id => !_ctx.Persons.Any(p => p.Id == id))
-            //    .ToList();
-
-            //if (invalid?.Any() == true)
-            //    return new ResponseDto(404, message: $"Guests no encontrados: {string.Join(',', invalid)}");
-
-            // Manejo de fecha inválida o nula desde el front
+            // Asignar hora de inicio, usando hora actual si no se especifica
             var reservationStart = dto.ReservationStart.HasValue && dto.ReservationStart.Value != default
                 ? dto.ReservationStart.Value
                 : TimeHelper.GetSantiagoTime();
 
+            // Calcular hora de fin
+            var reservationEnd = reservationStart + (dto.ReservationTime ?? TimeSpan.Zero);
+            var now = TimeHelper.GetSantiagoTime();
+
+            if (reservationEnd <= now)
+                return new ResponseDto(400, message: "La reserva no puede estar en el pasado.");
+
+            // Validar conflictos de horario
+            var overlapping = await _ctx.CommonAreaReservations
+                .Where(r => r.IdCommonArea == dto.IdCommonArea && r.ReservationTime != null)
+                .ToListAsync();
+
+            var isOverlapping = overlapping.Any(r =>
+            {
+                var existingStart = r.ReservationStart;
+                var existingEnd = r.ReservationEnd ?? existingStart;
+                return reservationStart < existingEnd && reservationEnd > existingStart;
+            });
+
+            if (isOverlapping)
+                return new ResponseDto(400, message: "Ya existe una reserva en este horario para esta área.");
+
+            // Crear reserva
             var reservation = new CommonAreaReservation
             {
                 IdCommonArea = dto.IdCommonArea,
@@ -127,23 +143,56 @@ namespace VPASS3_backend.Services.CommonAreaServices
             if (!_userCtx.CanAccessArea(r.CommonArea))
                 return new ResponseDto(403, message: "No puedes editar esta reserva.");
 
-            r.ReservationStart = dto.ReservationStart;
-            r.ReservationTime = dto.ReservationTime;
+            if (!r.CommonArea.Mode.HasFlag(CommonAreaMode.Reservable))
+                return new ResponseDto(400, message: "El área no está habilitada para reservas.");
 
-            //// Actualización de la lista de invitados
+            // Determinar los nuevos valores (o mantener los actuales)
+            var reservationStart = dto.ReservationStart ?? r.ReservationStart;
+            var reservationTime = dto.ReservationTime ?? r.ReservationTime;
+            var reservationEnd = reservationStart + (reservationTime ?? TimeSpan.Zero);
+
+            var now = TimeHelper.GetSantiagoTime();
+            if (reservationEnd <= now)
+                return new ResponseDto(400, message: "La reserva no puede estar en el pasado.");
+
+            // Verificar traslape con otras reservas (excluyendo la actual)
+            var overlapping = await _ctx.CommonAreaReservations
+                .Where(x =>
+                    x.IdCommonArea == r.IdCommonArea &&
+                    x.Id != r.Id &&
+                    x.ReservationTime != null)
+                .ToListAsync();
+
+            var isOverlapping = overlapping.Any(o =>
+            {
+                var existingStart = o.ReservationStart;
+                var existingEnd = o.ReservationEnd ?? existingStart;
+                return reservationStart < existingEnd && reservationEnd > existingStart;
+            });
+
+            if (isOverlapping)
+                return new ResponseDto(400, message: "Ya existe una reserva en este horario para esta área.");
+
+            // Asignar nuevos valores
+            r.ReservationStart = reservationStart;
+            r.ReservationTime = reservationTime;
+            r.GuestsNumber = dto.GuestsNumber ?? r.GuestsNumber;
+
+            //// Actualización futura de invitados
             //r.Guests.Clear();
             //if (dto.GuestIds?.Any() == true)
             //{
             //    var guests = await _ctx.Persons
             //        .Where(p => dto.GuestIds.Contains(p.Id))
             //        .ToListAsync();
-
             //    r.Guests = guests;
             //}
 
             await _ctx.SaveChangesAsync();
             return new ResponseDto(200, r, "Reserva actualizada.");
         }
+
+
 
 
         public async Task<ResponseDto> DeleteAsync(int id)

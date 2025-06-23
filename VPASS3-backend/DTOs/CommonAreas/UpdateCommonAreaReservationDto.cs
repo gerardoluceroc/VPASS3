@@ -4,8 +4,10 @@ namespace VPASS3_backend.DTOs.CommonAreas
 {
     public class UpdateCommonAreaReservationDto
     {
-        [Required] public DateTime ReservationStart { get; set; }
-        [Required] public TimeSpan ReservationTime { get; set; }
-        public List<int>? GuestIds { get; set; } = new();
+        public DateTime? ReservationStart { get; set; }
+        public TimeSpan? ReservationTime { get; set; }
+        public int? GuestsNumber { get; set; } = 0;
+
+        //public List<int>? GuestIds { get; set; } = new();
     }
 }
