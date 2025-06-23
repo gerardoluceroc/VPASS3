@@ -1,6 +1,5 @@
 import { Box, Fade, IconButton, Modal, Typography } from "@mui/material";
 import { useFormik } from "formik";
-import { useSelector } from "react-redux";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
 import { useEffect, useState } from "react";
 import CloseIcon from '@mui/icons-material/Close';
@@ -11,18 +10,72 @@ import SelectMui from "../../Select/SelectMui/SelectMui";
 import RadioGroupMui from "../../RadioGroupMui/RadioGroupMui";
 import TextFieldDate from "../../TextField/TextFieldDate/TextFieldDate";
 import { cantidadHorasMaximasReserva, cantidadHorasMinimasReserva, idReservacionTipoReserva, idReservacionTipoUso, opcionesReservacionEspacioComun } from "../../../utils/constantes";
-import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString, generarRango, transformarAFormatoDateTime, transformarAFormatoTimeSpan } from "../../../utils/funciones";
+import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString, generarRango, getOpcionesTipoReservacionFiltradas, transformarAFormatoDateTime, transformarAFormatoTimeSpan } from "../../../utils/funciones";
 import ValidationReservarEspacioComun from "./ValidationReservarEspacioComun";
 import ProgressStepperMui from "../../StepperMui/ProgressStepperMui/ProgressStepperMui";
 import TextFieldReadOnlyUno from "../../TextField/TextFieldReadOnlyUno/TextFieldReadOnlyUno";
 import useReservarEspacioComun from "../../../hooks/useReservarEspacioComun/useReservarEspacioComun";
 import ModalLoadingMasRespuesta from "../ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
 
-const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espaciosComunes }) => {
-
-    useEffect(() => {console.log("📌 - [ModalReservarEspacioComun.jsx] - Line [25] - espaciosComunes => ", espaciosComunes)}, [espaciosComunes]);
+const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunesOriginales, setEspaciosComunesModificables, espaciosComunes }) => {
 
     const {crearReservaExclusivaEspacioComun, crearReservaUsoCompartido, loading} = useReservarEspacioComun();
+
+    //Funcion para actualizar el listado de registro de reservas espacios comunes en la tabla cuando se crea una nueva reserva exclusiva
+    const handleAgregarNuevaReservaExclusiva = (newReservation) => {
+        setEspaciosComunesOriginales((prevRows) =>
+            prevRows.map((area) => {
+            if (area.id === newReservation.idCommonArea) {
+                return {
+                ...area,
+                reservations: [...area.reservations, newReservation] // agregamos al final
+                };
+            }
+
+            return area; // todo lo demás queda igual
+            })
+        );
+        setEspaciosComunesModificables((prevRows) =>
+            prevRows.map((area) => {
+            if (area.id === newReservation.idCommonArea) {
+                return {
+                ...area,
+                reservations: [...area.reservations, newReservation] // agregamos al final
+                };
+            }
+
+            return area; // todo lo demás queda igual
+            })
+        );
+    }
+
+    //Funcion para actualizar el listado de registro de usos espacios comunes en la tabla cuando se crea una nueva reserva de uso compartido
+    const handleAgregarNuevaReservaUsoCompartido = (newReservation) => {
+        setEspaciosComunesOriginales((prevRows) =>
+            prevRows.map((area) => {
+            if (area.id === newReservation.idCommonArea) {
+                return {
+                ...area,
+                usages: [...area.usages, newReservation] // agregamos al final
+                };
+            }
+
+            return area; // todo lo demás queda igual
+            })
+        );
+        setEspaciosComunesModificables((prevRows) =>
+            prevRows.map((area) => {
+            if (area.id === newReservation.idCommonArea) {
+                return {
+                ...area,
+                usages: [...area.usages, newReservation] // agregamos al final
+                };
+            }
+
+            return area; // todo lo demás queda igual
+            })
+        );
+    }
 
     // Con esta función se evita que el modal se cierre al presionar fuera de él
     const handleClose = (event, reason) => {
@@ -30,8 +83,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             onClose();
         }
     };
-
-    const { idEstablishment } = useSelector((state) => state.user);
 
     // Se invoca la función para consultarle al usuario si desea enviar el formulario
     const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -74,11 +125,7 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                 }
                 break;
             case 3:
-                // Los campos de duración son condicionales, solo se validan si el usuario eligió "Seleccionar horas".
-                fieldsToValidate = ['idOpcionRadioHorasReserva']; // Este siempre se valida en este paso
-                if (formik.values.idOpcionRadioHorasReserva === 2) {
-                    fieldsToValidate.push('cantidadHorasReserva', 'cantidadMinutosReserva');
-                }
+                fieldsToValidate.push('cantidadHorasReserva', 'cantidadMinutosReserva');
                 break;
             case 4:
                 // El campo de cantidad de invitados es condicional, solo se valida si el usuario eligió "Sí".
@@ -136,18 +183,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
         }
     ];
 
-    const opcionesRadioHorasReserva = 
-    [
-        {
-            id: 1,
-            opcion: "No indicar"
-        },
-        {
-            id: 2,
-            opcion: "Seleccionar horas"
-        }
-    ]
-
     const opcionesRadioIncluyeInvitados = 
     [
         {
@@ -175,7 +210,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             minutosHoraReserva: null,
             fechaFinalReserva: null, // Este será la mezcla de lo que hay en fechaReserva, horaReserva y minutosHoraReserva todo junto y en formato DateTime
 
-            idOpcionRadioHorasReserva: '',
             cantidadHorasReserva: null,
             cantidadMinutosReserva: null,
             cantidadTiempoReserva: null, // Este será la mezcla de lo que hay en cantidadHorasReserva y cantidadMinutos reserva en formato timespan
@@ -204,28 +238,31 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                 if(values.idTipoReservacion === idReservacionTipoReserva){
                     const respuestaCrearReservaExclusiva = await crearReservaExclusivaEspacioComun(nombresPersonaReservada, apellidosPersonaReservada, rutPersonaReserva, idAreaComun, fechaReserva, duracionReserva, cantidadInvitados);
 
+                    console.log("estoy en el modal e hice la peticion, lo que me llegó de la funcion fue: ", respuestaCrearReservaExclusiva);
+
                     const {statusCode: statusCodeCrearReservaExclusiva, data: dataCrearReservaExclusiva, message: messageCrearReservaExclusiva} = respuestaCrearReservaExclusiva;
 
                     // Si el servidor responde con el Response dto que tiene configurado
                     if(statusCodeCrearReservaExclusiva != null && statusCodeCrearReservaExclusiva != undefined){
         
-                    if (statusCodeCrearReservaExclusiva === 200 || statusCodeCrearReservaExclusiva === 201) {
-                        setOperacionExitosa(true);
-                        setMessageLoadingRespuesta(messageCrearReservaExclusiva);
-                        // setRows(prevRows => [...prevRows, dataCrearReservaExclusiva]); // Agrega la nueva reserva a las filas de la tabla de registros de reservas
-                        // formik.resetForm(); // Resetea el formulario después de crear la reserva exclusiva
-                        // onClose();
-                    }
-                    else if (statusCodeCrearReservaExclusiva === 500) {
-                        //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
-                        setOperacionExitosa(false);
-                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
-                    }
-                    else{
-                        //En caso de cualquier otro error, se muestra el mensaje de error del backend
-                        setOperacionExitosa(false);
-                        setMessageLoadingRespuesta(messageCrearReservaExclusiva);
-                    }
+                        if (statusCodeCrearReservaExclusiva === 200 || statusCodeCrearReservaExclusiva === 201) {
+                            setOperacionExitosa(true);
+                            setMessageLoadingRespuesta(messageCrearReservaExclusiva);
+                            handleAgregarNuevaReservaExclusiva(dataCrearReservaExclusiva);
+                            // setRows(prevRows => [...prevRows, dataCrearReservaExclusiva]); // Agrega la nueva reserva a las filas de la tabla de registros de reservas
+                            // formik.resetForm(); // Resetea el formulario después de crear la reserva exclusiva
+                            // onClose();
+                        }
+                        else if (statusCodeCrearReservaExclusiva === 500) {
+                            //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
+                            setOperacionExitosa(false);
+                            setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
+                        }
+                        else{
+                            //En caso de cualquier otro error, se muestra el mensaje de error del backend
+                            setOperacionExitosa(false);
+                            setMessageLoadingRespuesta(messageCrearReservaExclusiva);
+                        }
                     }
                     else{
                         //Esto es para los casos que el servidor no responda el ResponseDto tipico
@@ -245,6 +282,7 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                     if (statusCodeCrearReservaUsoCompartido === 200 || statusCodeCrearReservaUsoCompartido === 201) {
                         setOperacionExitosa(true);
                         setMessageLoadingRespuesta(messageCrearReservaUsoCompartido);
+                        handleAgregarNuevaReservaUsoCompartido(dataCrearReservaUsoCompartido);
                     }
                     else if (statusCodeCrearReservaUsoCompartido === 500) {
                         //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
@@ -266,8 +304,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             }
         }
     });
-    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
-    useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
 
     //Cada vez que se abra el modal se reseteará el formulario y se muestra en el primer paso
     useEffect(() => {
@@ -276,15 +312,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
         setPasoActualFormulario(0);
       }
     }, [open])
-
-    // Si el usuario en la parte de la duracion de la reserva, selecciona el valor "No indicar"
-    // Se debe resetear lo que habia puesto anteriormente en las horas seleccionadas
-    useEffect(() => {
-        if(formik.values.idOpcionRadioHorasReserva === 1){
-            formik.setFieldValue("cantidadHorasReserva", null);
-            formik.setFieldValue("cantidadMinutosReserva", null);
-        }
-    }, [formik.values.idOpcionRadioHorasReserva]);
 
     // Si se setean las horas y minutos de la reserva, se transoforma a formato timespan y se guarda en el atributo cantidadTiempoReserva del formik.
     useEffect(() => {
@@ -322,6 +349,25 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
             formik.setFieldValue("cantidadInvitados", null);
         }
     }, [formik.values.idOpcionRadioIncluyeInvitados]);
+
+    useEffect(() => {
+        // Obtener las opciones válidas de tipo de reservación según el espacio seleccionado
+        const opcionesValidas = getOpcionesTipoReservacionFiltradas(
+            formik.values.idEspacioComunSeleccionado,
+            espaciosComunes
+        );
+
+        // Obtener los IDs válidos de las opciones permitidas
+        const idsValidos = opcionesValidas.map((o) => o.id);
+
+        // Si el tipo de reservación actualmente seleccionado ya no es válido
+        // (por ejemplo, el usuario cambió de espacio común), se limpia su valor
+        if (!idsValidos.includes(formik.values.idTipoReservacion)) {
+            formik.setFieldValue('idTipoReservacion', '');
+        }
+
+    // Este efecto depende del ID del espacio común seleccionado y el listado de espacios
+    }, [formik.values.idEspacioComunSeleccionado, espaciosComunes]);
     
   return (
     <Modal open={open} onClose={handleClose}>
@@ -364,7 +410,7 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                                 label = "Seleccione el tipo de reservación"
                                 name="idTipoReservacion"
                                 width={"100%"}
-                                listadoElementos={opcionesReserva || []}
+                                listadoElementos={getOpcionesTipoReservacionFiltradas(formik.values.idEspacioComunSeleccionado, espaciosComunes) || []}
                                 keyListadoElementos={"id"}
                                 mostrarElemento={(option)=> option["name"]}
                                 handleChange = {formik.handleChange}
@@ -502,54 +548,38 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunes, espacios
                 {pasoActualFormulario === 3 &&
                     <Fade in={pasoActualFormulario === 3} timeout={300}>
                         <Box id="ItemCuerpoModalReservarEspacioComun">
-                            <RadioGroupMui
-                                label="Duración de la reserva"
-                                name="idOpcionRadioHorasReserva"
-                                listadoElementos={opcionesRadioHorasReserva}
-                                keyListadoElementos="id"
-                                atributoValue="id"
-                                mostrarElemento={(option) => option.opcion}
-                                handleChange={(e) => {
-                                    formik.setFieldValue('idOpcionRadioHorasReserva', parseInt(e.target.value));
-                                }}
-                                elementoSeleccionado={formik.values.idOpcionRadioHorasReserva}
-                                helperText={formik.touched.idOpcionRadioHorasReserva && formik.errors.idOpcionRadioHorasReserva}
-                                error={formik.touched.idOpcionRadioHorasReserva && Boolean(formik.errors.idOpcionRadioHorasReserva)}
-                                row={true} // Mostrar en horizontal
-                            />
+                            <Typography fontSize={"16px"} color="gray" variant="h6" gutterBottom>
+                                {"Indique la cantidad de tiempo de la reserva"}
+                            </Typography>
+                            <Box id="DosItemsModalReservarEspacioComun">
+                                <SelectMui
+                                    label = "Horas"
+                                    name="cantidadHorasReserva"
+                                    width={"100%"}
+                                    listadoElementos={generarRango(cantidadHorasMinimasReserva, cantidadHorasMaximasReserva)}
+                                    keyListadoElementos={"id"}
+                                    mostrarElemento={(option)=> `${option["valor"]} hora(s)`}
+                                    handleChange = {formik.handleChange}
+                                    elementoSeleccionado = {formik.values.cantidadHorasReserva}
+                                    atributoValue={"valor"}
+                                    helperText={formik.touched.cantidadHorasReserva && formik.errors.cantidadHorasReserva}
+                                    error={formik.touched.cantidadHorasReserva && Boolean(formik.errors.cantidadHorasReserva)}
+                                />
 
-                            {formik.values.idOpcionRadioHorasReserva === 2 && 
-
-                                <Box id="DosItemsModalReservarEspacioComun">
-                                    <SelectMui
-                                        label = "Horas"
-                                        name="cantidadHorasReserva"
-                                        width={"100%"}
-                                        listadoElementos={generarRango(cantidadHorasMinimasReserva, cantidadHorasMaximasReserva)}
-                                        keyListadoElementos={"id"}
-                                        mostrarElemento={(option)=> `${option["valor"]} hora(s)`}
-                                        handleChange = {formik.handleChange}
-                                        elementoSeleccionado = {formik.values.cantidadHorasReserva}
-                                        atributoValue={"valor"}
-                                        helperText={formik.touched.cantidadHorasReserva && formik.errors.cantidadHorasReserva}
-                                        error={formik.touched.cantidadHorasReserva && Boolean(formik.errors.cantidadHorasReserva)}
-                                    />
-
-                                    <SelectMui
-                                        label = "Minutos"
-                                        name="cantidadMinutosReserva"
-                                        width={"100%"}
-                                        listadoElementos={generarRango(0, 59)}
-                                        keyListadoElementos={"id"}
-                                        mostrarElemento={(option)=> `${option["valor"]} minuto(s)`}
-                                        handleChange = {formik.handleChange}
-                                        elementoSeleccionado = {formik.values.cantidadMinutosReserva}
-                                        atributoValue={"valor"}
-                                        helperText={formik.touched.cantidadMinutosReserva && formik.errors.cantidadMinutosReserva}
-                                        error={formik.touched.cantidadMinutosReserva && Boolean(formik.errors.cantidadMinutosReserva)}
-                                    />
-                                </Box>
-                            }
+                                <SelectMui
+                                    label = "Minutos"
+                                    name="cantidadMinutosReserva"
+                                    width={"100%"}
+                                    listadoElementos={generarRango(0, 59)}
+                                    keyListadoElementos={"id"}
+                                    mostrarElemento={(option)=> `${option["valor"]} minuto(s)`}
+                                    handleChange = {formik.handleChange}
+                                    elementoSeleccionado = {formik.values.cantidadMinutosReserva}
+                                    atributoValue={"valor"}
+                                    helperText={formik.touched.cantidadMinutosReserva && formik.errors.cantidadMinutosReserva}
+                                    error={formik.touched.cantidadMinutosReserva && Boolean(formik.errors.cantidadMinutosReserva)}
+                                />
+                            </Box>
                         </Box>
                     </Fade>
                 }

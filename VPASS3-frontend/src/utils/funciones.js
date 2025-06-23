@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import 'dayjs/locale/es' // Para español
+import { CommonAreaMode, idReservacionTipoReserva, idReservacionTipoUso, opcionesReservacionEspacioComun } from './constantes'
 
 // Activar plugin
 dayjs.extend(localizedFormat)
@@ -87,8 +88,6 @@ export function formatoLegibleDesdeHoraString(horaString) {
 }
 
 
-
-
 /**
  * Transforma una cantidad de horas y minutos en un string con formato tipo TimeSpan ("HH:MM:SS").
  * 
@@ -163,3 +162,132 @@ export function transformarAFormatoDateTime(fecha, hora, minutos) {
   // Construir y retornar el string con formato DateTime
   return `${fecha}T${horaFormateada}:${minutosFormateados}:00`;
 }
+
+
+
+/**
+ * Filtra y devuelve las opciones de tipo de reservación disponibles
+ * para un espacio común específico, en base a su modo (usable, reservable o ambos).
+ * 
+ * Esta función utiliza el valor del `mode` de la entidad CommonArea, que se define
+ * mediante un enum con flags combinables (bitmask), para determinar qué tipos
+ * de reservación pueden mostrarse al usuario.
+ *
+ * @param {number|string} idEspacioComunSeleccionado - ID del espacio común seleccionado.
+ * @param {Array} espaciosComunes - Listado completo de espacios comunes disponibles.
+ * @returns {Array} Lista de opciones de tipo de reservación válidas para el espacio seleccionado.
+ */
+
+export function getOpcionesTipoReservacionFiltradas(idEspacioComunSeleccionado, espaciosComunes) {
+  const espacio = espaciosComunes?.find(
+    (e) => e.id === Number(idEspacioComunSeleccionado)
+  );
+
+  // Si no se encuentra el espacio seleccionado, devolver array vacío
+  if (!espacio) return [];
+
+  const { mode } = espacio;
+  const opciones = [];
+
+  // Si el espacio es usable (flag activado), se permite "Uso compartido"
+  if ((mode & CommonAreaMode.Usable) === CommonAreaMode.Usable) {
+    const opcionUso = opcionesReservacionEspacioComun.find(
+      (o) => o.id === idReservacionTipoUso
+    );
+    if (opcionUso) opciones.push(opcionUso);
+  }
+
+  // Si el espacio es reservable (flag activado), se permite "Reserva exclusiva"
+  if ((mode & CommonAreaMode.Reservable) === CommonAreaMode.Reservable) {
+    const opcionReserva = opcionesReservacionEspacioComun.find(
+      (o) => o.id === idReservacionTipoReserva
+    );
+    if (opcionReserva) opciones.push(opcionReserva);
+  }
+
+  return opciones;
+}
+
+// Funcion para obtener la fecha y hora de santiago en el momento de la invocacion de la funcion.
+// Retorna un string tipo DateTime, algo así como: "2025-06-23T14:25:36"
+export function obtenerFechaHoraSantiago() {
+    const opciones = {
+        timeZone: 'America/Santiago',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    };
+
+    const fechaChile = new Intl.DateTimeFormat('en-CA', opciones).format(new Date());
+    const [fecha, hora] = fechaChile.split(', ');
+
+    // Esto retorna un objeto Date correctamente formateado
+    return new Date(`${fecha}T${hora}`);
+}
+
+// Funcion que toma el arreglo de objetos con las reservas exclusivas de un area comun, y retorna el mismo arreglo pero con las reservas que se encuentran activas todavia o no han sucedido
+export function filtrarReservasExclusivasActivas(reservas) {
+    const ahora = obtenerFechaHoraSantiago();
+
+    return reservas.filter(reserva => {
+        const inicio = new Date(reserva.reservationStart);
+        const fin = reserva.reservationEnd ? new Date(reserva.reservationEnd) : null;
+
+        // Reserva sin `end`: incluir si empieza ahora o en el futuro
+        if (!fin) {
+            return inicio >= ahora;
+        }
+
+        // Reserva con `end`: incluir si termina ahora o después
+        return fin >= ahora;
+    });
+}
+
+// Funcion que toma el arreglo de objetos con las reservas exclusivas de un area comun, y retorna el mismo arreglo pero con las reservas que ya no se encuentran activas o ya han sucedido
+export function filtrarReservasExclusivasFinalizadas(reservas) {
+    const ahora = obtenerFechaHoraSantiago();
+
+    return reservas.filter(reserva => {
+        const fin = reserva.reservationEnd ? new Date(reserva.reservationEnd) : null;
+
+        // Solo reservas que tienen `end` y ya terminaron
+        return fin && fin < ahora;
+    });
+}
+
+// Funcion que toma el arreglo de objetos con los usos compartidos de un area comun, y retorna el mismo arreglo pero con los usos que se encuentran activos todavia o no han sucedido
+export function filtrarUsosCompartidosActivos(usos) {
+    const ahora = obtenerFechaHoraSantiago();
+
+    return usos.filter(uso => {
+        const inicio = new Date(uso.startTime);
+        const fin = uso.endTime ? new Date(uso.endTime) : null;
+
+        // Reserva sin `end`: incluir si empieza ahora o en el futuro
+        if (!fin) {
+            return inicio >= ahora;
+        }
+
+        // Reserva con `end`: incluir si termina ahora o después
+        return fin >= ahora;
+    });
+}
+
+// Funcion que toma el arreglo de objetos con los usos compartidos de un area comun, y retorna el mismo arreglo pero con los usos que se encuentran finalizados
+export function filtrarUsosCompartidosFinalizados(usos) {
+    const ahora = obtenerFechaHoraSantiago();
+
+    return usos.filter(uso => {
+        const fin = uso.endTime ? new Date(uso.endTime) : null;
+
+        // Solo reservas que tienen `end` y ya terminaron
+        return fin && fin < ahora;
+    });
+}
+
+
+

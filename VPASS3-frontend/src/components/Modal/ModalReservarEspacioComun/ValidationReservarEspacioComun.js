@@ -37,21 +37,11 @@ const ValidationReservarEspacioComun = Yup.object().shape({
       is: '2',
       then: (schema) => schema.required('El campo es requerido')
     }),
-
-  idOpcionRadioHorasReserva: Yup.string()
-    .required('El campo es requerido'),
+    
   cantidadHorasReserva: Yup.string()
-    .nullable()
-    .when('idOpcionRadioHorasReserva', {
-      is: '2',
-      then: (schema) => schema.required('El campo es requerido')
-    }),
+    .required("El campo es requerido"),
   cantidadMinutosReserva: Yup.string()
-    .nullable()
-    .when('idOpcionRadioHorasReserva', {
-      is: '2',
-      then: (schema) => schema.required('El campo es requerido')
-    }),
+    .required("El campo es requerido"),
 
   idOpcionRadioIncluyeInvitados: Yup.string()
     .required('El campo es requerido'),

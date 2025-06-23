@@ -1,45 +1,115 @@
 import { useEffect, useState } from "react";
 import useEspaciosComunes from "../../../hooks/useEspaciosComunes/useEspaciosComunes";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Fade, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Fade, Typography } from "@mui/material";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import TableSkeleton from "../../Skeleton/TableSkeleton/TableSkeleton";
 import { CommonAreaMode } from "../../../utils/constantes";
 import "./GestionEspaciosComunesPageComponent.css";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString } from "../../../utils/funciones";
+import { cambiarFormatoHoraFecha, filtrarReservasExclusivasActivas, filtrarReservasExclusivasFinalizadas, filtrarUsosCompartidosActivos, filtrarUsosCompartidosFinalizados, formatoLegibleDesdeHoraString } from "../../../utils/funciones";
 import dayjs from "dayjs";
-import { useFormik } from "formik";
 import ModalReservarEspacioComun from "../../Modal/ModalReservarEspacioComun/ModalReservarEspacioComun";
 
 const GestionEspaciosComunesPageComponent = () => {
-    const {loading, getAllEspaciosComunes, espaciosComunes} = useEspaciosComunes();
+    // Hook con los espacios y su informacion detallada, incluyendo reservas, nombre, etc.
+    const { getAllEspaciosComunes, espaciosComunes} = useEspaciosComunes();
 
+    // Se obtienen los espacios comunes desde el hook
     useEffect(() => {
       getAllEspaciosComunes();
     }, [])
 
     // Estado en donde se guardarán los datos de los espacios comunes, es con el objetivo de manipular el arreglo
-    const [rows, setRows] = useState();
-
-    useEffect(() => {console.log("📌 - rows => ",rows)}, [rows]);
+    const [rowsOriginales, setRowsOriginales] = useState();
+    
+    const [rowsModificables, setRowsModificables] = useState();
 
     // En el momento en que carguen los datos de los espacios comunes, se hace una copia para rows.
     useEffect(() => {
         if (!Array.isArray(espaciosComunes)) return;
-        setRows(espaciosComunes);
+        setRowsOriginales(espaciosComunes);
+        setRowsModificables(espaciosComunes);
     }, [espaciosComunes]);
+
+    // Estados y funciones para abrir y cerrar el modal de crear una nueva reserva
+    const [openModalReservarEspacioComun, setOpenModalReservarEspacioComun] = useState(false);
+    const handleOpenModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(true);  
+    const handleCloseModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(false);
+
+    // Variables y funciones para manejar el filtrado de las reservas exclusivas
+    const idOpcionTodasBotonesTablaRegistroReservasExclusiva = 1;
+    const idOpcionActivasBotonesTablaRegistroReservasExclusivas = 2;
+    const idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas = 3;
+    const handleClickBotonOpcionesTablaRegistroReservaExclusiva = (espacioComun, idOpcion) => {
+        if (!rowsOriginales) return;
+
+        // Se trabaja sobre la versión original (sin filtros)
+        const espacioOriginal = rowsOriginales.find(row => row.id === espacioComun.id);
+        if (!espacioOriginal) return;
+
+        let usosCompartidosFiltrados = [];
+
+        if (idOpcion === idOpcionTodasBotonesTablaRegistroReservasExclusiva) {
+            usosCompartidosFiltrados = espacioOriginal.reservations;
+        } else if (idOpcion === idOpcionActivasBotonesTablaRegistroReservasExclusivas) {
+            usosCompartidosFiltrados = filtrarReservasExclusivasActivas(espacioOriginal.reservations);
+        } else if (idOpcion === idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas) {
+            usosCompartidosFiltrados = filtrarReservasExclusivasFinalizadas(espacioOriginal.reservations);
+        }
+
+        const espacioActualizado = {
+            ...espacioOriginal,
+            reservations: usosCompartidosFiltrados,
+        };
+
+        // Se aplica el cambio solo a ese espacio en la lista modificable
+        const nuevaListaModificable = rowsOriginales.map(row =>
+            row.id === espacioComun.id ? espacioActualizado : row
+        );
+        setRowsModificables(nuevaListaModificable);
+    };
+
+
+    const idOpcionTodosBotonesTablaRegistroUsoCompartido = 1;
+    const idOpcionActivosBotonesTablaRegistroUsoCompartido = 2;
+    const idOpcionFinalizadosBotonesTablaRegistroUsoCompartido = 3;
+    const handleClickBotonOpcionesTablaRegistroUsoCompartido = (espacioComun, idOpcion) => {
+        if (!rowsOriginales) return;
+
+        // Se trabaja sobre la versión original (sin filtros)
+        const espacioOriginal = rowsOriginales.find(row => row.id === espacioComun.id);
+        if (!espacioOriginal) return;
+
+        let usosCompartidosFiltrados = [];
+
+        if (idOpcion === idOpcionTodosBotonesTablaRegistroUsoCompartido) {
+            usosCompartidosFiltrados = espacioOriginal.usages;
+        } else if (idOpcion === idOpcionActivosBotonesTablaRegistroUsoCompartido) {
+            usosCompartidosFiltrados = filtrarUsosCompartidosActivos(espacioOriginal.usages);
+        } else if (idOpcion === idOpcionFinalizadosBotonesTablaRegistroUsoCompartido) {
+            usosCompartidosFiltrados = filtrarUsosCompartidosFinalizados(espacioOriginal.usages);
+        }
+
+        const espacioActualizado = {
+            ...espacioOriginal,
+            usages: usosCompartidosFiltrados,
+        };
+
+        // Se aplica el cambio solo a ese espacio en la lista modificable
+        const nuevaListaModificable = rowsOriginales.map(row =>
+            row.id === espacioComun.id ? espacioActualizado : row
+        );
+        setRowsModificables(nuevaListaModificable);
+    };
+
 
     const columns = [
         "Nombre",
         "Registros",
     ];
 
-    const [openModalReservarEspacioComun, setOpenModalReservarEspacioComun] = useState(false);
-    const handleOpenModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(true);  
-    const handleCloseModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(false);
-
-    const data = rows?.map((espacioComun) => {
+    const data = rowsModificables?.map((espacioComun) => {
         const {name, mode, reservations, usages} = espacioComun;
         const registrosUsoOrdenadosPorFecha = [...usages].sort((a, b) =>
             dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
@@ -60,7 +130,7 @@ const GestionEspaciosComunesPageComponent = () => {
         });
 
         const registrosReservasOrdenadosPorFecha = [...reservations].sort((a, b) =>
-            dayjs(b.startTime).valueOf() - dayjs(a.startTime).valueOf()
+            dayjs(b.reservationStart).valueOf() - dayjs(a.reservationStart).valueOf()
         );
         const columnsRegistrosReservas = ["Nombres", "Apellidos", "RUT/Pasaporte", "Fecha de inicio", "Tiempo autorizado", "Número de invitados"];
         const dataRegistrosReservas = registrosReservasOrdenadosPorFecha.map((reservation) => {
@@ -92,8 +162,14 @@ const GestionEspaciosComunesPageComponent = () => {
 
                             <Typography variant="h6">{`Registros de uso`}</Typography> 
                         </AccordionSummary>
+
                         <AccordionDetails>
-                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistrosUso} data={dataRegistrosUso} selectableRows="none"/>
+                            <Box className="BoxBotonesFiltrarRegistroEspaciosComunes">
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionTodasBotonesTablaRegistroReservasExclusiva)}} fontSize="15px" width="30%" defaultText="Todos"/>
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionActivasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Activos"/>
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Finalizados"/>
+                            </Box>
+                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={false} viewColumnsButton={false} columns={columnsRegistrosUso} data={dataRegistrosUso} selectableRows="none"/>
                         </AccordionDetails>
                     </Accordion> 
                 }
@@ -110,11 +186,16 @@ const GestionEspaciosComunesPageComponent = () => {
 
                         </AccordionSummary>
                         <AccordionDetails>
-                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={true} viewColumnsButton={false} columns={columnsRegistrosReservas} data={dataRegistrosReservas} selectableRows="none"/>
+                            <Box className="BoxBotonesFiltrarRegistroEspaciosComunes">
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionTodasBotonesTablaRegistroReservasExclusiva)}} fontSize="15px" width="30%" defaultText="Todas"/>
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionActivasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Activas"/>
+                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Finalizadas"/>
+                            </Box>
+                            <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={false} viewColumnsButton={false} columns={columnsRegistrosReservas} data={dataRegistrosReservas} selectableRows="none"/>
                         </AccordionDetails>
                     </Accordion>       
                 }
-            </Box>
+            </Box> 
         ]
     })
     
@@ -126,19 +207,20 @@ const GestionEspaciosComunesPageComponent = () => {
                     handleClick={handleOpenModalReservarEspacioComun}
                 />
             </Box>
-            <Fade in={!(!Array.isArray(rows))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+            <Fade in={!(!Array.isArray(rowsOriginales))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
                 <div>
                 <DatagridResponsive title="Espacios Comunes" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} /> 
                 <ModalReservarEspacioComun
                     open={openModalReservarEspacioComun}
                     onClose={handleCloseModalReservarEspacioComun}
-                    setEspaciosComunes={setRows}
-                    espaciosComunes={rows}
+                    setEspaciosComunesOriginales={setRowsOriginales}
+                    setEspaciosComunesModificables={setRowsModificables}
+                    espaciosComunes={rowsOriginales}
                 />
                 </div>
             </Fade>
 
-            <Fade in={!Array.isArray(rows)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+            <Fade in={!Array.isArray(rowsOriginales)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
                 <div>
                     <TableSkeleton columnCount={3} rowCount={7} />
                 </div>
