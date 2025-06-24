@@ -17,9 +17,9 @@
     border-radius: 5px;
 }
 
-.BoxBotonesFiltrarRegistroEspaciosComunes{
+.BoxSelectFiltrarRegistroEspaciosComunes{
     display: flex;
-    width: 100%;
+    width: 30%;
     justify-content: center;
     gap: 20px;
     margin-bottom: 10px;
@@ -54,5 +54,8 @@
 
     #ContainerGestionEspaciosComunesPageComponent{
         padding: 10px;
+    }
+    .BoxSelectFiltrarRegistroEspaciosComunes{
+        width: 70%;
     }
 }

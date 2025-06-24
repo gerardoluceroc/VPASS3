@@ -238,8 +238,6 @@ const ModalReservarEspacioComun = ({ open, onClose, setEspaciosComunesOriginales
                 if(values.idTipoReservacion === idReservacionTipoReserva){
                     const respuestaCrearReservaExclusiva = await crearReservaExclusivaEspacioComun(nombresPersonaReservada, apellidosPersonaReservada, rutPersonaReserva, idAreaComun, fechaReserva, duracionReserva, cantidadInvitados);
 
-                    console.log("estoy en el modal e hice la peticion, lo que me llegó de la funcion fue: ", respuestaCrearReservaExclusiva);
-
                     const {statusCode: statusCodeCrearReservaExclusiva, data: dataCrearReservaExclusiva, message: messageCrearReservaExclusiva} = respuestaCrearReservaExclusiva;
 
                     // Si el servidor responde con el Response dto que tiene configurado

@@ -10,6 +10,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { cambiarFormatoHoraFecha, filtrarReservasExclusivasActivas, filtrarReservasExclusivasFinalizadas, filtrarUsosCompartidosActivos, filtrarUsosCompartidosFinalizados, formatoLegibleDesdeHoraString } from "../../../utils/funciones";
 import dayjs from "dayjs";
 import ModalReservarEspacioComun from "../../Modal/ModalReservarEspacioComun/ModalReservarEspacioComun";
+import SelectMui from "../../Select/SelectMui/SelectMui";
 
 const GestionEspaciosComunesPageComponent = () => {
     // Hook con los espacios y su informacion detallada, incluyendo reservas, nombre, etc.
@@ -38,10 +39,26 @@ const GestionEspaciosComunesPageComponent = () => {
     const handleCloseModalReservarEspacioComun = () => setOpenModalReservarEspacioComun(false);
 
     // Variables y funciones para manejar el filtrado de las reservas exclusivas
-    const idOpcionTodasBotonesTablaRegistroReservasExclusiva = 1;
-    const idOpcionActivasBotonesTablaRegistroReservasExclusivas = 2;
-    const idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas = 3;
-    const handleClickBotonOpcionesTablaRegistroReservaExclusiva = (espacioComun, idOpcion) => {
+    const idOpcionTodasSelectVerTablaRegistroReservasExclusivas = 1;
+    const idOpcionActivasSelectVerTablaRegistroReservasExclusivas = 2;
+    const idOpcionFinalizadasSelectVerTablaRegistroReservasExclusivas = 3;
+    const opcionesSelectVerTablaRegistroReservasExclusivas = 
+    [
+        {
+            id: 1,
+            nombre: "Todas"
+        },
+        {
+            id: 2,
+            nombre: "Activas"
+        },
+        {
+            id: 3,
+            nombre: "Finalizadas"
+        },
+    ]
+    const [idOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas, setIdOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas] = useState(idOpcionTodasSelectVerTablaRegistroReservasExclusivas);
+    const handleClickSelectOpcionesTablaRegistroReservasExclusivas = (espacioComun, idOpcion) => {
         if (!rowsOriginales) return;
 
         // Se trabaja sobre la versión original (sin filtros)
@@ -50,12 +67,15 @@ const GestionEspaciosComunesPageComponent = () => {
 
         let usosCompartidosFiltrados = [];
 
-        if (idOpcion === idOpcionTodasBotonesTablaRegistroReservasExclusiva) {
+        if (idOpcion === idOpcionTodasSelectVerTablaRegistroReservasExclusivas) {
             usosCompartidosFiltrados = espacioOriginal.reservations;
-        } else if (idOpcion === idOpcionActivasBotonesTablaRegistroReservasExclusivas) {
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas(idOpcionTodasSelectVerTablaRegistroReservasExclusivas);
+        } else if (idOpcion === idOpcionActivasSelectVerTablaRegistroReservasExclusivas) {
             usosCompartidosFiltrados = filtrarReservasExclusivasActivas(espacioOriginal.reservations);
-        } else if (idOpcion === idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas) {
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas(idOpcionActivasSelectVerTablaRegistroReservasExclusivas);
+        } else if (idOpcion === idOpcionFinalizadasSelectVerTablaRegistroReservasExclusivas) {
             usosCompartidosFiltrados = filtrarReservasExclusivasFinalizadas(espacioOriginal.reservations);
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas(idOpcionFinalizadasSelectVerTablaRegistroReservasExclusivas);
         }
 
         const espacioActualizado = {
@@ -71,10 +91,26 @@ const GestionEspaciosComunesPageComponent = () => {
     };
 
 
-    const idOpcionTodosBotonesTablaRegistroUsoCompartido = 1;
-    const idOpcionActivosBotonesTablaRegistroUsoCompartido = 2;
-    const idOpcionFinalizadosBotonesTablaRegistroUsoCompartido = 3;
-    const handleClickBotonOpcionesTablaRegistroUsoCompartido = (espacioComun, idOpcion) => {
+    const idOpcionTodosSelectVerTablaRegistrosUsoCompartido = 1;
+    const idOpcionActivosSelectVerTablaRegistrosUsoCompartido = 2;
+    const idOpcionFinalizadosSelectVerTablaRegistrosUsoCompartido = 3;
+    const opcionesSelectVerTablaRegistrosUsoCompartido = 
+    [
+        {
+            id: 1,
+            nombre: "Todos"
+        },
+        {
+            id: 2,
+            nombre: "Activos"
+        },
+        {
+            id: 3,
+            nombre: "Finalizados"
+        },
+    ]
+    const [idOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido, setIdOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido] = useState(idOpcionTodasSelectVerTablaRegistroReservasExclusivas);
+    const handleClickSelectOpcionesTablaRegistrosUsoCompartido = (espacioComun, idOpcion) => {
         if (!rowsOriginales) return;
 
         // Se trabaja sobre la versión original (sin filtros)
@@ -83,12 +119,15 @@ const GestionEspaciosComunesPageComponent = () => {
 
         let usosCompartidosFiltrados = [];
 
-        if (idOpcion === idOpcionTodosBotonesTablaRegistroUsoCompartido) {
+        if (idOpcion === idOpcionTodosSelectVerTablaRegistrosUsoCompartido) {
             usosCompartidosFiltrados = espacioOriginal.usages;
-        } else if (idOpcion === idOpcionActivosBotonesTablaRegistroUsoCompartido) {
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido(idOpcionTodosSelectVerTablaRegistrosUsoCompartido);
+        } else if (idOpcion === idOpcionActivosSelectVerTablaRegistrosUsoCompartido) {
             usosCompartidosFiltrados = filtrarUsosCompartidosActivos(espacioOriginal.usages);
-        } else if (idOpcion === idOpcionFinalizadosBotonesTablaRegistroUsoCompartido) {
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido(idOpcionActivosSelectVerTablaRegistrosUsoCompartido);
+        } else if (idOpcion === idOpcionFinalizadosSelectVerTablaRegistrosUsoCompartido) {
             usosCompartidosFiltrados = filtrarUsosCompartidosFinalizados(espacioOriginal.usages);
+            setIdOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido(idOpcionFinalizadosSelectVerTablaRegistrosUsoCompartido);
         }
 
         const espacioActualizado = {
@@ -159,15 +198,21 @@ const GestionEspaciosComunesPageComponent = () => {
                             aria-controls="panel1-content"
                             id="panel1-header"
                         >
-
                             <Typography variant="h6">{`Registros de uso`}</Typography> 
                         </AccordionSummary>
 
                         <AccordionDetails>
-                            <Box className="BoxBotonesFiltrarRegistroEspaciosComunes">
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionTodasBotonesTablaRegistroReservasExclusiva)}} fontSize="15px" width="30%" defaultText="Todos"/>
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionActivasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Activos"/>
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroUsoCompartido(espacioComun, idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Finalizados"/>
+                            <Box className="BoxSelectFiltrarRegistroEspaciosComunes">
+                                <SelectMui
+                                    label = "Ver"
+                                    width={"100%"}
+                                    listadoElementos={opcionesSelectVerTablaRegistrosUsoCompartido || []}
+                                    keyListadoElementos={"id"}
+                                    mostrarElemento={(option)=> option["nombre"]}
+                                    handleChange = {(e)=>{handleClickSelectOpcionesTablaRegistrosUsoCompartido(espacioComun, e.target.value)}}
+                                    elementoSeleccionado = {idOpcionSeleccionadaSelectVerTablaRegistrosUsoCompartido}
+                                    atributoValue={"id"}
+                                />
                             </Box>
                             <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={false} viewColumnsButton={false} columns={columnsRegistrosUso} data={dataRegistrosUso} selectableRows="none"/>
                         </AccordionDetails>
@@ -186,10 +231,17 @@ const GestionEspaciosComunesPageComponent = () => {
 
                         </AccordionSummary>
                         <AccordionDetails>
-                            <Box className="BoxBotonesFiltrarRegistroEspaciosComunes">
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionTodasBotonesTablaRegistroReservasExclusiva)}} fontSize="15px" width="30%" defaultText="Todas"/>
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionActivasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Activas"/>
-                                <ButtonTypeOne handleClick={()=>{handleClickBotonOpcionesTablaRegistroReservaExclusiva(espacioComun, idOpcionFinalizadasBotonesTablaRegistroReservasExclusivas)}} fontSize="15px" width="30%" defaultText="Finalizadas"/>
+                            <Box className="BoxSelectFiltrarRegistroEspaciosComunes">
+                                <SelectMui
+                                    label = "Ver"
+                                    width={"100%"}
+                                    listadoElementos={opcionesSelectVerTablaRegistroReservasExclusivas || []}
+                                    keyListadoElementos={"id"}
+                                    mostrarElemento={(option)=> option["nombre"]}
+                                    handleChange = {(e)=>{handleClickSelectOpcionesTablaRegistroReservasExclusivas(espacioComun, e.target.value)}}
+                                    elementoSeleccionado = {idOpcionSeleccionadaSelectVerTablaRegistrosReservasExclusivas}
+                                    atributoValue={"id"}
+                                />
                             </Box>
                             <DatagridResponsive rowsPerPage={5} rowsPerPageOptions={[5, 10]} title={null} searchButton={false} viewColumnsButton={false} columns={columnsRegistrosReservas} data={dataRegistrosReservas} selectableRows="none"/>
                         </AccordionDetails>
