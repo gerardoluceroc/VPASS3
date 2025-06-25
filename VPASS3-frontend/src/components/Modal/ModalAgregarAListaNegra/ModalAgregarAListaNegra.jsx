@@ -48,7 +48,7 @@ const ModalAgregarAListaNegra = ({ open, onClose, setRows }) => {
             if (confirmed) {
                 setOpenLoadingRespuesta(true);
 
-                // Se envía la información al backend para agregar el visitante a la lista negra
+                // Se envía la información al backend para agregar a la persona a la lista negra
                 const {statusCode: statusCodeAgregarAListaNegra, data: dataVisitanteAgregadoAListaNegra, message: messageAgregarAListaNegra} = await crearListaNegra({
                     nombres: values.nombres,
                     apellidos: values.apellidos,

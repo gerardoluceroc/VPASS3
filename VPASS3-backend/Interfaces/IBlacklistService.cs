@@ -7,7 +7,7 @@ namespace VPASS3_backend.Interfaces
     public interface IBlacklistService
     {
         Task<ResponseDto> CreateAsync(BlacklistDto dto);
-        Task<ResponseDto> DeleteByVisitorAsync(DeleteBlacklistByVisitorIdDto dto);
+        Task<ResponseDto> DeleteByPersonAsync(DeleteBlacklistByPersonIdDto dto);
         Task<ResponseDto> GetAllAsync();
         Task<ResponseDto> UpdateAsync(int id, BlacklistDto dto);
         Task<ResponseDto> GetByIdAsync(int id);

@@ -15,7 +15,7 @@ namespace VPASS3_backend.Models
 
         [Required]
         [JsonIgnore]
-        public int VisitorId { get; set; }
+        public int IdPerson { get; set; }
 
         [Required]
         [JsonIgnore]
@@ -65,7 +65,8 @@ namespace VPASS3_backend.Models
         public Establishment Establishment { get; set; }
 
         //[JsonIgnore]
-        public Visitor Visitor { get; set; }
+        [ForeignKey("IdPerson")]
+        public Person Person { get; set; }
 
         //[JsonIgnore]
         public Zone Zone { get; set; }

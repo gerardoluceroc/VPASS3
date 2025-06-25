@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VPASS3_backend.Context;
 
@@ -11,9 +12,11 @@ using VPASS3_backend.Context;
 namespace VPASS3_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250625132405_UpdateBlacklistModel")]
+    partial class UpdateBlacklistModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,7 +167,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("AuditLogs");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Blacklist", b =>
@@ -195,7 +198,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("VisitorId");
 
-                    b.ToTable("Blacklists", (string)null);
+                    b.ToTable("Blacklists");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.CommonArea", b =>
@@ -226,7 +229,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdEstablishment");
 
-                    b.ToTable("CommonAreas", (string)null);
+                    b.ToTable("CommonAreas");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.CommonAreaReservation", b =>
@@ -263,7 +266,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("PersonId");
 
-                    b.ToTable("CommonAreaReservations", (string)null);
+                    b.ToTable("CommonAreaReservations");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.CommonAreas.CommonAreaUsageLog", b =>
@@ -295,7 +298,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdPerson");
 
-                    b.ToTable("CommonAreaUsageLogs", (string)null);
+                    b.ToTable("CommonAreaUsageLogs");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Direction", b =>
@@ -312,7 +315,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Directions", (string)null);
+                    b.ToTable("Directions");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Establishment", b =>
@@ -329,7 +332,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Establishments", (string)null);
+                    b.ToTable("Establishments");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.ParkingSpot", b =>
@@ -354,7 +357,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdEstablishment");
 
-                    b.ToTable("ParkingSpots", (string)null);
+                    b.ToTable("ParkingSpots");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.ParkingSpotUsageLog", b =>
@@ -399,7 +402,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("VisitorId");
 
-                    b.ToTable("ParkingSpotUsageLogs", (string)null);
+                    b.ToTable("ParkingSpotUsageLogs");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Person", b =>
@@ -424,7 +427,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Persons", (string)null);
+                    b.ToTable("Persons");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Role", b =>
@@ -553,9 +556,6 @@ namespace VPASS3_backend.Migrations
                     b.Property<int?>("IdParkingSpot")
                         .HasColumnType("int");
 
-                    b.Property<int>("IdPerson")
-                        .HasColumnType("int");
-
                     b.Property<int>("IdVisitType")
                         .HasColumnType("int");
 
@@ -568,7 +568,7 @@ namespace VPASS3_backend.Migrations
                     b.Property<bool>("VehicleIncluded")
                         .HasColumnType("bit");
 
-                    b.Property<int?>("VisitorId")
+                    b.Property<int>("VisitorId")
                         .HasColumnType("int");
 
                     b.Property<int>("ZoneId")
@@ -582,8 +582,6 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdParkingSpot");
 
-                    b.HasIndex("IdPerson");
-
                     b.HasIndex("IdVisitType");
 
                     b.HasIndex("IdZoneSection");
@@ -592,7 +590,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("ZoneId");
 
-                    b.ToTable("Visits", (string)null);
+                    b.ToTable("Visits");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.VisitType", b =>
@@ -614,7 +612,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdEstablishment");
 
-                    b.ToTable("VisitTypes", (string)null);
+                    b.ToTable("VisitTypes");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>
@@ -639,7 +637,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Visitors", (string)null);
+                    b.ToTable("Visitors");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Zone", b =>
@@ -664,7 +662,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("EstablishmentId");
 
-                    b.ToTable("Zones", (string)null);
+                    b.ToTable("Zones");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.ZoneSection", b =>
@@ -688,7 +686,7 @@ namespace VPASS3_backend.Migrations
 
                     b.HasIndex("IdZone");
 
-                    b.ToTable("ZoneSections", (string)null);
+                    b.ToTable("ZoneSections");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -881,12 +879,6 @@ namespace VPASS3_backend.Migrations
                         .HasForeignKey("IdParkingSpot")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("VPASS3_backend.Models.Person", "Person")
-                        .WithMany("Visits")
-                        .HasForeignKey("IdPerson")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("VPASS3_backend.Models.VisitType", "VisitType")
                         .WithMany()
                         .HasForeignKey("IdVisitType")
@@ -898,9 +890,11 @@ namespace VPASS3_backend.Migrations
                         .HasForeignKey("IdZoneSection")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("VPASS3_backend.Models.Visitor", null)
+                    b.HasOne("VPASS3_backend.Models.Visitor", "Visitor")
                         .WithMany("Visits")
-                        .HasForeignKey("VisitorId");
+                        .HasForeignKey("VisitorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("VPASS3_backend.Models.Zone", "Zone")
                         .WithMany()
@@ -914,9 +908,9 @@ namespace VPASS3_backend.Migrations
 
                     b.Navigation("ParkingSpot");
 
-                    b.Navigation("Person");
-
                     b.Navigation("VisitType");
+
+                    b.Navigation("Visitor");
 
                     b.Navigation("Zone");
 
@@ -995,8 +989,6 @@ namespace VPASS3_backend.Migrations
                     b.Navigation("Blacklists");
 
                     b.Navigation("InvitedCommonAreaReservations");
-
-                    b.Navigation("Visits");
                 });
 
             modelBuilder.Entity("VPASS3_backend.Models.Visitor", b =>

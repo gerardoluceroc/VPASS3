@@ -63,7 +63,7 @@ const ListaNegraPageComponent = () => {
               setMessageLoadingRespuesta(messageBorrarDeListaNegra);
 
               // Se actualizan las rows eliminando aquella persona seleccionada
-              setRows(prevRows => prevRows.filter(row => row?.visitor?.id !== idPersona));
+              setRows(prevRows => prevRows.filter(row => row?.person?.id !== idPersona));
           }
           else if (statusBorrarDeListaNegra === 500) {
               //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
@@ -96,11 +96,11 @@ const ListaNegraPageComponent = () => {
   // Información que irá en la tabla
   const columns = ["Nombres", "Apellidos", "RUT/Pasaporte", "Motivo", "Acciones"];
   const data = rows?.map((listaNegra) => {
-      const {reason, visitor} = listaNegra;
-      const {names = "", lastNames = "", identificationNumber} = visitor;
+      const {reason, person} = listaNegra;
+      const {names = "", lastNames = "", identificationNumber} = person;
       const columnaAcciones = 
       <Box>
-          <IconoBorrar handleClick={()=>handleBorrarPersonaDeListaNegra(visitor)}/>
+          <IconoBorrar handleClick={()=>handleBorrarPersonaDeListaNegra(person)}/>
       </Box>;
 
       return[
@@ -120,7 +120,7 @@ const ListaNegraPageComponent = () => {
     <Box id="ContainerListaNegraPageComponent">
       <Box id="BotonCrearNuevaListaNegra">
           <ButtonTypeOne
-              defaultText="Agregar visitante a lista negra"
+              defaultText="Agregar persona a lista negra"
               handleClick={handleOpenModalCrearListaNegra}
           />
       </Box>

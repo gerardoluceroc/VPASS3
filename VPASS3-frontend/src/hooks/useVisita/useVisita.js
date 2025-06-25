@@ -1,10 +1,10 @@
 import { useState } from "react";
-import useVisitante from "../useVisitante/useVisitante";
 import axios from "axios";
 import { path_createVisita, path_getAllVisitas, path_getReportePorRangoDeFechas, path_getReportePorRut } from "../../services/API/API-VPASS3";
 import { cambiarAFormatoHoraMinutos } from "../../utils/funciones";
 import { idSentidoVisitaEntrada } from "../../utils/constantes";
 import useUsoEstacionamiento from "../useUsoEstacionamiento/useUsoEstacionamiento";
+import usePersona from "../usePersona/usePersona";
 
 const useVisita = () => {
     const [loading, setLoading] = useState(false);
@@ -13,7 +13,7 @@ const useVisita = () => {
     const [responseStatus, setResponseStatus] = useState(null);
 
     const {registrarUsoEstacionamiento} = useUsoEstacionamiento();
-    const {crearVisitante, getVisitanteByIdentificationNumber} = useVisitante();
+    const {crearPersona, getPersonaByIdentificationNumber} = usePersona();
 
     const getAllVisitas = async () => {
         setLoading(true);
@@ -55,35 +55,35 @@ const useVisita = () => {
       setLoading(true);
     
       try {
-        let idVisitante = null;
-        const responseCrearVisitante = await crearVisitante({
+        let idPersona = null;
+        const responseCrearPersona = await crearPersona({
           nombres,
           apellidos,
           numeroIdentificacion
         });
-        // Primero se intenta crear un nuevo visitante
-        const { data: visitanteCreado, statusCode: statusCrearVisitante, message: messageCrearVisitante } = responseCrearVisitante;
+        // Primero se intenta crear un nuevo visitante (persona)
+        const { data: presonaCreada, statusCode: statusCrearPersona, message: messageCrearPersona } = responseCrearPersona;
 
-        if (statusCrearVisitante === 409) {
-          // Si el visitante ya existe (código 409), se debe buscar por número de identificación
-          const {data: visitanteExistente} = await getVisitanteByIdentificationNumber(numeroIdentificacion);
+        if (statusCrearPersona === 409) {
+          // Si la persona ya existe (código 409), se debe buscar por número de identificación
+          const {data: personaExistente} = await getPersonaByIdentificationNumber(numeroIdentificacion);
 
-          // Se extrae el ID del visitante existente
-          idVisitante = visitanteExistente?.id;
+          // Se extrae el ID de la persona existente
+          idPersona = personaExistente?.id;
     
-        } else if (statusCrearVisitante === 201 || statusCrearVisitante === 200) {
-          // Si el visitante fue creado exitosamente, se obtiene el ID directamente de la respuesta
-          idVisitante = visitanteCreado?.id;
+        } else if (statusCrearPersona === 201 || statusCrearPersona === 200) {
+          // Si la persona fue creado exitosamente, se obtiene el ID directamente de la respuesta
+          idPersona = presonaCreada?.id;
     
         } else {
 
           // Si no se obtuvo un código 201 o 409, se considera un error inesperado
-          throw responseCrearVisitante;
+          throw responseCrearPersona;
         }
         
         // Una vez obtenido el ID del visitante (nuevo o existente), se procede a crear la visita
         const {data: respuestaCrearVisita} = await axios.post(path_createVisita, {
-          visitorId: idVisitante,
+          idPerson: idPersona,
           zoneId: idZona,
           idDirection: idSentido,
           idZoneSection: idSubZona,

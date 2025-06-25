@@ -149,27 +149,6 @@ namespace VPASS3_backend.Services
             return EstablishmentId.HasValue && EstablishmentId.Value == visitType.IdEstablishment;
         }
 
-        public bool CanAccessVisitor(Visitor visitor)
-        {
-            if (visitor == null)
-                return false;
-
-            // SUPERADMIN puede acceder a todo
-            if (UserRole == "SUPERADMIN")
-                return true;
-
-            // Si no tiene establecimiento asociado, no puede acceder
-            if (!EstablishmentId.HasValue)
-                return false;
-
-            // Si no hay visitas aún, permitir acceso para crear una nueva
-            if (visitor.Visits == null || visitor.Visits.Count == 0)
-                return true;
-
-            // Validar si al menos una visita pertenece al establecimiento del usuario
-            return visitor.Visits.Any(v => v.EstablishmentId == EstablishmentId.Value);
-        }
-
         public bool CanAccessPerson(Person person)
         {
             if (person == null)

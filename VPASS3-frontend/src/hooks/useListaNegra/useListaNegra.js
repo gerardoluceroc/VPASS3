@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { path_createListaNegra, path_deleteListaNegraPorIdPersona, path_getAllListaNegra, path_updateListaNegra } from "../../services/API/API-VPASS3";
 import axios from "axios";
-import useVisitante from "../useVisitante/useVisitante";
+import usePersona from "../usePersona/usePersona";
 
 const useListaNegra = () => {
     const [loading, setLoading] = useState(false);
@@ -9,7 +9,7 @@ const useListaNegra = () => {
     const [listaNegra, setListaNegra] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
 
-    const {crearVisitante, getVisitanteByIdentificationNumber} = useVisitante();
+    const {crearPersona, getPersonaByIdentificationNumber} = usePersona();
   
     const getAllListaNegra = async () => {
         setLoading(true);
@@ -62,35 +62,35 @@ const useListaNegra = () => {
     }) => {
         setLoading(true);
         try {
-            let idVisitante = null;
-            const responseCrearVisitante = await crearVisitante({
+            let idPersona = null;
+            const responseCrearPersona = await crearPersona({
                 nombres,
                 apellidos,
                 numeroIdentificacion
             });
             
-            // Primero se intenta crear un nuevo visitante
-            const { data: visitanteCreado, statusCode: statusCrearVisitante, message: messageCrearVisitante } = responseCrearVisitante;
+            // Primero se intenta crear una nueva persona
+            const { data: personaCreada, statusCode: statusCrearPersona, message: messageCrearPersona } = responseCrearPersona;
 
-            if (statusCrearVisitante === 409) {
-                // Si el visitante ya existe (código 409), se debe buscar por número de identificación
-                const {data: visitanteExistente} = await getVisitanteByIdentificationNumber(numeroIdentificacion);
+            if (statusCrearPersona === 409) {
+                // Si la persona ya existe (código 409), se debe buscar por número de identificación
+                const {data: personaExistente} = await getPersonaByIdentificationNumber(numeroIdentificacion);
 
-                // Se extrae el ID del visitante existente
-                idVisitante = visitanteExistente?.id;
+                // Se extrae el ID de la persona existente
+                idPersona = personaExistente?.id;
         
-            } else if (statusCrearVisitante === 201 || statusCrearVisitante === 200) {
-                // Si el visitante fue creado exitosamente, se obtiene el ID directamente de la respuesta
-                idVisitante = visitanteCreado?.id;
+            } else if (statusCrearPersona === 201 || statusCrearPersona === 200) {
+                // Si la persona fue creada exitosamente, se obtiene el ID directamente de la respuesta
+                idPersona = personaCreada?.id;
         
             } else {
                 // Si no se obtuvo un código 201 o 409, se considera un error inesperado
-                throw responseCrearVisitante;
+                throw responseCrearPersona;
             }
 
             const {data: responseCrearListaNegra} = await axios.post(path_createListaNegra,
                 {
-                    idVisitor: idVisitante,
+                    idPerson: idPersona,
                     idEstablishment: idEstablecimiento,
                     reason: motivo
                 }
@@ -111,13 +111,11 @@ const useListaNegra = () => {
         }
     }
 
-
-
     const BorrarDeListaNegraPorIdPersona = async ({idPersona, idEstablecimiento}) => {
         setLoading(true);
         const cuerpoPeticion = {
             idEstablishment: idEstablecimiento,
-            idVisitor: idPersona
+            idPerson: idPersona
         }
         try {
             const response = await axios.post(path_deleteListaNegraPorIdPersona, cuerpoPeticion);

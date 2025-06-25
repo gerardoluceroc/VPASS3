@@ -1,9 +1,8 @@
-import { Modal, Box, Typography, IconButton } from '@mui/material';
+import { Modal, Box, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import './ModalVerDetallesRegistro.css';
 import TextFieldReadOnlyUno from '../../TextField/TextFieldReadOnlyUno/TextFieldReadOnlyUno';
 import { cambiarFormatoHoraFecha, formatoLegibleDesdeHoraString } from '../../../utils/funciones';
-import { useEffect } from 'react';
 import { idSentidoVisitaEntrada } from '../../../utils/constantes';
 
 const style = {
@@ -20,8 +19,6 @@ const style = {
 };
 
 const ModalVerDetallesRegistros = ({ open, onClose, visitaSeleccionada }) => {
-
-    useEffect(() => {console.log("📌 visitaSeleccionada => ",visitaSeleccionada)}, [visitaSeleccionada]);
 
     return (
         <Modal open={open} onClose={onClose}>
@@ -45,12 +42,12 @@ const ModalVerDetallesRegistros = ({ open, onClose, visitaSeleccionada }) => {
                 <Box className="DosItemsCuerpoModalVerDetallesRegistro">
                     <TextFieldReadOnlyUno
                         label={"Nombre"}
-                        value={`${visitaSeleccionada?.visitor?.names || "Sin datos"} ${visitaSeleccionada?.visitor?.lastNames || ""}`}
+                        value={`${visitaSeleccionada?.person?.names || "Sin datos"} ${visitaSeleccionada?.person?.lastNames || ""}`}
                     />
 
                     <TextFieldReadOnlyUno
                         label={"Rut/Pasaporte"}
-                        value={`${visitaSeleccionada?.visitor?.identificationNumber || "Sin datos"}`}
+                        value={`${visitaSeleccionada?.person?.identificationNumber || "Sin datos"}`}
                     />
                 </Box>
                 
@@ -68,7 +65,7 @@ const ModalVerDetallesRegistros = ({ open, onClose, visitaSeleccionada }) => {
 
                 <Box className="DosItemsCuerpoModalVerDetallesRegistro">
                     <TextFieldReadOnlyUno
-                        label={"Fecha y Hora"}
+                        label={"Fecha"}
                         value={`${cambiarFormatoHoraFecha(visitaSeleccionada?.entryDate) || "Sin datos"}`}
                     />
 

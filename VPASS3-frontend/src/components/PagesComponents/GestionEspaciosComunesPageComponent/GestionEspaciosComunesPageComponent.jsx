@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import useEspaciosComunes from "../../../hooks/useEspaciosComunes/useEspaciosComunes";
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Fade, Typography } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Fade, Typography } from "@mui/material";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
 import TableSkeleton from "../../Skeleton/TableSkeleton/TableSkeleton";

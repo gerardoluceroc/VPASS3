@@ -37,11 +37,11 @@ const UltimosRegistrosPageComponent = () => {
       setRows(visitasOrdenadasPorFecha);
     }, [visitas]);
   
-    const columns = ["Nombre", "Rut", "Destino", "Sentido", "Hora", "Acciones"];
+    const columns = ["Nombre", "Rut", "Destino", "Sentido", "Fecha", "Acciones"];
 
     const data = rows?.map((visita) => {
-      const { visitor, zone, zoneSection, direction, entryDate: horaEntrada } = visita;
-      const { names = "", lastNames = "", identificationNumber = "" } = visitor || {};
+      const { person, zone, zoneSection, direction, entryDate: horaEntrada } = visita;
+      const { names = "", lastNames = "", identificationNumber = "" } = person || {};
       const { name: nombreZona = "" } = zone || {};
       const { name: nombreSubzona = "" } = zoneSection || {};
       const { visitDirection: sentido = "" } = direction || {};

@@ -112,6 +112,13 @@ const EntradaForm = () => {
         }
     });
 
+    // Si se cambia el valor de la zona escogida, se debe resetear lo que habia en idSubZona
+    useEffect(() => {
+      return () => {
+        formik.setFieldValue("idSubZona", null);
+      }
+    }, [formik.values.idZona])
+
     const [subZonasDisponibles, setSubZonasDisponibles] = useState([]);
     useEffect(() => {
         //Cada vez que se cambia la zona seleccionada, se setea el estado de subZonasDisponibles

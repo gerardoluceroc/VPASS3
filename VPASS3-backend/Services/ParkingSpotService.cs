@@ -185,7 +185,7 @@ namespace VPASS3_backend.Services
                             var exitVisit = new Visit
                             {
                                 EstablishmentId = lastUsage.EntryVisit.EstablishmentId,
-                                VisitorId = lastUsage.EntryVisit.VisitorId,
+                                IdPerson = lastUsage.EntryVisit.IdPerson,
                                 ZoneId = lastUsage.EntryVisit.ZoneId,
                                 EntryDate = DateTime.UtcNow.AddHours(-4), // Hora de Chile (ajuste si usas UTC en BD)
                                 IdDirection = 2, // Salida

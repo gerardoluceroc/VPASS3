@@ -33,17 +33,15 @@ namespace VPASS3_backend.Controllers
         }
 
         [Authorize(Policy = "ManageOwnProfile")]
-        [HttpPost("deleteByVisitorId")]
-        public async Task<ActionResult<ResponseDto>> DeleteUserFromBlacklist([FromBody] DeleteBlacklistByVisitorIdDto dto)
+        [HttpPost("deleteByPersonId")]
+        public async Task<ActionResult<ResponseDto>> DeleteUserFromBlacklist([FromBody] DeleteBlacklistByPersonIdDto dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(new ResponseDto(400, message: "Datos inválidos."));
 
-            var response = await _blacklistService.DeleteByVisitorAsync(dto);
+            var response = await _blacklistService.DeleteByPersonAsync(dto);
             return StatusCode(response.StatusCode, response);
         }
-
-
 
         [Authorize(Policy = "ManageOwnProfile")]
         [HttpGet("all")]

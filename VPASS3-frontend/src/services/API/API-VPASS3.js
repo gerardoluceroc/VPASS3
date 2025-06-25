@@ -28,7 +28,7 @@ export const path_createReservaUsoCompartido = `${URL_SERVER}/CommonAreaUsageLog
 export const path_getAllListaNegra = `${URL_SERVER}/Blacklist/all`
 export const path_updateListaNegra = `${URL_SERVER}/Blacklist/Update`
 export const path_createListaNegra = `${URL_SERVER}/Blacklist/create`
-export const path_deleteListaNegraPorIdPersona = `${URL_SERVER}/Blacklist/deleteByVisitorId`
+export const path_deleteListaNegraPorIdPersona = `${URL_SERVER}/Blacklist/deleteByPersonId`
 
 /* Persona */
 export const path_getAllPersonas = `${URL_SERVER}/Person/all`;

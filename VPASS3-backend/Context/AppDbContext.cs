@@ -13,7 +13,7 @@ namespace VPASS3_backend.Context
         // Registrar la entidad Establishment
         public DbSet<Establishment> Establishments { get; set; }
         public DbSet<Zone> Zones { get; set; }
-        public DbSet<Visitor> Visitors { get; set; }
+        //public DbSet<Visitor> Visitors { get; set; }
 
         public DbSet<Direction> Directions { get; set; }
 
@@ -81,16 +81,16 @@ namespace VPASS3_backend.Context
 
             // Relación Visit - Visitor uno es a muchos
             modelBuilder.Entity<Visit>()
-                .HasOne(v => v.Visitor)
+                .HasOne(v => v.Person)
                 .WithMany(vis => vis.Visits)
-                .HasForeignKey(v => v.VisitorId)
+                .HasForeignKey(v => v.IdPerson)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Relación Blacklist - Visitor (muchos a uno)
+            // Relación Blacklist - Person (muchos a uno)
             modelBuilder.Entity<Blacklist>()
-                .HasOne(b => b.Visitor)
+                .HasOne(b => b.Person)
                 .WithMany(v => v.Blacklists)
-                .HasForeignKey(b => b.IdVisitor)
+                .HasForeignKey(b => b.IdPerson)
                 .OnDelete(DeleteBehavior.Restrict);
 
             // Relación Blacklist - Establishment (muchos a uno)
@@ -106,7 +106,6 @@ namespace VPASS3_backend.Context
             .WithMany() // Sin propiedad de navegación en Zone
             .HasForeignKey(v => v.ZoneId)
             .OnDelete(DeleteBehavior.Restrict);
-
 
             //Relacion Visit - Direction, uno es a muchos
             // Una visita tiene un sentido, y un sentido está asociado a muchas visitas
@@ -177,50 +176,6 @@ namespace VPASS3_backend.Context
                 .WithMany()
                 .HasForeignKey(u => u.IdPerson)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            //// 6. Configurar relación muchos a muchos: Reservation <-> Person (invitados)
-            //modelBuilder.Entity<CommonAreaReservation>()
-            //    .HasMany(r => r.Guests)
-            //    .WithMany(p => p.InvitedCommonAreaReservations)
-            //    .UsingEntity<Dictionary<string, object>>(
-            //        "CommonAreaReservationGuest",
-            //        j => j
-            //            .HasOne<Person>()
-            //            .WithMany()
-            //            .HasForeignKey("PersonId")
-            //            .OnDelete(DeleteBehavior.Cascade),
-            //        j => j
-            //            .HasOne<CommonAreaReservation>()
-            //            .WithMany()
-            //            .HasForeignKey("ReservationId")
-            //            .OnDelete(DeleteBehavior.Cascade),
-            //        j =>
-            //        {
-            //            j.ToTable("CommonAreaReservationGuests");
-            //            j.HasKey("ReservationId", "PersonId");
-            //        });
-
-            //// 7. (Opcional) Si también quieres invitados para CommonAreaUsageLog:
-            //modelBuilder.Entity<CommonAreaUsageLog>()
-            //    .HasMany(u => u.InvitedGuests)
-            //    .WithMany()
-            //    .UsingEntity<Dictionary<string, object>>(
-            //        "CommonAreaUsageLogGuest",
-            //        j => j
-            //            .HasOne<Person>()
-            //            .WithMany()
-            //            .HasForeignKey("PersonId")
-            //            .OnDelete(DeleteBehavior.Cascade),
-            //        j => j
-            //            .HasOne<CommonAreaUsageLog>()
-            //            .WithMany()
-            //            .HasForeignKey("UsageLogId")
-            //            .OnDelete(DeleteBehavior.Cascade),
-            //        j =>
-            //        {
-            //            j.ToTable("CommonAreaUsageLogGuests");
-            //            j.HasKey("UsageLogId", "PersonId");
-            //        });
         }
     }
 }

@@ -26,7 +26,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.Direction)
                     .FirstOrDefaultAsync(v => v.Id == dto.IdVisit);
                 var parkingSpot = await _context.ParkingSpots.FindAsync(visit.IdParkingSpot);
-                var visitor = await _context.Visitors.FindAsync(visit.VisitorId);
+                var visitor = await _context.Persons.FindAsync(visit.IdPerson);
 
                 if (parkingSpot == null)
                     return new ResponseDto(404, message: "Estacionamiento no encontrado.");
@@ -62,7 +62,7 @@ namespace VPASS3_backend.Services
                 if (visit.Direction.VisitDirection.ToLower() == "salida" && visit.VehicleIncluded)
                 {
                     var openLog = await _context.ParkingSpotUsageLogs
-                        .Where(p => p.EntryVisit.Visitor.Id == visit.VisitorId && p.IdExitVisit == null && p.EndTime == null)
+                        .Where(p => p.EntryVisit.Person.Id == visit.IdPerson && p.IdExitVisit == null && p.EndTime == null)
                         .OrderByDescending(p => p.StartTime)
                         .FirstOrDefaultAsync();
 
@@ -103,7 +103,7 @@ namespace VPASS3_backend.Services
                 .Include(p => p.EntryVisit)
                     .ThenInclude(v => v.ParkingSpot)
                 .Include(p => p.EntryVisit)
-                    .ThenInclude(v => v.Visitor)
+                    .ThenInclude(v => v.Person)
                 .ToListAsync();
 
                 // Si el usuario no es SUPERADMIN, se filtra por su establecimiento

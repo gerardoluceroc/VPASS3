@@ -4,10 +4,7 @@ using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.Drawing;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
 using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services
@@ -35,7 +32,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.Zone)
-                    .Include(v => v.Visitor)
+                    .Include(v => v.Person)
                     .Include(v => v.ZoneSection)
                     .ToListAsync();
 
@@ -76,7 +73,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.Zone)
-                    .Include(v => v.Visitor)
+                    .Include(v => v.Person)
                     .Include(v => v.ZoneSection)
                     .FirstOrDefaultAsync(v => v.Id == id);
 
@@ -138,10 +135,10 @@ namespace VPASS3_backend.Services
 
                 // Verificar si el visitante está en la blacklist de este establecimiento
                 var isBlacklisted = await _context.Blacklists
-                    .AnyAsync(b => b.IdVisitor == dto.VisitorId && b.IdEstablishment == establishmentId);
+                    .AnyAsync(b => b.IdPerson == dto.IdPerson && b.IdEstablishment == establishmentId);
 
                 if (isBlacklisted)
-                    return new ResponseDto(403, message: "El visitante se encuentra en la lista negra del establecimiento y no puede ingresar.");
+                    return new ResponseDto(403, message: "La persona se encuentra en la lista negra del establecimiento y no puede ingresar.");
 
                 // Validar tipo de visita
                 var visitType = await _context.VisitTypes.FirstOrDefaultAsync(vt => vt.Id == dto.IdVisitType);
@@ -201,7 +198,7 @@ namespace VPASS3_backend.Services
                 var visit = new Visit
                 {
                     EstablishmentId = establishmentId,
-                    VisitorId = dto.VisitorId,
+                    IdPerson = dto.IdPerson,
                     ZoneId = dto.ZoneId,
                     IdDirection = dto.IdDirection,
                     VehicleIncluded = dto.VehicleIncluded,
@@ -345,7 +342,7 @@ namespace VPASS3_backend.Services
 
                 // Asignar valores
                 visit.EstablishmentId = establishmentId;
-                visit.VisitorId = dto.VisitorId;
+                visit.IdPerson = dto.IdPerson;
                 visit.ZoneId = dto.ZoneId;
                 visit.VehicleIncluded = dto.VehicleIncluded;
                 visit.IdDirection = dto.IdDirection;
@@ -407,7 +404,7 @@ namespace VPASS3_backend.Services
 
                 // Obtener visitas según permisos
                 var visitsQuery = _context.Visits
-                    .Include(v => v.Visitor)
+                    .Include(v => v.Person)
                     .Include(v => v.Zone)
                     .Include(v => v.ZoneSection)
                     .Include(v => v.VisitType)
@@ -461,7 +458,7 @@ namespace VPASS3_backend.Services
                         {
                             worksheet.Cell(row, 1).Value = visit.Id;
                             worksheet.Cell(row, 2).Value = visit.EntryDate;
-                            worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
+                            worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
                             worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
@@ -549,24 +546,24 @@ namespace VPASS3_backend.Services
             try
             {
                 // Validar que el visitante exista
-                var visitor = await _context.Visitors
+                var person = await _context.Persons
                     .FirstOrDefaultAsync(v => v.IdentificationNumber == dto.IdentificationNumber);
 
-                if (visitor == null)
+                if (person == null)
                 {
                     return new ResponseDto(404, message: "Visitante no encontrado.");
                 }
 
                 // Obtener visitas según permisos
                 var visitsQuery = _context.Visits
-                    .Include(v => v.Visitor)
+                    .Include(v => v.Person)
                     .Include(v => v.Zone)
                     .Include(v => v.ZoneSection)
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.ParkingSpot)
                     .Include(v => v.Establishment)
-                    .Where(v => v.VisitorId == visitor.Id);
+                    .Where(v => v.IdPerson == person.Id);
 
                 // Filtrar por establecimiento si no es SUPERADMIN
                 if (_userContext.UserRole != "SUPERADMIN")
@@ -613,7 +610,7 @@ namespace VPASS3_backend.Services
                         {
                             worksheet.Cell(row, 1).Value = visit.Id;
                             worksheet.Cell(row, 2).Value = visit.EntryDate;
-                            worksheet.Cell(row, 3).Value = $"{visit.Visitor?.Names} {visit.Visitor?.LastNames}";
+                            worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
                             worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
@@ -630,7 +627,7 @@ namespace VPASS3_backend.Services
                     else
                     {
                         // Mensaje cuando no hay datos
-                        worksheet.Cell(2, 1).Value = $"No se encontraron visitas para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})";
+                        worksheet.Cell(2, 1).Value = $"No se encontraron visitas para {person.Names} {person.LastNames} ({person.IdentificationNumber})";
                         worksheet.Range(2, 1, 2, 10).Merge();
                     }
 
@@ -662,12 +659,12 @@ namespace VPASS3_backend.Services
                         }
 
                         // Obtener nombre del archivo
-                        var fileName = $"Visitas_{visitor.Names}_{visitor.LastNames}_{visitor.IdentificationNumber}.xlsx";
+                        var fileName = $"Visitas_{person.Names}_{person.LastNames}_{person.IdentificationNumber}.xlsx";
 
                         // Mensaje para el log de auditoría
                         var message = _userContext.UserRole == "SUPERADMIN"
-                            ? $"Se ha descargado el reporte de visitas de {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber}) en todos los establecimientos"
-                            : $"Se ha descargado el reporte de visitas de {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber}) en el establecimiento {establishmentName}";
+                            ? $"Se ha descargado el reporte de visitas de {person.Names} {person.LastNames} ({person.IdentificationNumber}) en todos los establecimientos"
+                            : $"Se ha descargado el reporte de visitas de {person.Names} {person.LastNames} ({person.IdentificationNumber}) en el establecimiento {establishmentName}";
 
                         await _auditLogService.LogManualAsync(
                             action: message,
@@ -685,8 +682,8 @@ namespace VPASS3_backend.Services
                             ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                             FileName = fileName
                         }, visits.Any()
-                            ? $"Reporte de visitas generado para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})"
-                            : $"Reporte generado sin visitas para {visitor.Names} {visitor.LastNames} ({visitor.IdentificationNumber})");
+                            ? $"Reporte de visitas generado para {person.Names} {person.LastNames} ({person.IdentificationNumber})"
+                            : $"Reporte generado sin visitas para {person.Names} {person.LastNames} ({person.IdentificationNumber})");
                     }
                 }
             }

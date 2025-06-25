@@ -19,8 +19,6 @@ const BitacoraUsoEstacionamientoPageComponent = () => {
     // Estado donde se guardará la informacion del uso del estacionamiento
     const [rows, setRows] = useState()
 
-    // useEffect(() => {console.log("📌 - rows => ",rows)}, [rows]);
-
     // Cuando cargue la info del uso de los estacionamientos desde el servidor, se proceden a ordenar por fecha.
     useEffect(() => {
         if (!Array.isArray(usoEstacionamiento)) return;
@@ -36,8 +34,8 @@ const BitacoraUsoEstacionamientoPageComponent = () => {
     const data = rows?.map((usoEstacionamiento) => {
         const {entryVisit, authorizedTime, startTime, endTime, usageTime} = usoEstacionamiento;
 
-        const {visitor, parkingSpot} = entryVisit;
-        const {names = "", lastNames = ""} = visitor;
+        const {person, parkingSpot} = entryVisit;
+        const {names = "", lastNames = ""} = person;
         const {name: parkingSpotName = ""} = parkingSpot;
 
         return [

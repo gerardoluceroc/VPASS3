@@ -18,8 +18,14 @@ namespace VPASS3_backend.Models
         [Required]
         public string IdentificationNumber { get; set; }
 
-        //Inverso de la rerlacion muchos es a muchos
+        //Inverso de la relacion muchos es a muchos
         [JsonIgnore]
         public ICollection<CommonAreaReservation> InvitedCommonAreaReservations { get; set; } = new List<CommonAreaReservation>();
+
+        [JsonIgnore]
+        public ICollection<Blacklist> Blacklists { get; set; } = new List<Blacklist>();
+
+        [JsonIgnore]
+        public ICollection<Visit> Visits { get; set; } = new List<Visit>();
     }
 }

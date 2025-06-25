@@ -4,7 +4,7 @@
     {
         public int? EstablishmentId { get; set; }
 
-        public int VisitorId { get; set; }
+        public int IdPerson { get; set; }
 
         public int ZoneId { get; set; }
 
