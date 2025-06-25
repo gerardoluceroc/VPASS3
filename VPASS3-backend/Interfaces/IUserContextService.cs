@@ -22,7 +22,7 @@ namespace VPASS3_backend.Interfaces
 
         bool CanAccessZone(Zone zone);
 
-        bool CanAccessZoneSection(ZoneSection section);
+        bool CanAccessApartment(Apartment apartment);
 
         bool CanAccessParkingSpot(ParkingSpot spot);
 

@@ -33,7 +33,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.Direction)
                     .Include(v => v.Zone)
                     .Include(v => v.Person)
-                    .Include(v => v.ZoneSection)
+                    .Include(v => v.Apartment)
                     .ToListAsync();
 
                 if (_userContext.UserRole != "SUPERADMIN")
@@ -46,12 +46,12 @@ namespace VPASS3_backend.Services
                         .ToList();
                 }
 
-                // Limpia las subzonas en la zona principal de cada visita
+                // Limpia los departamentos en la zona principal de cada visita
                 foreach (var visit in visits)
                 {
-                    if (visit.Zone != null && visit.Zone.ZoneSections != null)
+                    if (visit.Zone != null && visit.Zone.Apartments != null)
                     {
-                        visit.Zone.ZoneSections.Clear();
+                        visit.Zone.Apartments.Clear();
                     }
                 }
 
@@ -74,7 +74,7 @@ namespace VPASS3_backend.Services
                     .Include(v => v.Direction)
                     .Include(v => v.Zone)
                     .Include(v => v.Person)
-                    .Include(v => v.ZoneSection)
+                    .Include(v => v.Apartment)
                     .FirstOrDefaultAsync(v => v.Id == id);
 
                 if (visit == null)
@@ -83,10 +83,10 @@ namespace VPASS3_backend.Services
                 if (!_userContext.CanAccessVisit(visit))
                     return new ResponseDto(403, message: "No tienes permiso para acceder a esta visita.");
 
-                // Limpiar las ZoneSections para evitar incluirlas en la respuesta
-                if (visit.Zone != null && visit.Zone.ZoneSections != null)
+                // Limpiar los departamentos para evitar incluirlas en la respuesta
+                if (visit.Zone != null && visit.Zone.Apartments != null)
                 {
-                    visit.Zone.ZoneSections.Clear();
+                    visit.Zone.Apartments.Clear();
                 }
 
                 return new ResponseDto(200, visit, "Visita obtenida correctamente.");
@@ -156,21 +156,21 @@ namespace VPASS3_backend.Services
                 if (!_userContext.CanAccessZone(zone) || zone.EstablishmentId != establishmentId)
                     return new ResponseDto(403, message: "No tienes acceso a la zona o no pertenece al establecimiento.");
 
-                // Validar subzona si aplica
-                int? idZoneSectionValida = null;
-                if (dto.IdZoneSection.HasValue)
+                // Validar departamento si aplica
+                int? idApartmentValido = null;
+                if (dto.IdApartment.HasValue)
                 {
-                    var zoneSection = await _context.ZoneSections
+                    var apartment = await _context.Apartments
                         .Include(zs => zs.Zone)
-                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
+                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdApartment.Value && zs.IdZone == dto.ZoneId);
 
-                    if (zoneSection == null)
-                        return new ResponseDto(404, message: "La subzona especificada no existe o no pertenece a la zona.");
+                    if (apartment == null)
+                        return new ResponseDto(404, message: "El departamento especificado no existe o no pertenece a la zona.");
 
-                    if (!_userContext.CanAccessZoneSection(zoneSection))
-                        return new ResponseDto(403, message: "No tienes acceso a la subzona especificada.");
+                    if (!_userContext.CanAccessApartment(apartment))
+                        return new ResponseDto(403, message: "No tienes acceso al departamento especificado.");
 
-                    idZoneSectionValida = zoneSection.Id;
+                    idApartmentValido = apartment.Id;
                 }
 
                 // Validar estacionamiento si hay vehículo
@@ -205,7 +205,7 @@ namespace VPASS3_backend.Services
                     LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null,
                     IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null,
                     EntryDate = TimeHelper.GetSantiagoTime(),
-                    IdZoneSection = idZoneSectionValida,
+                    IdApartment = idApartmentValido,
                     IdVisitType = dto.IdVisitType,
                     AuthorizedTime = dto.AuthorizedTime.HasValue ? dto.AuthorizedTime.Value : null
                 };
@@ -310,20 +310,20 @@ namespace VPASS3_backend.Services
                     return new ResponseDto(403, message: "La zona no pertenece al establecimiento o no tienes acceso.");
 
                 // Verificar subzona
-                int? idZoneSectionValida = null;
-                if (dto.IdZoneSection.HasValue)
+                int? idApartmentValido = null;
+                if (dto.IdApartment.HasValue)
                 {
-                    var zoneSection = await _context.ZoneSections
+                    var apartment = await _context.Apartments
                         .Include(zs => zs.Zone)
-                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdZoneSection.Value && zs.IdZone == dto.ZoneId);
+                        .FirstOrDefaultAsync(zs => zs.Id == dto.IdApartment.Value && zs.IdZone == dto.ZoneId);
 
-                    if (zoneSection == null)
-                        return new ResponseDto(404, message: "La subzona especificada no existe o no está asociada a la zona indicada.");
+                    if (apartment == null)
+                        return new ResponseDto(404, message: "El departamento especificado no existe o no está asociado a la zona indicada.");
 
-                    if (!_userContext.CanAccessZoneSection(zoneSection))
+                    if (!_userContext.CanAccessApartment(apartment))
                         return new ResponseDto(403, message: "No tienes acceso a la subzona especificada.");
 
-                    idZoneSectionValida = zoneSection.Id;
+                    idApartmentValido = apartment.Id;
                 }
 
                 // Verificar estacionamiento si hay vehículo
@@ -346,7 +346,7 @@ namespace VPASS3_backend.Services
                 visit.ZoneId = dto.ZoneId;
                 visit.VehicleIncluded = dto.VehicleIncluded;
                 visit.IdDirection = dto.IdDirection;
-                visit.IdZoneSection = idZoneSectionValida;
+                visit.IdApartment = idApartmentValido;
                 visit.LicensePlate = dto.VehicleIncluded ? dto.LicensePlate : null;
                 visit.IdParkingSpot = dto.VehicleIncluded ? dto.IdParkingSpot : null;
                 visit.IdVisitType = dto.IdVisitType;
@@ -406,7 +406,7 @@ namespace VPASS3_backend.Services
                 var visitsQuery = _context.Visits
                     .Include(v => v.Person)
                     .Include(v => v.Zone)
-                    .Include(v => v.ZoneSection)
+                    .Include(v => v.Apartment)
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.ParkingSpot)
@@ -461,7 +461,7 @@ namespace VPASS3_backend.Services
                             worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
-                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.Apartment?.Name}";
                             worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
                             worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
                             worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
@@ -558,7 +558,7 @@ namespace VPASS3_backend.Services
                 var visitsQuery = _context.Visits
                     .Include(v => v.Person)
                     .Include(v => v.Zone)
-                    .Include(v => v.ZoneSection)
+                    .Include(v => v.Apartment)
                     .Include(v => v.VisitType)
                     .Include(v => v.Direction)
                     .Include(v => v.ParkingSpot)
@@ -613,7 +613,7 @@ namespace VPASS3_backend.Services
                             worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
-                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.ZoneSection?.Name}";
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.Apartment?.Name}";
                             worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
                             worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
                             worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";

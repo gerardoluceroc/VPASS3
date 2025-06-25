@@ -30,7 +30,7 @@ namespace VPASS3_backend.Services
                 var establishments = await _context.Establishments
                     .Include(e => e.Users)
                     .Include(e => e.Zones)
-                        .ThenInclude(z => z.ZoneSections)  // Esto agrega las subzonas dentro de cada zona
+                        .ThenInclude(z => z.Apartments)  // Esto agrega los departamentos dentro de cada zona
                     .Include(e => e.ParkingSpots)
                     .Include(e => e.Blacklists)
                     .Include(e => e.CommonAreas)

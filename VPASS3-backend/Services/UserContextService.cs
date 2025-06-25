@@ -103,17 +103,17 @@ namespace VPASS3_backend.Services
             return EstablishmentId.HasValue && EstablishmentId.Value == zone.EstablishmentId;
         }
 
-        public bool CanAccessZoneSection(ZoneSection section)
+        public bool CanAccessApartment(Apartment apartment)
         {
-            if (section == null)
+            if (apartment == null)
                 return false;
 
             if (UserRole == "SUPERADMIN")
                 return true;
 
             return EstablishmentId.HasValue
-                && section.Zone != null
-                && section.Zone.EstablishmentId == EstablishmentId.Value;
+                && apartment.Zone != null
+                && apartment.Zone.EstablishmentId == EstablishmentId.Value;
         }
 
         public bool CanAccessParkingSpot(ParkingSpot spot)

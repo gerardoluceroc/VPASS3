@@ -29,7 +29,7 @@ namespace VPASS3_backend.Models
         public int IdDirection { get; set; }
 
         [JsonIgnore]
-        public int? IdZoneSection { get; set; }
+        public int? IdApartment { get; set; }
 
         [Required]
         public bool VehicleIncluded { get; set; }
@@ -71,8 +71,8 @@ namespace VPASS3_backend.Models
         //[JsonIgnore]
         public Zone Zone { get; set; }
 
-        [ForeignKey("IdZoneSection")]
+        [ForeignKey("IdApartment")]
         //[JsonIgnore]
-        public ZoneSection? ZoneSection { get; set; }
+        public Apartment? Apartment { get; set; }
     }
 }

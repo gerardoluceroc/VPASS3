@@ -10,7 +10,7 @@
 
         public int IdDirection { get; set; }
 
-        public int? IdZoneSection {  get; set; }
+        public int? IdApartment {  get; set; }
 
         public bool VehicleIncluded { get; set; }
 

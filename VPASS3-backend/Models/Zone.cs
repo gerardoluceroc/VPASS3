@@ -21,10 +21,7 @@ namespace VPASS3_backend.Models
         [JsonIgnore]  // Ignorar la propiedad en la serialización JSON para evitar ciclos infinitos
         public Establishment Establishment { get; set; }
 
-        // Relación de uno es a muchos. Una zona tiene muchas subzonas o sub secciones
-        public ICollection<ZoneSection> ZoneSections { get; set; } = new List<ZoneSection>();
-
-        // Relación de uno es a muchos. Una zona recibe muchas visitas.
-        //public ICollection<Visit> Visits { get; set; } = new List<Visit>();
+        // Relación de uno es a muchos. Una zona tiene muchos departamentos
+        public ICollection<Apartment> Apartments { get; set; } = new List<Apartment>();
     }
 }

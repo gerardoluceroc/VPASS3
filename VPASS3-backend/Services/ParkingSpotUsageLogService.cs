@@ -95,7 +95,7 @@ namespace VPASS3_backend.Services
                 .Include(p => p.EntryVisit)
                     .ThenInclude(v => v.Zone)
                 .Include(p => p.EntryVisit)
-                    .ThenInclude(v => v.ZoneSection)
+                    .ThenInclude(v => v.Apartment)
                 .Include(p => p.EntryVisit)
                     .ThenInclude(v => v.Direction)
                 .Include(p => p.EntryVisit)

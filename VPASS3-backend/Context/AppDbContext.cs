@@ -19,7 +19,7 @@ namespace VPASS3_backend.Context
 
         public DbSet<Visit> Visits { get; set; }
 
-        public DbSet<ZoneSection> ZoneSections { get; set; }
+        public DbSet<Apartment> Apartments { get; set; }
 
         public DbSet<ParkingSpot> ParkingSpots { get; set; }
 
@@ -58,11 +58,11 @@ namespace VPASS3_backend.Context
             .OnDelete(DeleteBehavior.SetNull);// evita eliminación en cascada si deseas proteger al usuario
 
 
-            // Relación entre Visit y ZoneSection (para que use IdZoneSection como FK)
+            // Relación entre Visit y Apartment (para que use IdApartment como FK)
             modelBuilder.Entity<Visit>()
-            .HasOne(v => v.ZoneSection)
+            .HasOne(v => v.Apartment)
             .WithMany() // No necesitas colección inversa
-            .HasForeignKey(v => v.IdZoneSection)
+            .HasForeignKey(v => v.IdApartment)
             .OnDelete(DeleteBehavior.SetNull);
 
             // Relación entre Zone y Establishment (uno a muchos)
@@ -114,9 +114,9 @@ namespace VPASS3_backend.Context
             .WithMany(d => d.Visits)
             .HasForeignKey(v => v.IdDirection);
 
-            // Relacion uno es a muchos, una zona tiene muchas subzonas, y cada subzona está asociado solamente a una zona.
+            // Relacion uno es a muchos, una zona tiene muchos departamentos, y cada departamento está asociado solamente a una zona.
             modelBuilder.Entity<Zone>()
-            .HasMany(z => z.ZoneSections)
+            .HasMany(z => z.Apartments)
             .WithOne(zs => zs.Zone)
             .HasForeignKey(zs => zs.IdZone)
             .OnDelete(DeleteBehavior.Cascade); // Esto elimina las ZoneSections si se borra la Zone

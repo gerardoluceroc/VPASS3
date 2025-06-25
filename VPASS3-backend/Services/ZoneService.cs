@@ -28,7 +28,7 @@ namespace VPASS3_backend.Services
                 var zones = await _context.Zones
                     .Where(z => !z.IsDeleted)
                     .Include(z => z.Establishment)
-                    .Include(z => z.ZoneSections)
+                    .Include(z => z.Apartments)
                     .ToListAsync();
 
                 // Filtrar por establecimiento si no es SUPERADMIN
@@ -42,10 +42,10 @@ namespace VPASS3_backend.Services
                         .ToList();
                 }
 
-                // Filtrar las subzonas eliminadas manualmente
+                // Filtrar los departamentos eliminadas manualmente
                 foreach (var zone in zones)
                 {
-                    zone.ZoneSections = zone.ZoneSections
+                    zone.Apartments = zone.Apartments
                         .Where(zs => !zs.IsDeleted)
                         .ToList();
                 }
@@ -66,7 +66,7 @@ namespace VPASS3_backend.Services
             {
                 var zone = await _context.Zones
                     .Include(z => z.Establishment)
-                    .Include(z => z.ZoneSections)
+                    .Include(z => z.Apartments)
                     .FirstOrDefaultAsync(z => z.Id == id && !z.IsDeleted);
 
                 if (zone == null)
@@ -75,8 +75,8 @@ namespace VPASS3_backend.Services
                 if (!_userContext.CanAccessZone(zone))
                     return new ResponseDto(403, message: "No tienes permisos para acceder a esta zona.");
 
-                // Filtrar subzonas eliminadas
-                zone.ZoneSections = zone.ZoneSections
+                // Filtrar departamentos eliminados
+                zone.Apartments = zone.Apartments
                     .Where(zs => !zs.IsDeleted)
                     .ToList();
 
@@ -204,7 +204,7 @@ namespace VPASS3_backend.Services
             try
             {
                 var zone = await _context.Zones
-                    .Include(z => z.ZoneSections)
+                    .Include(z => z.Apartments)
                     .FirstOrDefaultAsync(z => z.Id == id);
 
                 if (zone == null || zone.IsDeleted)
@@ -217,7 +217,7 @@ namespace VPASS3_backend.Services
                 zone.IsDeleted = true;
 
                 // Marcar todas sus subzonas como eliminadas
-                foreach (var section in zone.ZoneSections)
+                foreach (var section in zone.Apartments)
                 {
                     section.IsDeleted = true;
                 }
@@ -244,7 +244,5 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al eliminar la zona.");
             }
         }
-
-
     }
 }

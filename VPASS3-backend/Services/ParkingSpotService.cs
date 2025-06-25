@@ -5,6 +5,7 @@ using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
 using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.DTOs.ParkingSpotUsageLogs;
+using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services
 {
@@ -187,9 +188,9 @@ namespace VPASS3_backend.Services
                                 EstablishmentId = lastUsage.EntryVisit.EstablishmentId,
                                 IdPerson = lastUsage.EntryVisit.IdPerson,
                                 ZoneId = lastUsage.EntryVisit.ZoneId,
-                                EntryDate = DateTime.UtcNow.AddHours(-4), // Hora de Chile (ajuste si usas UTC en BD)
+                                EntryDate = TimeHelper.GetSantiagoTime(), // Hora de Santiago Chile
                                 IdDirection = 2, // Salida
-                                IdZoneSection = lastUsage.EntryVisit.IdZoneSection,
+                                IdApartment = lastUsage.EntryVisit.IdApartment,
                                 VehicleIncluded = true,
                                 LicensePlate = lastUsage.EntryVisit.LicensePlate,
                                 IdParkingSpot = lastUsage.EntryVisit.IdParkingSpot,

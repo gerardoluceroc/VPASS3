@@ -190,7 +190,7 @@ builder.Services.AddScoped<IEstablishmentService, EstablishmentService>();
 builder.Services.AddScoped<IZoneService, ZoneService>();
 builder.Services.AddScoped<IVisitService, VisitService>();
 builder.Services.AddScoped<IDirectionService, DirectionService>();
-builder.Services.AddScoped<IZoneSectionService, ZoneSectionService>();
+builder.Services.AddScoped<IApartmentService, ApartmentService>();
 builder.Services.AddScoped<IParkingSpotService, ParkingSpotService>();
 builder.Services.AddScoped<IVisitTypeService, VisitTypeService>();
 builder.Services.AddScoped<IUserContextService, UserContextService>();
