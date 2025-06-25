@@ -54,11 +54,6 @@ export const path_createVisita = `${URL_SERVER}/Visit/create`
 export const path_getReportePorRangoDeFechas = `${URL_SERVER}/Visit/export/excel/byDates`
 export const path_getReportePorRut = `${URL_SERVER}/Visit/export/excel/byRut`
 
-/* Visitante */
-export const path_getAllVisitantes = `${URL_SERVER}/Visitor/all`
-export const path_getVisitanteByIdentificationNumber = `${URL_SERVER}/Visitor/idnumber/` // + rut ó pasaporte
-export const path_createVisitante = `${URL_SERVER}/Visitor/create`
-
 /* Zona */
 export const path_getAllZonas = `${URL_SERVER}/zone/all`
 export const path_createZona = `${URL_SERVER}/Zone/create`
