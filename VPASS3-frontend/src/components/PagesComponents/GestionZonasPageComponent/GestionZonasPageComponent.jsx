@@ -9,16 +9,17 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { IconoBorrar } from "../../IconButtons/IconButtons";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
 import ModalLoadingMasRespuesta from "../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
-import useSubZona from "../../../hooks/useSubZona/useSubZona";
-import { eliminarSubZonaFromRows, eliminarZonaFromRowsById } from "./funcionesGestionZonasPageComponent";
+import { eliminarDepartamentoFromRows, eliminarZonaFromRowsById } from "./funcionesGestionZonasPageComponent";
 import ModalCrearZona from "../../Modal/ModalCrearZona/ModalCrearZona";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import ModalCrearSubZona from "../../Modal/ModalCrearSubZona/ModalCrearSubZona";
+import useDepartamento from "../../../hooks/useDepartamento/useDepartamento";
+import ModalCrearDepartamento from "../../Modal/ModalCrearSubZona/ModalCrearDepartamento";
+import TooltipTipoUno from "../../Tooltip/TooltipTipoUno/TooltipTipoUno";
 
 const GestionZonasPageComponent = () => {
 
     const { zonas, getAllZonas, loading: loadingZonas, eliminarZona } = useZonas();
-    const { loading: loadingSubZona, eliminarSubZona } = useSubZona();
+    const { loading: loadingDepartamento, eliminarDepartamento } = useDepartamento();
 
     useEffect(() => {
         getAllZonas();
@@ -36,14 +37,14 @@ const GestionZonasPageComponent = () => {
         setRowsZonas(zonas);
     }, [zonas]);
 
-    /////////////// Acciones y estados para loading, confirmación y el modal de crear zona u subzona ///////////////////////////////
+    /////////////// Acciones y estados para loading, confirmación y el modal de crear zona o departamento ///////////////////////////////
     const [openModalCrearZona, setOpenModalCrearZona] = useState(false);
     const handleOpenModalCrearZona = () => setOpenModalCrearZona(true);  
     const handleCloseModalCrearZona = () => setOpenModalCrearZona(false);
 
-    const [openModalCrearSubZona, setOpenModalCrearSubZona] = useState(false);
-    const handleOpenModalCrearSubZona = () => setOpenModalCrearSubZona(true);  
-    const handleCloseModalCrearSubZona = () => setOpenModalCrearSubZona(false);
+    const [openModalCrearDepartamento, setOpenModalCrearDepartamento] = useState(false);
+    const handleOpenModalCrearDepartamento = () => setOpenModalCrearDepartamento(true);  
+    const handleCloseModalCrearDepartamento = () => setOpenModalCrearDepartamento(false);
 
     // Se invoca la función para consultarle al usuario si está seguro de la acción a realizar
     const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -58,33 +59,33 @@ const GestionZonasPageComponent = () => {
     }
 
     // Función a ejecutar para cuando el usuario presione el boton de eliminar en una fila
-    const handleBorrarSubZona = async (subZona) => {
+    const handleBorrarDepartamento = async (departamento) => {
 
-        const {id: idSubZona} = subZona || {};
+        const {id: idDepartamento} = departamento || {};
 
         const confirmed = await confirm({
-            title: "Eliminar subzona",
-            message: "¿Deseas eliminar esta subzona del establecimiento?"
+            title: "Eliminar departamento",
+            message: "¿Deseas eliminar este departamento del establecimiento?"
         });
 
         if(confirmed){
             setOpenLoadingRespuesta(true);
 
-            // Se realiza la peticion al servidor para actualizar las subzonas borrando la subzona seleccionada
-            const {statusCode: statusBorrarZona, message: messageBorrarZona} = await eliminarSubZona(idSubZona);
+            // Se realiza la peticion al servidor para actualizar las zonas borrando el departamento seleccionado
+            const {statusCode: statusBorrarDepartamento, message: messageBorrarDepartamento} = await eliminarDepartamento(idDepartamento);
 
             // Si el servidor responde con el Response dto que tiene configurado
-            if(statusBorrarZona != null && statusBorrarZona != undefined){
+            if(statusBorrarDepartamento != null && statusBorrarDepartamento != undefined){
 
-                if (statusBorrarZona === 200 || statusBorrarZona === 201 && (statusBorrarZona != null && statusBorrarZona != undefined)) {
+                if (statusBorrarDepartamento === 200 || statusBorrarDepartamento === 201 && (statusBorrarDepartamento != null && statusBorrarDepartamento != undefined)) {
                     setOperacionExitosa(true);
-                    setMessageLoadingRespuesta(messageBorrarZona);
+                    setMessageLoadingRespuesta(messageBorrarDepartamento);
 
-                    // // Se actualizan las rows eliminando aquella subzona seleccionada
-                    const updatedRows = eliminarSubZonaFromRows(rowsZonas, idSubZona);
+                    // // Se actualizan las rows eliminando aquel departamento seleccionado
+                    const updatedRows = eliminarDepartamentoFromRows(rowsZonas, idDepartamento);
                     setRowsZonas(updatedRows);
                 }
-                else if (statusBorrarZona === 500) {
+                else if (statusBorrarDepartamento === 500) {
                     //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
                     setOperacionExitosa(false);
                     setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
@@ -92,7 +93,7 @@ const GestionZonasPageComponent = () => {
                 else{
                     //En caso de cualquier otro error, se muestra el mensaje de error del backend
                     setOperacionExitosa(false);
-                    setMessageLoadingRespuesta(messageBorrarZona);
+                    setMessageLoadingRespuesta(messageBorrarDepartamento);
                 }
             }
             else{
@@ -110,27 +111,27 @@ const GestionZonasPageComponent = () => {
 
         const confirmed = await confirm({
             title: "Eliminar zona",
-            message: "¿Deseas eliminar esta zona del establecimiento?"
+            message: "¿Deseas eliminar esta zona del establecimiento?, también se borrarán todos sus departamentos asociados."
         });
 
         if(confirmed){
             setOpenLoadingRespuesta(true);
 
             // Se realiza la peticion al servidor para actualizar las zonas borrando la zona seleccionada
-            const {statusCode: statusBorrarZona, message: messageBorrarZona} = await eliminarZona(idZona);
+            const {statusCode: statusBorrarDepartamento, message: messageBorrarDepartamento} = await eliminarZona(idZona);
 
             // Si el servidor responde con el Response dto que tiene configurado
-            if(statusBorrarZona != null && statusBorrarZona != undefined){
+            if(statusBorrarDepartamento != null && statusBorrarDepartamento != undefined){
 
-                if (statusBorrarZona === 200 || statusBorrarZona === 201 && (statusBorrarZona != null && statusBorrarZona != undefined)) {
+                if (statusBorrarDepartamento === 200 || statusBorrarDepartamento === 201 && (statusBorrarDepartamento != null && statusBorrarDepartamento != undefined)) {
                     setOperacionExitosa(true);
-                    setMessageLoadingRespuesta(messageBorrarZona);
+                    setMessageLoadingRespuesta(messageBorrarDepartamento);
 
                     // // Se actualizan las rows eliminando aquella zona seleccionada
                     const updatedRows = eliminarZonaFromRowsById(rowsZonas, idZona);
                     setRowsZonas(updatedRows);
                 }
-                else if (statusBorrarZona === 500) {
+                else if (statusBorrarDepartamento === 500) {
                     //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
                     setOperacionExitosa(false);
                     setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
@@ -138,7 +139,7 @@ const GestionZonasPageComponent = () => {
                 else{
                     //En caso de cualquier otro error, se muestra el mensaje de error del backend
                     setOperacionExitosa(false);
-                    setMessageLoadingRespuesta(messageBorrarZona);
+                    setMessageLoadingRespuesta(messageBorrarDepartamento);
                 }
             }
             else{
@@ -151,46 +152,51 @@ const GestionZonasPageComponent = () => {
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     
     // Información que irá en la tabla
-    const columnsZonas = ["Nombre", "Subzonas", "Acciones"];
+    const columnsZonas = ["Nombre", "Departamentos", "Acciones"];
 
     const dataZonas = rowsZonas?.map((zona) => {
         const {name: nameZona = ""} = zona;
-        const {zoneSections: subZonas} = zona || {};
-        const  columnsSubZonas = ["Nombre", "Acciones"];
-        const dataSubZonas = subZonas?.map((subZona) => {
-            const {name: nameSubZona = ""} = subZona;
+        const {apartments: departamentos} = zona || {};
+        const  columnsDepartamentos = ["Nombre", "Acciones"];
+        const dataDepartamentos = departamentos?.map((departamento) => {
+            const {name: nameDepartamento = ""} = departamento;
             return [
-                `${nameSubZona}`.trim(),
+                `${nameDepartamento}`.trim(),
                 <Box>
-                    <IconoBorrar tituloToolTip={`Eliminar ${nameSubZona}`} handleClick={()=>handleBorrarSubZona(subZona)}/>
+                    <IconoBorrar tituloToolTip={`Eliminar ${nameDepartamento}`} handleClick={()=>handleBorrarDepartamento(departamento)}/>
                 </Box>
             ]
         })
 
         return[
             `${nameZona}`.trim(),
-            <Accordion id="AccordionSubZonas">
-                <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
-                    aria-controls="panel1-content"
-                    id="panel1-header"
-                >
-                    <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
-                    <Typography component="span">{`Subzonas de ${nameZona}`}</Typography>
-                    <IconButton
-                        onClick={(e) => {
-                        e.stopPropagation(); // Previene que se expanda el accordion
-                        handleOpenModalCrearSubZona(); // Abre el modal para crear una subzona
-                        setIdZonaSeleccionada(zona.id); // Guarda el id de la zona seleccionada para crear una subzona
-                        }}
-                        onFocus={(e) => e.stopPropagation()} // También para evitar comportamiento extraño con teclado
+            <Accordion id="AccordionDepartamentos">
+                <Box display="flex" alignItems="center" justifyContent="space-between" width="100%">
+                    <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        disableRipple
+                        disableTouchRipple
+                        sx={{ flexGrow: 1 }}
                     >
-                        <AddCircleIcon />
-                    </IconButton>
-                    </Box>
-                </AccordionSummary>
+                        <Typography component="span">{`Departamentos en ${nameZona}`}</Typography>
+                    </AccordionSummary>
+                    
+                    <TooltipTipoUno titulo={`Crear nuevo departamento en ${nameZona}`}>
+                        <IconButton
+                            onClick={(e) => {
+                            e.stopPropagation(); // evita expandir
+                            handleOpenModalCrearDepartamento();
+                            setIdZonaSeleccionada(zona.id);
+                            }}
+                            onFocus={(e) => e.stopPropagation()}
+                            size="small"
+                        >
+                            <AddCircleIcon />
+                        </IconButton>
+                    </TooltipTipoUno>
+                </Box>
                 <AccordionDetails>
-                    <DatagridResponsive title={null} searchButton={false} viewColumnsButton={false} columns={columnsSubZonas} data={dataSubZonas} selectableRows="none"/>
+                    <DatagridResponsive title={null} searchButton={false} viewColumnsButton={false} columns={columnsDepartamentos} data={dataDepartamentos} selectableRows="none"/>
                 </AccordionDetails>
             </Accordion>,
 
@@ -214,7 +220,7 @@ const GestionZonasPageComponent = () => {
                 {ConfirmDialogComponent}
                 <ModalLoadingMasRespuesta
                     open={openLoadingRespuesta}
-                    loading={loadingSubZona || loadingZonas}
+                    loading={loadingDepartamento || loadingZonas}
                     message={messageLoadingRespuesta}
                     loadingMessage="Eliminando zona..."
                     successfulProcess={operacionExitosa}
@@ -225,9 +231,9 @@ const GestionZonasPageComponent = () => {
                     onClose={handleCloseModalCrearZona}
                     setRows={setRowsZonas}
                 />
-                <ModalCrearSubZona
-                    open={openModalCrearSubZona}
-                    onClose={handleCloseModalCrearSubZona}
+                <ModalCrearDepartamento
+                    open={openModalCrearDepartamento}
+                    onClose={handleCloseModalCrearDepartamento}
                     setRows={setRowsZonas}
                     idZona={idZonaSeleccionada}
                 />

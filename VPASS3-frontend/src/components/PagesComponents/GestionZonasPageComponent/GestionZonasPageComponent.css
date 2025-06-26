@@ -11,7 +11,7 @@
     width: 35%;
 }
 
-#AccordionSubZonas{
+#AccordionDepartamentos{
     width: 100%;
     border-radius: 5px;
 }
@@ -35,9 +35,15 @@
 @media (max-width: 403px){
     #BoxDatagridResponsiveZonas{
         width: 90%;
+        margin: 0 auto;
     }
 
-    #AccordionSubZonas{
-        width: 80%;
+    #ContainerGestionZonasPageComponent{
+        padding: 0px;
     }
+
+    #AccordionDepartamentos{
+        width: 95%;
+    }
+
 }

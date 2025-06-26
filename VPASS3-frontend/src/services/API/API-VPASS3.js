@@ -9,6 +9,12 @@ export const path_getAllTiposVisita = `${URL_SERVER}/VisitType/all`
 /* Bitacora Incidencias */
 export const path_getAllBitacoraIncidencias = `${URL_SERVER}/AuditLog/all`
 
+/* Departamento */
+export const path_getAllDepartamentos = `${URL_SERVER}/Apartment/all`
+export const path_createDepartamento = `${URL_SERVER}/Apartment/create`
+export const path_updateDepartamento = `${URL_SERVER}/Apartment/update`
+export const path_deleteDepartamento = `${URL_SERVER}/Apartment/delete`
+
 /* Estacionamiento */
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
 export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
@@ -34,12 +40,6 @@ export const path_deleteListaNegraPorIdPersona = `${URL_SERVER}/Blacklist/delete
 export const path_getAllPersonas = `${URL_SERVER}/Person/all`;
 export const path_getPersonaByIdentificationNumber = `${URL_SERVER}/Person/idnumber/`; // + rut ó pasaporte
 export const path_createPersona = `${URL_SERVER}/Person/create`;
-
-/* SubZona */
-export const path_getAllSubZonas = `${URL_SERVER}/ZoneSection/all`
-export const path_createSubZona = `${URL_SERVER}/ZoneSection/create`
-export const path_updateSubZona = `${URL_SERVER}/ZoneSection/update`
-export const path_deleteSubZona = `${URL_SERVER}/ZoneSection/delete`
 
 /* Uso de estacionamiento */
 export const path_getAllUsoEstacionamiento = `${URL_SERVER}/ParkingSpotUsageLog/all`

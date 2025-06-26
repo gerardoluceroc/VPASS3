@@ -1,4 +1,4 @@
-#ContainerModalCrearSubZona{
+#ContainerModalCrearDepartamento{
     position: absolute;
     top: 50%;
     left: 50%;
@@ -20,7 +20,7 @@
     padding-bottom: 20px;
 }
 
-#HeaderModalCrearSubZona{
+#HeaderModalCrearDepartamento{
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -29,7 +29,7 @@
   padding: 8px 4px 0px 16px;
 }
 
-#CuerpoModalCrearSubZona{
+#CuerpoModalCrearDepartamento{
   display: flex;
   flex-direction: column;
   padding: 0px 10px 24px 10px;
@@ -37,14 +37,14 @@
   width: 80%;
 }
 
-#BoxButtonSubmitModalCrearSubZona{
+#BoxButtonSubmitModalCrearDepartamento{
   width: 60%;
   margin-top: -10px;
 }
 
 @media (max-width: 1073px) {
 
-    #ContainerModalCrearSubZona{
+    #ContainerModalCrearDepartamento{
         width: 50%;
     }
 
@@ -52,15 +52,15 @@
 
 @media (max-width: 650px) {
 
-    #ContainerModalCrearSubZona{
+    #ContainerModalCrearDepartamento{
         width: 70%;
     }
 
-    #CuerpoModalCrearSubZona{
+    #CuerpoModalCrearDepartamento{
         width: 95%;
     }
 
-    #BoxButtonSubmitModalCrearSubZona{
+    #BoxButtonSubmitModalCrearDepartamento{
         width: 70%;
     }
 }

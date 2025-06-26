@@ -1,20 +1,20 @@
 import { useFormik } from "formik";
-import ValidationCrearSubZona from "./ValidationCrearSubZona";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
-import useSubZona from "../../../hooks/useSubZona/useSubZona";
 import ModalLoadingMasRespuesta from "../ModalLoadingMasRespuesta/ModalLoadingMasRespuesta";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import { Box, IconButton, Modal, Typography } from "@mui/material";
 import TextFieldUno from "../../TextField/TextFieldUno/TextFieldUno";
 import CloseIcon from '@mui/icons-material/Close';
-import { agregarSubZona } from "../../PagesComponents/GestionZonasPageComponent/funcionesGestionZonasPageComponent";
 import { useState } from "react";
-import "./ModalCrearSubZona.css";
+import "./ModalCrearDepartamento.css";
+import useDepartamento from "../../../hooks/useDepartamento/useDepartamento";
+import ValidationCrearDepartamento from "./ValidationCrearDepartamento";
+import { agregarDepartamento } from "../../PagesComponents/GestionZonasPageComponent/funcionesGestionZonasPageComponent";
 
+const ModalCrearDepartamento = ({ open, onClose, setRows, idZona }) => {
 
-const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
-
-    const {loading, crearSubZona} = useSubZona();
+    // const {loading, crearSubZona} = useSubZona();
+    const { loading, crearDepartamento } = useDepartamento();
 
     // Se invoca la función para consultarle al usuario si desea enviar el formulario
     const { confirm, ConfirmDialogComponent } = useConfirmDialog();
@@ -30,33 +30,33 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
 
     const formik = useFormik({
         initialValues: {
-            nombreSubZona: ''
+            nombreDepartamento: ''
         },
-        validationSchema: ValidationCrearSubZona,
+        validationSchema: ValidationCrearDepartamento,
         onSubmit: async (values) => {
             const confirmed = await confirm({
-                title: "¿Crear subzona?",
-                message: "¿Deseas crear una nueva subzona en el establecimiento?"
+                title: "¿Crear departamento?",
+                message: "¿Deseas crear un nuevo departamento en el establecimiento?"
             });
         
             if (confirmed) {
                 setOpenLoadingRespuesta(true);
 
-                // Se envía la información al backend para crear una nueva subzona
-                const {statusCode: statusCodeCrearSubZona, data: dataSubZonaAgregada, message: messageCrearSubZona} = await crearSubZona(idZona, values.nombreSubZona);
+                // Se envía la información al backend para crear un nuevo departamento
+                const {statusCode: statusCodeCrearDepartamento, data: dataDepartamentoAgregado, message: messageCrearDepartamento} = await crearDepartamento(idZona, values.nombreDepartamento);
 
                 // Si el servidor responde con el Response dto que tiene configurado
-                if(statusCodeCrearSubZona != null && statusCodeCrearSubZona != undefined){
+                if(statusCodeCrearDepartamento != null && statusCodeCrearDepartamento != undefined){
     
-                  if (statusCodeCrearSubZona === 200 || statusCodeCrearSubZona === 201) {
+                  if (statusCodeCrearDepartamento === 200 || statusCodeCrearDepartamento === 201) {
                     setOperacionExitosa(true);
-                    setMessageLoadingRespuesta(messageCrearSubZona);
-                    formik.resetForm(); // Resetea el formulario después de crear la subzona
+                    setMessageLoadingRespuesta(messageCrearDepartamento);
+                    formik.resetForm(); // Resetea el formulario después de crear el departamento
 
-                    // Se actualizan las filas de la tabla con la nueva subzona agregada
-                    setRows(prevRows => agregarSubZona(prevRows, idZona, dataSubZonaAgregada));
+                    // Se actualizan las filas de la tabla con el nuevo departamento agregado
+                    setRows(prevRows => agregarDepartamento(prevRows, idZona, dataDepartamentoAgregado));
                   }
-                  else if (statusCodeCrearSubZona === 500) {
+                  else if (statusCodeCrearDepartamento === 500) {
                       //En caso de error 500, se muestra un mensaje de error genérico, en vez del mensaje de error del backend
                       setOperacionExitosa(false);
                       setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
@@ -64,7 +64,7 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
                   else{
                       //En caso de cualquier otro error, se muestra el mensaje de error del backend
                       setOperacionExitosa(false);
-                      setMessageLoadingRespuesta(messageCrearSubZona);
+                      setMessageLoadingRespuesta(messageCrearDepartamento);
                   }
                 }
                 else{
@@ -79,10 +79,10 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
 
   return (
     <Modal open={open} onClose={onClose}>
-        <Box id="ContainerModalCrearSubZona">
-            <Box id="HeaderModalCrearSubZona">
+        <Box id="ContainerModalCrearDepartamento">
+            <Box id="HeaderModalCrearDepartamento">
                 <Typography variant="h5" component="h5" gutterBottom>
-                    {"Crear nueva subzona"}
+                    {"Crear nuevo departamento"}
                 </Typography>
 
                 <IconButton
@@ -97,22 +97,22 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
                 </IconButton>
             </Box>
 
-            <Box id="CuerpoModalCrearSubZona">
+            <Box id="CuerpoModalCrearDepartamento">
                 <TextFieldUno 
-                    name="nombreSubZona" 
-                    value={formik.values.nombreSubZona}
-                    label="Nombre de la subzona" 
-                    placeholder="Ej: SubZona A" 
+                    name="nombreDepartamento" 
+                    value={formik.values.nombreDepartamento}
+                    label="Nombre del departamento" 
+                    placeholder="Ej: Departamento 201" 
                     onChange={formik.handleChange}
-                    error={formik.touched.nombreSubZona && Boolean(formik.errors.nombreSubZona)}
-                    helperText={formik.touched.nombreSubZona && formik.errors.nombreSubZona}
+                    error={formik.touched.nombreDepartamento && Boolean(formik.errors.nombreDepartamento)}
+                    helperText={formik.touched.nombreDepartamento && formik.errors.nombreDepartamento}
                 />
             </Box>
 
-            <Box id="BoxButtonSubmitModalCrearSubZona">
+            <Box id="BoxButtonSubmitModalCrearDepartamento">
                 <ButtonTypeOne
-                    defaultText="Crear subzona"
-                    loadingText="Creando subzona..."
+                    defaultText="Crear departamento"
+                    loadingText="Creando departamento..."
                     handleClick={formik.handleSubmit}
                     disabled={formik.isSubmitting}
                 />
@@ -124,14 +124,13 @@ const ModalCrearSubZona = ({ open, onClose, setRows, idZona }) => {
                 open={openLoadingRespuesta}
                 loading={loading}
                 message={messageLoadingRespuesta}
-                loadingMessage="Creando subzona..."
+                loadingMessage="Creando departamento..."
                 successfulProcess={operacionExitosa}
                 accionPostCierre={accionPostCierreLoadingRespuesta}
             />
-
         </Box>
     </Modal>
   )
 }
 
-export default ModalCrearSubZona;
+export default ModalCrearDepartamento;
