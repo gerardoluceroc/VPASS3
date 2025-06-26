@@ -66,5 +66,4 @@ namespace VPASS3_backend.Controllers.CommonAreaControllers
             return StatusCode(resp.StatusCode, resp);
         }
     }
-
 }
