@@ -27,6 +27,8 @@ namespace VPASS3_backend.Services
                 var sections = await _context.Apartments
                     .Where(zs => !zs.IsDeleted)
                     .Include(zs => zs.Zone)
+                    .Include(zs => zs.Ownerships)
+                        .ThenInclude(o => o.Person)
                     .ToListAsync();
 
                 if (_userContext.UserRole != "SUPERADMIN")
@@ -54,6 +56,8 @@ namespace VPASS3_backend.Services
             {
                 var section = await _context.Apartments
                     .Include(zs => zs.Zone)
+                    .Include(zs => zs.Ownerships)
+                        .ThenInclude(o => o.Person)
                     .FirstOrDefaultAsync(zs => zs.Id == id && !zs.IsDeleted);
 
                 if (section == null)

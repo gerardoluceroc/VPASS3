@@ -40,6 +40,8 @@ namespace VPASS3_backend.Context
 
         public DbSet<CommonAreaUsageLog> CommonAreaUsageLogs { get; set; }
 
+        public DbSet<ApartmentOwnership> ApartmentOwnerships { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -142,39 +144,53 @@ namespace VPASS3_backend.Context
             .HasForeignKey(v => v.IdVisitType)
             .OnDelete(DeleteBehavior.Restrict);
 
-            // 1. Relación Establishment -> CommonAreas (uno a muchos)
+            // Relación Establishment -> CommonAreas (uno a muchos)
             modelBuilder.Entity<CommonArea>()
                 .HasOne(ca => ca.Establishment)
                 .WithMany(e => e.CommonAreas)
                 .HasForeignKey(ca => ca.IdEstablishment)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 2. CommonArea -> Reservations (uno a muchos)
+            // CommonArea -> Reservations (uno a muchos)
             modelBuilder.Entity<CommonAreaReservation>()
                 .HasOne(r => r.CommonArea)
                 .WithMany(ca => ca.Reservations)
                 .HasForeignKey(r => r.IdCommonArea)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 3. CommonArea -> Usages (uno a muchos)
+            // CommonArea -> Usages (uno a muchos)
             modelBuilder.Entity<CommonAreaUsageLog>()
                 .HasOne(u => u.CommonArea)
                 .WithMany(ca => ca.Usages)
                 .HasForeignKey(u => u.IdCommonArea)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // 4. Relación Reservation -> Persona que reserva (muchos a uno)
+            // Relación Reservation -> Persona que reserva (muchos a uno)
             modelBuilder.Entity<CommonAreaReservation>()
                 .HasOne(r => r.ReservedBy)
                 .WithMany()
                 .HasForeignKey(r => r.IdPersonReservedBy)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // 5. Relación Usage -> Persona que usa (muchos a uno)
+            // Relación Usage -> Persona que usa (muchos a uno)
             modelBuilder.Entity<CommonAreaUsageLog>()
                 .HasOne(u => u.Person)
                 .WithMany()
                 .HasForeignKey(u => u.IdPerson)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación: Apartment -> ApartmentOwnership
+            modelBuilder.Entity<ApartmentOwnership>()
+                .HasOne(ao => ao.Apartment)
+                .WithMany(a => a.Ownerships)
+                .HasForeignKey(ao => ao.IdApartment)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Relación: Person -> ApartmentOwnership
+            modelBuilder.Entity<ApartmentOwnership>()
+                .HasOne(ao => ao.Person)
+                .WithMany(p => p.ApartmentOwnerships)
+                .HasForeignKey(ao => ao.IdPerson)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

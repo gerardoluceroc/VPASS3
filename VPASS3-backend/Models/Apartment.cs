@@ -18,5 +18,8 @@ namespace VPASS3_backend.Models
 
         [JsonIgnore]
         public Zone Zone { get; set; }
+
+        // Historial de propietarios
+        public ICollection<ApartmentOwnership> Ownerships { get; set; } = [];
     }
 }
