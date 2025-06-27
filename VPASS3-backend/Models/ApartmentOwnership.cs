@@ -14,6 +14,7 @@ namespace VPASS3_backend.Models
         public int IdApartment { get; set; }
 
         [Required]
+        [JsonIgnore]
         public int IdPerson { get; set; }
 
         public DateTime StartDate { get; set; } = TimeHelper.GetSantiagoTime();

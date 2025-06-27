@@ -37,7 +37,7 @@ namespace VPASS3_backend.Services
 
             var zone = apartment.Zone;
             if (zone == null)
-                return new ResponseDto(400, message: "Zona no encontrada para el departamento.");
+                return new ResponseDto(404, message: "Zona no encontrada para el departamento.");
 
             if (_userContext.UserRole != "SUPERADMIN" &&
                 (!_userContext.EstablishmentId.HasValue || _userContext.EstablishmentId.Value != zone.EstablishmentId))
@@ -45,13 +45,12 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(403, message: "No tienes permisos para asignar un propietario en este establecimiento.");
             }
 
-            var activeOwner = apartment.Ownerships
-            .OrderByDescending(o => o.Id)
-            .FirstOrDefault(o => o.EndDate == null);
+            //Se obtiene el propietario activo más reciente (sin fecha de término)
+            var activeOwner = await ApartmentUtils.GetActiveOwnershipAsync(_dbContext, dto.IdApartment);
 
             if (activeOwner != null)
             {
-                return new ResponseDto(400, message:
+                return new ResponseDto(409, message:
                     $"El departamento ya tiene un propietario activo: {activeOwner.Person.Names} {activeOwner.Person.LastNames}");
             }
 
@@ -114,7 +113,7 @@ namespace VPASS3_backend.Services
 
             // Si no hay ningún propietario activo, se retorna un mensaje indicando que ya está desocupado
             if (activeOwner == null)
-                return new ResponseDto(400, message: "Este departamento no tiene un propietario activo.");
+                return new ResponseDto(409, message: "Este departamento no tiene un propietario activo.");
 
             // Se establece la fecha de término del propietario activo con la hora actual de Santiago
             activeOwner.EndDate = TimeHelper.GetSantiagoTime();

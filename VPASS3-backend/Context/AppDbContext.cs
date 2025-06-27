@@ -42,6 +42,8 @@ namespace VPASS3_backend.Context
 
         public DbSet<ApartmentOwnership> ApartmentOwnerships { get; set; }
 
+        public DbSet<Package> Packages { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
