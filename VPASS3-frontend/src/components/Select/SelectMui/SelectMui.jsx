@@ -94,7 +94,6 @@ const SelectMui = ({
                 >
                     {listadoElementos.map((item) => (
                         <MenuItem disabled={disabledOptionCondition(item)} key={item[keyListadoElementos]} value={item[atributoValue]}>
-                            {/* {JSON.stringify(item)} */}
                             {mostrarElemento(item)}
                         </MenuItem>
                     ))}
