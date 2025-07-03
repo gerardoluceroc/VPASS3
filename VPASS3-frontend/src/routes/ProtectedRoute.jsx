@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import { Navigate, useNavigate } from "react-router-dom";
 import AlertDialog from "../components/Dialog/AlertDialog/AlertDialog";
 import { useState } from "react";
-import { InterceptorRequest, InterceptorResponse } from "../services/API/Interceptor";
 import useLogin from "../hooks/auth/useLogin";
 import { RUTA_LOGIN } from "../utils/rutasCliente";
 
