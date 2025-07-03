@@ -1,12 +1,35 @@
 import axios from "axios";
 import { useState } from "react";
-import { path_createDepartamento, path_deleteDepartamento } from "../../services/API/API-VPASS3";
+import { path_createDepartamento, path_deleteDepartamento, path_getAllDepartamentos } from "../../services/API/API-VPASS3";
 
 const useDepartamento = () => {
 
     const [loading, setLoading] = useState(false);
     const [response, setResponse] = useState(null);
     const [responseStatus, setResponseStatus] = useState(null);
+    const [departamentos, setDepartamentos] = useState(null);
+
+    const getAllDepartamentos = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(path_getAllDepartamentos);
+          const status = response?.status || null;
+          const responseData = response?.data || null;
+          const departamentosData = response?.data?.data || null;
+          setResponse(responseData);
+          setResponseStatus(status);
+          setDepartamentos(departamentosData);
+          return responseData;
+        } catch (error) {
+          const dataError = error?.response?.data || error || "Error desconocido";
+          const status = error?.status ?? error?.statusCode ?? null;
+          setResponse(dataError);
+          setResponseStatus(status);
+          return error?.response?.data || error;
+        } finally {
+          setLoading(false);
+        }
+    }
     
     const eliminarDepartamento = async (id) => {
         setLoading(true);
@@ -58,7 +81,9 @@ const useDepartamento = () => {
         response,
         responseStatus,
         eliminarDepartamento,
-        crearDepartamento
+        crearDepartamento,
+        departamentos,
+        getAllDepartamentos
     };
 };
 export default useDepartamento;
