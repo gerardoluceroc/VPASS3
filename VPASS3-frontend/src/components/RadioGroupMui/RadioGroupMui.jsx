@@ -50,7 +50,8 @@ const RadioGroupMui = ({
         <FormLabel sx={{display: "flex", justifyContent: "center", width: "100%"}} component="legend">{label}</FormLabel>
         <RadioGroup
           name={name}
-          value={elementoSeleccionado || ""}
+          // value={elementoSeleccionado || ""}
+          value={elementoSeleccionado !== undefined && elementoSeleccionado !== null ? elementoSeleccionado : ""}
           onChange={handleChange}
           row={row}
           sx={{display: "flex", justifyContent: "center", width: "100%"}}
