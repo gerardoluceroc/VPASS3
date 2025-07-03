@@ -9,3 +9,4 @@ export const RUTA_DESCARGAR_REGISTROS = "/descargarRegistros"
 export const RUTA_GESTION_ZONAS = "/zonas";
 export const RUTA_BITACORA_USO_ESTACIONAMIENTO = "/UsoEstacionamiento";
 export const RUTA_GESTION_ESPACIOS_COMUNES = "/espaciosComunes";
+export const RUTA_GESTION_ENCOMIENDAS = "/encomiendas";

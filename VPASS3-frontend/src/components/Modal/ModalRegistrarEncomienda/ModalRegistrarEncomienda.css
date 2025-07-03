@@ -1,0 +1,92 @@
+#ContainerModalRegistrarEncomienda{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 50%;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    max-height: 95%;
+}
+
+#HeaderModalRegistrarEncomienda{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px 0px 16px;
+}
+
+#CuerpoModalRegistrarEncomienda{
+  display: flex;
+  flex-direction: column;
+  padding: 0px 20px 5px 20px;
+  gap: 20px;
+  width: 100%;
+  overflow-y: auto;
+}
+
+#ItemCuerpoModalRegistrarEncomienda{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+#DosItemsCuerpoModalRegistrarEncomienda{
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    width: 100%;
+}
+
+#BoxButtonSubmitModalRegistrarEncomienda{
+  width: 40%;
+  margin-top: 10px;
+}
+
+@media (max-width: 1073px) {
+
+    #ContainerModalRegistrarEncomienda{
+        width: 70%;
+    }
+
+}
+
+@media (max-width: 780px) {
+
+    #ContainerModalRegistrarEncomienda{
+        width: 85%;
+    }
+
+    #CuerpoModalRegistrarEncomienda{
+        width: 95%;
+    }
+
+    #BoxButtonSubmitModalRegistrarEncomienda{
+        width: 70%;
+    }
+}
+
+@media (max-width: 620px) {
+    #ContainerModalRegistrarEncomienda{
+        width: 95%;
+    }
+    #DosItemsCuerpoModalRegistrarEncomienda{
+        flex-direction: column;
+        gap: 20px;
+    }
+}

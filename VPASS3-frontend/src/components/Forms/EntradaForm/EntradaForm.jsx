@@ -209,7 +209,7 @@ const EntradaForm = () => {
                 />
 
                 <SelectMui
-                    label = "Número/SubZona"
+                    label = "Departamento"
                     name="idSubZona"
                     width={"100%"}
                     listadoElementos={subZonasDisponibles || []}

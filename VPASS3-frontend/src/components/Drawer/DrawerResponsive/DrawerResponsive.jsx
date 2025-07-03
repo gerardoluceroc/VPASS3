@@ -19,7 +19,7 @@ import {
   import { useNavigate } from "react-router-dom";
   import VPassImage from "../../../assets/VpassWhite.jpg";
   import "./DrawerResponsive.css";
-  import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESPACIOS_COMUNES, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME, RUTA_LOGIN } from "../../../utils/rutasCliente";
+  import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ENCOMIENDAS, RUTA_GESTION_ESPACIOS_COMUNES, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME, RUTA_LOGIN } from "../../../utils/rutasCliente";
   import DirectionsCarFilledIcon from '@mui/icons-material/DirectionsCarFilled';
   import DashboardIcon from '@mui/icons-material/Dashboard';
   import { IconoLogs } from "../../../icons/iconos";
@@ -27,6 +27,7 @@ import {
   import LocationCityIcon from '@mui/icons-material/LocationCity';
   import WorkspacesIcon from '@mui/icons-material/Workspaces';
   import PersonIcon from '@mui/icons-material/Person';
+  import MarkunreadMailboxIcon from '@mui/icons-material/MarkunreadMailbox';
   import { useSelector } from "react-redux";
 import useLogin from "../../../hooks/auth/useLogin";
 import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDialog";
@@ -69,6 +70,12 @@ import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDial
       nombre: "Gestión de espacios comunes",
       icono: <WorkspacesIcon sx={{color: "white"}} />, 
       ruta: RUTA_GESTION_ESPACIOS_COMUNES
+    },
+    { 
+      id: 7,
+      nombre: "Gestión de encomiendas",
+      icono: <MarkunreadMailboxIcon sx={{color: "white"}} />, 
+      ruta: RUTA_GESTION_ENCOMIENDAS
     },
   ];
   

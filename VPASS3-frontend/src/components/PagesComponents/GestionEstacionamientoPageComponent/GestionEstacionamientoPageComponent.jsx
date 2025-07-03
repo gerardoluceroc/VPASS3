@@ -98,11 +98,11 @@ const GestionEstacionamientoPageComponent = () => {
         return[
             `${name}`.trim(),
                 <SwitchMui
-                helperText={isAvailable ? "Habilitado" : "Ocupado"}
-                secondaryLabel=""
-                primaryLabel=""
-                checked={isAvailable}
-                handleChange={()=>handleActualizarEstacionamiento(estacionamiento)}
+                    helperText={isAvailable ? "Habilitado" : "Ocupado"}
+                    secondaryLabel=""
+                    primaryLabel=""
+                    checked={isAvailable}
+                    handleChange={()=>handleActualizarEstacionamiento(estacionamiento)}
                 />
         ]
     })

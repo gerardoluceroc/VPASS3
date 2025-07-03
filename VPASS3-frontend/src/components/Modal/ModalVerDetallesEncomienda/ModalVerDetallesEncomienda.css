@@ -1,0 +1,59 @@
+#ContainerModalVerDetallesEncomienda{
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    max-height: 80%;
+    background-color: #eaeef7;
+    border-radius: 16px;
+    box-shadow: 24px;
+    padding: 16px 32px 32px 32px;
+    gap: 30px;
+    overflow-y: auto; 
+}
+
+#HeaderModalVerDetallesEncomienda{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+  
+#CuerpoModalVerDetallesEncomienda{
+    display: flex;
+    flex-direction: column;
+    background-color: inherit;
+    gap: 30px;
+}
+
+.DosItemsCuerpoModalVerDetallesEncomienda{
+    display: flex;
+    flex-direction: row;
+    gap: 15%;
+}
+
+@media (max-width: 1120px){
+    #ContainerModalVerDetallesEncomienda{
+        width: 60%;
+    }
+}
+
+@media (max-width: 770px){
+    #ContainerModalVerDetallesEncomienda{
+        width: 85%;
+    }
+}
+
+@media (max-width: 550px){
+    #ContainerModalVerDetallesEncomienda{
+        width: 90%;
+    }
+
+    .DosItemsCuerpoModalVerDetallesEncomienda{
+        flex-direction: column;
+        gap: 20px;
+    }
+}

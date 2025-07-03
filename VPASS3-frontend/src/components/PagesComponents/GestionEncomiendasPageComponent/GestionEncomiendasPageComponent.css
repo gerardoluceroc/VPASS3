@@ -1,0 +1,24 @@
+#ContainerGestionEncomiendasPageComponent{
+    background-color:#213d4f;
+    height: 100%;
+    padding: 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+#BotonRegistrarNuevaEncomienda{
+    width: 25%;
+}
+
+@media (max-width: 1000px){
+    #BotonRegistrarNuevaEncomienda{
+        width: 40%;
+    }
+}
+
+@media (max-width: 760px){
+    #BotonRegistrarNuevaEncomienda{
+        width: 70%;
+    }
+}

@@ -4,7 +4,7 @@ import LoginPage from "../pages/LoginPage";
 import ProtectedRoute from "./ProtectedRoute";
 import VisitasPage from "../pages/VisitasPage";
 import UltimosRegistrosPage from "../pages/UltimosRegistrosPage";
-import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ESPACIOS_COMUNES, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME, RUTA_LISTA_NEGRA, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
+import { RUTA_BITACORA_INCIDENCIAS, RUTA_BITACORA_USO_ESTACIONAMIENTO, RUTA_DESCARGAR_REGISTROS, RUTA_GESTION_ENCOMIENDAS, RUTA_GESTION_ESPACIOS_COMUNES, RUTA_GESTION_ESTACIONAMIENTO, RUTA_GESTION_ZONAS, RUTA_HOME, RUTA_LISTA_NEGRA, RUTA_LOGIN, RUTA_NUEVA_VISITA, RUTA_ULTIMOS_REGISTROS } from "../utils/rutasCliente";
 import GestionEstacionamientoPage from "../pages/GestionEstacionamientoPage";
 import BitacoraIncidenciasPage from "../pages/BitacoraIncidenciasPage";
 import ListaNegraPage from "../pages/ListaNegraPage";
@@ -12,6 +12,7 @@ import DescargarRegistrosPage from "../pages/DescargarRegistrosPage";
 import GestionZonasPage from "../pages/GestionZonasPage";
 import BitacoraUsoEstacionamientoPage from "../pages/BitacoraUsoEstacionamientoPage";
 import GestionEspaciosComunesPage from "../pages/GestionEspaciosComunesPage";
+import GestionEncomiendasPage from "../pages/GestionEncomiendasPage";
 
 export const AppRoutes = () => (
   <Routes>
@@ -103,6 +104,15 @@ export const AppRoutes = () => (
       element={
         <ProtectedRoute>
           <GestionEspaciosComunesPage/>
+        </ProtectedRoute>
+      }
+    />
+
+    <Route
+      path={RUTA_GESTION_ENCOMIENDAS}
+      element={
+        <ProtectedRoute>
+          <GestionEncomiendasPage />
         </ProtectedRoute>
       }
     />

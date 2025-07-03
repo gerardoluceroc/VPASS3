@@ -15,6 +15,11 @@ export const path_createDepartamento = `${URL_SERVER}/Apartment/create`
 export const path_updateDepartamento = `${URL_SERVER}/Apartment/update`
 export const path_deleteDepartamento = `${URL_SERVER}/Apartment/delete`
 
+/* Encomiendas */
+export const path_getAllEncomiendas = `${URL_SERVER}/Package/all`
+export const path_getEncomiendaById = `${URL_SERVER}/Package/` // + id
+export const path_createRegistroEncomienda = `${URL_SERVER}/Package/create`
+
 /* Estacionamiento */
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
 export const path_updateEstacionamiento = `${URL_SERVER}/ParkingSpot/Update`
