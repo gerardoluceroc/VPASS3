@@ -18,6 +18,7 @@ namespace VPASS3_backend.Models
         public int IdPerson { get; set; }
 
         public DateTime StartDate { get; set; } = TimeHelper.GetSantiagoTime();
+
         public DateTime? EndDate { get; set; }
 
         [ForeignKey("IdApartment")]

@@ -14,6 +14,9 @@ namespace VPASS3_backend.Models
         public int IdApartment { get; set; }
 
         [Required]
+        public string Recipient { get; set; } //Nombre del destinatario del paquete
+
+        [Required]
         public int IdApartmentOwnership { get; set; }
 
         public string? Code { get; set; }

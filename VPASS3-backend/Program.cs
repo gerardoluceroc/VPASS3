@@ -202,6 +202,7 @@ builder.Services.AddScoped<ICommonAreaService, CommonAreaService>();
 builder.Services.AddScoped<ICommonAreaReservationService, CommonAreaReservationService>();
 builder.Services.AddScoped<ICommonAreaUsageLogService, CommonAreaUsageLogService>();
 builder.Services.AddScoped<IApartmentOwnershipService, ApartmentOwnershipService>();
+builder.Services.AddScoped<IPackageService, PackageService>();
 
 // Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
 builder.Services.AddAuthorization(options =>

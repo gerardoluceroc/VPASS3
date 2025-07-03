@@ -4,6 +4,7 @@ using VPASS3_backend.Interfaces;
 using VPASS3_backend.Models;
 using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.DTOs.Apartments;
+using VPASS3_backend.Utils;
 
 namespace VPASS3_backend.Services
 {
@@ -24,24 +25,35 @@ namespace VPASS3_backend.Services
         {
             try
             {
-                var sections = await _context.Apartments
-                    .Where(zs => !zs.IsDeleted)
-                    .Include(zs => zs.Zone)
-                    .Include(zs => zs.Ownerships)
-                        .ThenInclude(o => o.Person)
+                var apartments = await _context.Apartments
+                    .Where(a => !a.IsDeleted)
+                    .Include(a => a.Zone)
                     .ToListAsync();
 
-                if (_userContext.UserRole != "SUPERADMIN")
-                {
-                    if (!_userContext.EstablishmentId.HasValue)
-                        return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
+                var result = new List<ApartmentWithCurrentOwnerDto>();
 
-                    sections = sections
-                        .Where(zs => _userContext.CanAccessApartment(zs))
-                        .ToList();
+                foreach (var apt in apartments)
+                {
+                    if (_userContext.UserRole != "SUPERADMIN" &&
+                        (!_userContext.EstablishmentId.HasValue || apt.Zone.EstablishmentId != _userContext.EstablishmentId.Value))
+                    {
+                        continue;
+                    }
+
+                    var activeOwner = await ApartmentUtils.GetActiveOwnershipAsync(_context, apt.Id);
+
+                    result.Add(new ApartmentWithCurrentOwnerDto
+                    {
+                        Id = apt.Id,
+                        Name = apt.Name,
+                        IdZone = apt.IdZone,
+                        IsDeleted = apt.IsDeleted,
+                        ZoneName = apt.Zone.Name,
+                        ActiveOwnership = activeOwner
+                    });
                 }
 
-                return new ResponseDto(200, sections, "Departamentos obtenidos correctamente.");
+                return new ResponseDto(200, result, "Departamentos obtenidos correctamente.");
             }
             catch (Exception ex)
             {
@@ -50,23 +62,34 @@ namespace VPASS3_backend.Services
             }
         }
 
+
         public async Task<ResponseDto> GetApartmentByIdAsync(int id)
         {
             try
             {
-                var section = await _context.Apartments
-                    .Include(zs => zs.Zone)
-                    .Include(zs => zs.Ownerships)
-                        .ThenInclude(o => o.Person)
-                    .FirstOrDefaultAsync(zs => zs.Id == id && !zs.IsDeleted);
+                var apartment = await _context.Apartments
+                    .Include(a => a.Zone)
+                    .FirstOrDefaultAsync(a => a.Id == id && !a.IsDeleted);
 
-                if (section == null)
+                if (apartment == null)
                     return new ResponseDto(404, message: "Departamento no encontrado.");
 
-                if (!_userContext.CanAccessApartment(section))
+                if (!_userContext.CanAccessApartment(apartment))
                     return new ResponseDto(403, message: "No tienes permiso para acceder a este departamento.");
 
-                return new ResponseDto(200, section, "Departamento obtenido correctamente.");
+                var activeOwner = await ApartmentUtils.GetActiveOwnershipAsync(_context, apartment.Id);
+
+                var dto = new ApartmentWithCurrentOwnerDto
+                {
+                    Id = apartment.Id,
+                    Name = apartment.Name,
+                    IdZone = apartment.IdZone,
+                    IsDeleted = apartment.IsDeleted,
+                    ZoneName = apartment.Zone.Name,
+                    ActiveOwnership = activeOwner
+                };
+
+                return new ResponseDto(200, dto, "Departamento obtenido correctamente.");
             }
             catch (Exception ex)
             {
@@ -74,6 +97,7 @@ namespace VPASS3_backend.Services
                 return new ResponseDto(500, message: "Error en el servidor al obtener el departamento.");
             }
         }
+
 
         public async Task<ResponseDto> CreateApartmentAsync(ApartmentDto dto)
         {
