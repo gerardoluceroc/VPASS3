@@ -40,10 +40,10 @@ const UltimosRegistrosPageComponent = () => {
     const columns = ["Nombre", "Rut", "Destino", "Sentido", "Fecha", "Acciones"];
 
     const data = rows?.map((visita) => {
-      const { person, zone, zoneSection, direction, entryDate: horaEntrada } = visita;
+      const { person, zone, apartment, direction, entryDate: horaEntrada } = visita;
       const { names = "", lastNames = "", identificationNumber = "" } = person || {};
       const { name: nombreZona = "" } = zone || {};
-      const { name: nombreSubzona = "" } = zoneSection || {};
+      const { name: nombreSubzona = "" } = apartment || {};
       const { visitDirection: sentido = "" } = direction || {};
       const columnaAcciones = 
       <Box id="BoxAccionesTablaUltimosRegistros">
@@ -57,7 +57,7 @@ const UltimosRegistrosPageComponent = () => {
     return [
       `${names} ${lastNames}`.trim(),
       identificationNumber,
-      `${nombreZona} ${nombreSubzona}`,
+      `${nombreZona} - Departamento ${nombreSubzona}`,
       sentido,
       cambiarFormatoHoraFecha(horaEntrada),
       columnaAcciones || "Sin datos"
