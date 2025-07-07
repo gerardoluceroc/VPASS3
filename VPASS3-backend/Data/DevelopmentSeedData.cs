@@ -28,7 +28,7 @@ namespace VPASS3_backend.Data
 
         private static readonly List<string> _parkingSpotNames = new List<string>
         {
-            "P101", "P102", "P103", "P104", "P105"
+            "E01", "E02", "E03", "E04", "E05"
         };
 
         private static readonly List<string> _zoneNames = new List<string>
