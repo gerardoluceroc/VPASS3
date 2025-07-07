@@ -6,7 +6,7 @@ import { useFormik } from "formik"
 import { ValidationOpcionRutDescargarRegistros } from "./ValidationOpcionRutDescargarRegistros"
 import useVisita from "../../../../hooks/useVisita/useVisita"
 import ModalLoadingMasRespuesta from "../../../Modal/ModalLoadingMasRespuesta/ModalLoadingMasRespuesta"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const OpcionRutDescargarRegistros = ({width = "100%"}) => {
 
@@ -54,6 +54,7 @@ const OpcionRutDescargarRegistros = ({width = "100%"}) => {
                 label="Ingrese el rut que desea consultar"
                 placeholder="12345678-9"
                 width="90%"
+                value={formik.values.numeroIdentificacion ?? ""}
                 onChange={formik.handleChange}
                 error={formik.touched.numeroIdentificacion && Boolean(formik.errors.numeroIdentificacion)}
                 helperText={formik.touched.numeroIdentificacion && formik.errors.numeroIdentificacion}
