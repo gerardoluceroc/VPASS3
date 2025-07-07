@@ -19,8 +19,7 @@ import ModalLoadingMasRespuesta from "../ModalLoadingMasRespuesta/ModalLoadingMa
 const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
 
     const {crearRegistroEncomienda, loading: loadingEncomiendas} = UseEncomienda();
-    const {zonas, loading: loadingZonas, getAllZonas} = useZonas();
-    useEffect(() => {console.log("📌 - zonas => ",zonas)}, [zonas]);
+    const {zonas, getAllZonas} = useZonas();
 
     useEffect(() => {
       getAllZonas();
@@ -65,8 +64,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
         
             if (confirmed) {
                 setOpenLoadingRespuesta(true);
-                console.log("sí");
-
                 const nombreDestinatario = values.nombreDestinatario;
                 const codigoEncomienda = values.codigoEncomienda;
                 const idDepartamento = values.idDepartamento;
@@ -87,8 +84,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
                     idInquilinoDepartamento
                 )
 
-                console.log("respuestaCrearRegistroEncomienda => ", respuestaCrearRegistroEncomienda);
-
                 const {statusCode: statusCodeCrearRegistroEncomienda, data: dataCrearRegistroEncomienda, message: messageCrearRegistroEncomienda} = respuestaCrearRegistroEncomienda;
 
                     // Si el servidor responde con el Response dto que tiene configurado
@@ -97,7 +92,7 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
                             setOperacionExitosa(true);
                             setMessageLoadingRespuesta(messageCrearRegistroEncomienda);
                             // handleAgregarNuevaReservaExclusiva(dataCrearRegistroEncomienda);
-                            // setRows(prevRows => [...prevRows, dataCrearRegistroEncomienda]); // Agrega la nueva reserva a las filas de la tabla de registros de reservas
+                            setRows(prevRows => [...prevRows, dataCrearRegistroEncomienda]); // Agrega la nueva reserva a las filas de la tabla de registros de reservas
                             // formik.resetForm(); // Resetea el formulario después de crear la reserva exclusiva
                             // onClose();
                         }
@@ -109,7 +104,7 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
                     else{
                         //Esto es para los casos que el servidor no responda el ResponseDto tipico
                         setOperacionExitosa(false);
-                        setMessageLoadingRespuesta("Error desconocidoooooo, por favor intente nuevamente más tarde.");
+                        setMessageLoadingRespuesta("Error desconocido, por favor intente nuevamente más tarde.");
                     }
             } 
         }
@@ -126,21 +121,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
             value: true
         }
     ]
-    useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
-    useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     // Con esta función se evita que el modal se cierre al presionar fuera de él
     const handleClose = (event, reason) => {
@@ -200,37 +180,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
         }
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     //Cada vez que se abra el modal se reseteará el formulario y se muestra en el primer paso
     useEffect(() => {
       if(open){
@@ -265,7 +214,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
         //Cada vez que se cambia la zona seleccionada, se setea el estado de departamentosDisponibles
         if(formik.values.idZona !== null && formik.values.idZona !== undefined){
             const departamentosZona = departamentos?.filter((depto) => depto.idZone === formik.values.idZona) || [];
-            console.log("departamentosZona => ", departamentosZona);
             setDepartamentosDisponibles(departamentosZona);
         }
     }, [formik.values.idZona, departamentos]);
@@ -300,8 +248,6 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
 
 
     useEffect(() => {
-        console.log("formik.values.retiraPropietario => ", formik.values.retiraPropietario);
-        console.log("departamentoSeleccionado => ", departamentoSeleccionado);
         // Si se cambia el valor de retiraPropietario, se debe resetear los campos de persona que retira, ya que si no se hace esto, al cambiar de valor de retiraPropietario, los campos de persona que retira se quedan con los valores anteriores.
         // Por lo tanto, se debe resetear los campos de persona que retira a null
         if (!formik.values.retiraPropietario) {
@@ -329,7 +275,7 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
 
                     <IconButton
                         aria-label="close"
-                        onClick={onClose}
+                        onClick={handleClose}
                         sx={{
                         top: -8,
                         color: "black",
@@ -477,7 +423,7 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
                                                         <TextFieldUno 
                                                             name="nombrePersonaQueRetira" 
                                                             label="Nombre de la persona que retira" 
-                                                            placeholder="Ej: Juan Pérez" 
+                                                            placeholder="Ej: Juan Antonio" 
                                                             value={formik.values.nombrePersonaQueRetira ?? ""}
                                                             onChange={formik.handleChange}
                                                             error={formik.touched.nombrePersonaQueRetira && Boolean(formik.errors.nombrePersonaQueRetira)}
@@ -487,7 +433,7 @@ const ModalRegistarEncomienda = ({ open, onClose, setRows, departamentos }) => {
                                                         <TextFieldUno 
                                                             name="apellidoPersonaQueRetira" 
                                                             label="Apellido de la persona que retira" 
-                                                            placeholder="Ej: Pérez" 
+                                                            placeholder="Ej: Pérez González" 
                                                             value={formik.values.apellidoPersonaQueRetira ?? ""}
                                                             onChange={formik.handleChange}
                                                             error={formik.touched.apellidoPersonaQueRetira && Boolean(formik.errors.apellidoPersonaQueRetira)}

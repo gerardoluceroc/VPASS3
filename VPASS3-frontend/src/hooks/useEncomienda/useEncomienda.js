@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { path_createRegistroEncomienda, path_getAllEncomiendas } from "../../services/API/API-VPASS3";
+import { path_createRegistroEncomienda, path_getAllEncomiendas, path_retirarEncomienda } from "../../services/API/API-VPASS3";
 import axios from "axios";
 import usePersona from "../usePersona/usePersona";
 
@@ -107,6 +107,58 @@ const UseEncomienda = () => {
         }
     }
 
+    const retirarEncomienda = async (
+        nombrePersonaQueRetira,
+        apellidoPersonaQueRetira,
+        rutPersonaQueRetira,
+        idEncomienda,
+    ) => {
+        setLoading(true);
+        try {
+            let personaRetira;
+            let cuerpoPeticionRetirarEncomienda;
+
+
+            const respuestaObtenerPersona = await getPersonaByIdentificationNumber(rutPersonaQueRetira);
+            const {data: dataObtenerPersona, statusCode: statusCodeObtenerPersona, message: messageObtenerPersona} = respuestaObtenerPersona;
+
+            if(statusCodeObtenerPersona === 404){
+                const {data: dataCrearPersona} = await crearPersona({
+                    nombres: nombrePersonaQueRetira,
+                    apellidos: apellidoPersonaQueRetira,
+                    numeroIdentificacion: rutPersonaQueRetira
+                })
+                personaRetira = dataCrearPersona;
+            }
+
+            else if(statusCodeObtenerPersona === 200){
+                personaRetira = dataObtenerPersona;
+            }
+            else{
+                // Si no se obtuvo un código 200 o 404, se considera un error inesperado
+                throw respuestaObtenerPersona;
+            }
+
+            cuerpoPeticionRetirarEncomienda = {
+                idPackage: idEncomienda,
+                idPersonWhoReceived: personaRetira.id
+            }
+            const {data: responseRetirarEncomienda} = await axios.put(path_retirarEncomienda, cuerpoPeticionRetirarEncomienda);
+            const {data: registroEncomiendaActualizado, statusCode: statusRetirarEncomienda, message: messageRetirarEncomienda} = responseRetirarEncomienda;
+            setResponse(registroEncomiendaActualizado);
+            setResponseStatus(statusRetirarEncomienda);
+            return responseRetirarEncomienda;
+        } catch (error) {
+            const dataError = error?.response?.data || error || "Error desconocido";
+            const status = error?.status ?? error?.statusCode ?? null;
+            setResponse(dataError);
+            setResponseStatus(status);
+            return dataError;
+        } finally {
+          setLoading(false);
+        }
+    }
+
 
 
     return ({
@@ -115,7 +167,8 @@ const UseEncomienda = () => {
         responseStatus,
         getAllEncomiendas,
         encomiendas,
-        crearRegistroEncomienda
+        crearRegistroEncomienda,
+        retirarEncomienda
     });
 }
 

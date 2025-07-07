@@ -1,0 +1,92 @@
+#ContainerModalRetirarEncomienda {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 50%;
+    text-align: center;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    max-height: 95%;
+}
+
+#HeaderModalRetirarEncomienda {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 4px 0px 16px;
+}
+
+#CuerpoModalRetirarEncomienda {
+  display: flex;
+  flex-direction: column;
+  padding: 0px 20px 5px 20px;
+  gap: 20px;
+  width: 100%;
+  overflow-y: auto;
+}
+
+#ItemCuerpoModalRetirarEncomienda {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+}
+
+#DosItemsCuerpoModalRetirarEncomienda {
+    display: flex;
+    flex-direction: row;
+    gap: 40px;
+    width: 100%;
+}
+
+#BoxButtonSubmitModalRetirarEncomienda {
+  width: 40%;
+  margin-top: 10px;
+}
+
+@media (max-width: 1073px) {
+
+    #ContainerModalRetirarEncomienda {
+        width: 70%;
+    }
+
+}
+
+@media (max-width: 780px) {
+
+    #ContainerModalRetirarEncomienda {
+        width: 85%;
+    }
+
+    #CuerpoModalRetirarEncomienda {
+        width: 95%;
+    }
+
+    #BoxButtonSubmitModalRetirarEncomienda {
+        width: 70%;
+    }
+}
+
+@media (max-width: 620px) {
+    #ContainerModalRetirarEncomienda {
+        width: 95%;
+    }
+    #DosItemsCuerpoModalRetirarEncomienda {
+        flex-direction: column;
+        gap: 20px;
+    }
+}

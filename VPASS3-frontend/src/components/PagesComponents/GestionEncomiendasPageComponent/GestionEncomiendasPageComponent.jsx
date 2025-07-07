@@ -12,6 +12,8 @@ import TooltipTipoUno from "../../Tooltip/TooltipTipoUno/TooltipTipoUno";
 import dayjs from "dayjs";
 import ModalVerDetallesEncomienda from "../../Modal/ModalVerDetallesEncomienda/ModalVerDetallesEncomienda";
 import ModalRegistarEncomienda from "../../Modal/ModalRegistrarEncomienda/ModalRegistrarEncomienda";
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
+import ModalRetirarEncomienda from "../../Modal/ModalRetirarEncomienda/ModalRetirarEncomienda";
 
 const GestionEncomiendasPageComponent = () => {
 
@@ -20,8 +22,6 @@ const GestionEncomiendasPageComponent = () => {
 
     // Hook para obtener información de los departamentos del usuario
     const {getAllDepartamentos, departamentos} = useDepartamento();
-    useEffect(() => {console.log("📌 - departamentos => ",departamentos)}, [departamentos]);
-
 
     // Se obtienen las encomiendas desde el hook
     useEffect(() => {
@@ -31,18 +31,27 @@ const GestionEncomiendasPageComponent = () => {
 
     // Estado en donde se guardarán los datos de las encomiendas
     const [rowsOriginales, setRowsOriginales] = useState();
-    useEffect(() => {console.log("📌 - rowsOriginales => ",rowsOriginales)}, [rowsOriginales]);
-
-    // Cuando carguen la info de las encomiendas desde el servidor, se proceden a ordenar por fecha.
     useEffect(() => {
         if (!Array.isArray(encomiendas)) return;
     
         const encomiendasOrdenadasPorFecha = [...encomiendas].sort((a, b) =>
         dayjs(b.receivedAt).valueOf() - dayjs(a.receivedAt).valueOf()
         );
-        console.log("encomiendasOrdenadasPorFecha => ", encomiendasOrdenadasPorFecha);
         setRowsOriginales(encomiendasOrdenadasPorFecha);
     }, [encomiendas]);
+
+    // Estado y funciones para manejar las filas modificables de la tabla
+    // Se utiliza para ordenar las encomiendas por fecha de llegada
+    const [rowsModificables, setRowsModificables] = useState();
+    useEffect(() => {
+        if (!Array.isArray(rowsOriginales)) return;
+    
+        const encomiendasOrdenadasPorFecha = [...rowsOriginales].sort((a, b) =>
+        dayjs(b.receivedAt).valueOf() - dayjs(a.receivedAt).valueOf()
+        );
+        setRowsModificables(encomiendasOrdenadasPorFecha);
+    }, [rowsOriginales]);
+    
 
     // Estado y funciones para manejar el modal de ver detalles de encomienda
     const [openModalVerDetallesEncomienda, setOpenModalVerDetallesEncomienda] = useState(false);
@@ -57,6 +66,15 @@ const GestionEncomiendasPageComponent = () => {
     const handleCloseModalRegistrarEncomienda = () => setOpenModalRegistrarEncomienda(false);
     const handleOpenModalRegistrarEncomienda = () => setOpenModalRegistrarEncomienda(true);  
 
+    // Estado y funciones para manejar el modal de retirar encomienda
+    // Este modal se utiliza para marcar una encomienda como retirada
+    const [openModalRetirarEncomienda, setOpenModalRetirarEncomienda] = useState(false);
+    const handleCloseModalRetirarEncomienda = () => setOpenModalRetirarEncomienda(false);
+    const handleOpenModalRetirarEncomienda = (encomienda = {}) => {
+        setOpenModalRetirarEncomienda(true);
+        setEncomiendaSeleccionada(encomienda);
+    };
+
     // Departamento perteneciente a la encomienda seleccionada
     const [departamentoSeleccionado, setDepartamentoSeleccionado] = useState({});
 
@@ -65,12 +83,9 @@ const GestionEncomiendasPageComponent = () => {
 
     useEffect(() => {
     // En cuanto cambie la encomienda seleccionada, se cambia el departamento seleccionado
-        console.log("📌 - encomiendaSeleccionada => ",encomiendaSeleccionada);
         const departamento = departamentos?.find((departamento) => departamento.id === encomiendaSeleccionada.idApartment);
         setDepartamentoSeleccionado(departamento || {});
     }, [encomiendaSeleccionada]);
-
-    useEffect(() => {console.log("📌 - departamentoSeleccionado => ",departamentoSeleccionado)});
 
     // Columnas de la tabla de encomiendas
     const columns = [
@@ -81,20 +96,30 @@ const GestionEncomiendasPageComponent = () => {
     ];
 
     // Filas de la tabla de encomiendas
-    const data = rowsOriginales?.map((encomienda) => {
-        const {receivedAt} = encomienda;
+    const data = rowsModificables?.map((encomienda) => {
+        const {receivedAt, deliveredAt} = encomienda;
         const destino = departamentos?.find((departamento) => departamento.id === encomienda.idApartment) || "Desconocido";
         const {zoneName: zonaDestino, name: nombreDepartamento} = destino;
         return[
             `${zonaDestino} - ${nombreDepartamento}`,
             cambiarFormatoHoraFecha(receivedAt) || "Sin datos",
-            encomienda.deliveredAt ? <Chip label="Retirado" color="success" /> : <Chip label="Pendiente" color="error" />,
+            deliveredAt ? <Chip label="Retirada" color="success" /> : <Chip label="Pendiente" color="error" />,
             <Box id="BoxAccionesTablaUltimosRegistros">
                 <TooltipTipoUno titulo={"Ver detalles"} ubicacion={"right"}>
                 <IconButton onClick={()=>{handleOpenModalVerDetallesEncomienda(encomienda)}}>
                     <InfoIcon id="BotonVerDetallesRegistro" fontSize="large" />
                 </IconButton>
                 </TooltipTipoUno>
+
+                {deliveredAt ?
+                    null
+                    :
+                    <TooltipTipoUno titulo={"Marcar como entregada"} ubicacion={"right"}>
+                        <IconButton onClick={()=>{handleOpenModalRetirarEncomienda(encomienda)}}>
+                            <MarkEmailReadIcon id="BotonVerDetallesRegistro" fontSize="large" />
+                        </IconButton>
+                    </TooltipTipoUno>  
+                }
             </Box>
         ]
     })
@@ -121,6 +146,15 @@ const GestionEncomiendasPageComponent = () => {
                     onClose={handleCloseModalRegistrarEncomienda}
                     setRows={setRowsOriginales}
                     departamentos={departamentos}
+                />
+
+                <ModalRetirarEncomienda
+                    open={openModalRetirarEncomienda}
+                    onClose={handleCloseModalRetirarEncomienda}
+                    setRows={setRowsOriginales}
+                    encomiendaSeleccionada={encomiendaSeleccionada}
+                    setEncomiendaSeleccionada={setEncomiendaSeleccionada}
+                    departamentoSeleccionado={departamentoSeleccionado}
                 />
                 {/* {ConfirmDialogComponent}
                 <ModalLoadingMasRespuesta

@@ -65,7 +65,7 @@ const ModalVerDetallesEncomienda = ({ open, onClose, encomiendaSeleccionada, dep
                 <Box className="DosItemsCuerpoModalVerDetallesEncomienda">
                     <TextFieldReadOnlyUno
                         label={"Estado"}
-                        value={fechaEntrega === null ? "Pendiente" : "Retirado"}
+                        value={fechaEntrega === null ? "Pendiente" : "Retirada"}
                     />
 
                     {fechaEntrega !== null && 
