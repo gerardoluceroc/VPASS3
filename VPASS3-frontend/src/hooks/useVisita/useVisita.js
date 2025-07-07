@@ -86,7 +86,7 @@ const useVisita = () => {
           idPerson: idPersona,
           zoneId: idZona,
           idDirection: idSentido,
-          idZoneSection: idSubZona,
+          idApartment: idSubZona,
           vehicleIncluded: incluyeVehiculo,
           licensePlate: incluyeVehiculo ? patenteVehiculo : "",
           idParkingSpot: incluyeVehiculo ? idEstacionamiento : null,

@@ -54,7 +54,7 @@ const ModalVerDetallesRegistros = ({ open, onClose, visitaSeleccionada }) => {
                 <Box className="DosItemsCuerpoModalVerDetallesRegistro">
                     <TextFieldReadOnlyUno
                         label={"Destino"}
-                        value={`${visitaSeleccionada?.zone?.name || "Sin datos"} - ${visitaSeleccionada?.zoneSection?.name || ""}`}
+                        value={`${visitaSeleccionada?.zone?.name || "Sin datos"} - Departamento ${visitaSeleccionada?.apartment?.name || ""}`}
                     />
 
                     <TextFieldReadOnlyUno

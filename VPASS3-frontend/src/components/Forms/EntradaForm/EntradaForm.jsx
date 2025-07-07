@@ -120,9 +120,10 @@ const EntradaForm = () => {
     }, [formik.values.idZona])
 
     const [subZonasDisponibles, setSubZonasDisponibles] = useState([]);
+
     useEffect(() => {
-        //Cada vez que se cambia la zona seleccionada, se setea el estado de subZonasDisponibles
-        const subZona = zonas?.find((zona) => zona.id === formik.values.idZona)?.zoneSections || [];
+        //Cada vez que se cambia la zona seleccionada, se setea el estado de departamentos disponibles
+        const subZona = zonas?.find((zona) => zona.id === formik.values.idZona)?.apartments || [];
         setSubZonasDisponibles(subZona);
     }, [formik.values.idZona])
 
