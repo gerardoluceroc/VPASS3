@@ -33,7 +33,7 @@ export function InterceptorRequest() {
   const data = useSelector(state => state.user);
   
   useEffect(() => {
-    console.log("ingresamos a interceptor request");
+    // console.log("ingresamos a interceptor request");
     // Crear una instancia del interceptor
     const interceptor = axios.interceptors.request.use(
       (config) => {
@@ -54,7 +54,7 @@ export function InterceptorRequest() {
 }
 
 export function InterceptorResponse(){
-    console.log("Ingresando al interceptor de respuesta");
+    // console.log("Ingresando al interceptor de respuesta");
     axios.interceptors.response.use(
       response => {
             return response; // Si la respuesta es exitosa, simplemente la retorna
