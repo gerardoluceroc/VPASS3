@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using VPASS3_backend.DTOs.Packages;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
+using VPASS3_backend.DTOs.PackagesDtos;
 
 namespace VPASS3_backend.Controllers
 {

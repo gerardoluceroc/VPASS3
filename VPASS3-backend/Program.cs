@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using VPASS3_backend.Context;
+using VPASS3_backend.Data;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.Interfaces.CommonAreaInterfaces;
@@ -252,6 +253,53 @@ app.UseExceptionHandler(errorApp =>
         await context.Response.WriteAsJsonAsync(response);
     });
 });
+
+
+// --- INICIO DEL BLOQUE DE SIEMBRA DE DATOS ESENCIALES ---
+// Se ejecuta siempre, para datos básicos de la aplicación (roles, superadmin, direcciones).
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        Console.WriteLine("Iniciando proceso de siembra de datos esenciales...");
+        await SeedData.Initialize(services);
+        Console.WriteLine("Proceso de siembra de datos esenciales finalizado.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos con datos esenciales.");
+        // Se considera relanzar la excepción para detener el inicio de la aplicación si los datos esenciales son críticos.
+        // throw;
+    }
+}
+// --- FIN DEL BLOQUE DE SIEMBRA DE DATOS ESENCIALES ---
+
+
+// --- INICIO DEL BLOQUE DE SIEMBRA DE DATOS DE DESARROLLO/PRUEBA ---
+// Este bloque solo se ejecuta cuando la aplicación se está ejecutando en el entorno de desarrollo.
+if (app.Environment.IsDevelopment())
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            Console.WriteLine("Iniciando proceso de siembra de datos de DESARROLLO...");
+            await DevelopmentSeedData.Initialize(services);
+            Console.WriteLine("Proceso de siembra de datos de DESARROLLO finalizado.");
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "Ocurrió un error al sembrar la base de datos con datos de desarrollo.");
+        }
+    }
+}
+// --- FIN DEL BLOQUE DE SIEMBRA DE DATOS DE DESARROLLO/PRUEBA ---
+
+app.UseHttpsRedirection();
 
 app.UseCors("PermitirFrontend");
 
