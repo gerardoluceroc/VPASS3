@@ -461,7 +461,7 @@ namespace VPASS3_backend.Services
                             worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
-                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.Apartment?.Name}";
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - Departamento {visit.Apartment?.Name}";
                             worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
                             worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
                             worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
@@ -613,7 +613,7 @@ namespace VPASS3_backend.Services
                             worksheet.Cell(row, 3).Value = $"{visit.Person?.Names} {visit.Person?.LastNames}";
                             worksheet.Cell(row, 4).Value = visit.VisitType?.Name;
                             worksheet.Cell(row, 5).Value = visit.Establishment?.Name;
-                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - {visit.Apartment?.Name}";
+                            worksheet.Cell(row, 6).Value = $"{visit.Zone?.Name} - Departamento {visit.Apartment?.Name}";
                             worksheet.Cell(row, 7).Value = visit.Direction?.VisitDirection;
                             worksheet.Cell(row, 8).Value = visit.VehicleIncluded ? "Sí" : "No";
                             worksheet.Cell(row, 9).Value = visit.LicensePlate ?? "N/A";
