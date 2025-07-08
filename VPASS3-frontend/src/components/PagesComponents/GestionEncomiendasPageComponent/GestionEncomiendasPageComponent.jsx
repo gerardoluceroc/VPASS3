@@ -1,8 +1,8 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import "./GestionEncomiendasPageComponent.css";
 import UseEncomienda from "../../../hooks/useEncomienda/useEncomienda";
 import useDepartamento from "../../../hooks/useDepartamento/useDepartamento";
-import { cambiarFormatoHoraFecha } from "../../../utils/funciones";
+import { cambiarFormatoHoraFecha, filtrarEncomiendasPendientes, filtrarEncomiendasRetiradas } from "../../../utils/funciones";
 import { Box, Chip, Fade, IconButton } from "@mui/material";
 import ButtonTypeOne from "../../Buttons/ButtonTypeOne/ButtonTypeOne";
 import DatagridResponsive from "../../Datagrid/DatagridResponsive/DatagridResponsive";
@@ -14,6 +14,7 @@ import ModalVerDetallesEncomienda from "../../Modal/ModalVerDetallesEncomienda/M
 import ModalRegistarEncomienda from "../../Modal/ModalRegistrarEncomienda/ModalRegistrarEncomienda";
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ModalRetirarEncomienda from "../../Modal/ModalRetirarEncomienda/ModalRetirarEncomienda";
+import SelectMui from "../../Select/SelectMui/SelectMui";
 
 const GestionEncomiendasPageComponent = () => {
 
@@ -44,6 +45,7 @@ const GestionEncomiendasPageComponent = () => {
     // Se utiliza para ordenar las encomiendas por fecha de llegada
     const [rowsModificables, setRowsModificables] = useState();
     useEffect(() => {
+        console.log("rows originales: ", JSON.stringify(rowsOriginales));
         if (!Array.isArray(rowsOriginales)) return;
     
         const encomiendasOrdenadasPorFecha = [...rowsOriginales].sort((a, b) =>
@@ -123,14 +125,71 @@ const GestionEncomiendasPageComponent = () => {
             </Box>
         ]
     })
-    
+
+    // Variables y funciones para manejar el filtrado de las encomiendas
+    const idOpcionTodasSelectVerTablaEncomiendas = 1;
+    const idOpcionPendientesSelectVerTablaEncomiendas = 2;
+    const idOpcionRetiradasSelectVerTablaEncomiendas = 3;
+    const opcionesSelectVerTablaEncomiendas = 
+    [
+        {
+            id: 1,
+            nombre: "Todas"
+        },
+        {
+            id: 2,
+            nombre: "Pendientes"
+        },
+        {
+            id: 3,
+            nombre: "Retiradas"
+        },
+    ]
+    const [idOpcionSeleccionadaSelectVerTablaEncomiendas, setIdOpcionSeleccionadaSelectVerTablaEncomiendas] = useState(idOpcionTodasSelectVerTablaEncomiendas);
+
+    // Funcion para filtrar encomiendas por "todas", "pendientes" y "retiradas"
+    const handleChangeSelectVerTablaEncomiendas = (idOpcion) => {
+        setIdOpcionSeleccionadaSelectVerTablaEncomiendas(idOpcion);
+
+        if(idOpcion === idOpcionTodasSelectVerTablaEncomiendas ){
+            setRowsModificables(rowsOriginales);
+        }
+        else if(idOpcion === idOpcionRetiradasSelectVerTablaEncomiendas){
+            const encomiendasRetiradas = filtrarEncomiendasRetiradas(rowsOriginales);
+            setRowsModificables(encomiendasRetiradas);
+        }
+        else if(idOpcion === idOpcionPendientesSelectVerTablaEncomiendas){
+            const encomiendasPendientes = filtrarEncomiendasPendientes(rowsOriginales);
+            setRowsModificables(encomiendasPendientes);
+        }
+    }
   return (
     <Box id="ContainerGestionEncomiendasPageComponent">
-        <Box id="BotonRegistrarNuevaEncomienda">
-            <ButtonTypeOne
-                defaultText="Registrar nueva encomienda"
-                handleClick={()=>{handleOpenModalRegistrarEncomienda()}}
-            />
+        <Box id= "HeaderGestionEncomiendasPageComponent">
+            <Box id="ItemHeaderGestionEncomiendasPage">
+                <ButtonTypeOne
+                    defaultText="Registrar nueva encomienda"
+                    handleClick={()=>{handleOpenModalRegistrarEncomienda()}}
+                />
+            </Box>
+            <Box id="ItemHeaderGestionEncomiendasPage">
+                <SelectMui
+                    label = "Ver"
+                    width={"100%"}
+                    listadoElementos={opcionesSelectVerTablaEncomiendas || []}
+                    keyListadoElementos={"id"}
+                    mostrarElemento={(option)=> option["nombre"]}
+                    handleChange = {(e)=>{handleChangeSelectVerTablaEncomiendas(e.target.value)}}
+                    elementoSeleccionado = {idOpcionSeleccionadaSelectVerTablaEncomiendas}
+                    atributoValue={"id"}
+                    fontSize="18px"
+                    backgroundColor="#175676"
+                    color="white"
+                    borderColor="white"
+                    focusBorderColor="white"
+                    labelColorNormal="white"
+                />
+            </Box>
         </Box>
         <Fade in={!(!Array.isArray(rowsOriginales))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
             <div>

@@ -7,18 +7,28 @@
     gap: 20px;
 }
 
-#BotonRegistrarNuevaEncomienda{
+#HeaderGestionEncomiendasPageComponent{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+#ItemHeaderGestionEncomiendasPage{
     width: 25%;
 }
 
 @media (max-width: 1000px){
-    #BotonRegistrarNuevaEncomienda{
+    #ItemHeaderGestionEncomiendasPage{
         width: 40%;
     }
 }
 
 @media (max-width: 760px){
-    #BotonRegistrarNuevaEncomienda{
-        width: 70%;
+    #HeaderGestionEncomiendasPageComponent{
+        flex-direction: column;
+    }
+    #ItemHeaderGestionEncomiendasPage{
+        width: 100%;
     }
 }
