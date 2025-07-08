@@ -51,12 +51,29 @@ const SelectMui = ({
     disabledOptionCondition = (opcion) => {return false},
     helperText = "",
     error = false,
+    fontSize = "inherit",
+    color = "inherit",
+    backgroundColor = "inherit",
+    borderColor = "rgba(0, 0, 0, 0.23)",
+    hoverBorderColor = "rgba(0, 0, 0, 0.87)",
+    focusBorderColor = "#1976d2",
+    labelColorNormal = "rgba(0, 0, 0, 0.6)"
 }) => {
 
     return (
         <Box sx={{ width: width }}>
             <FormControl fullWidth disabled={disabled}>
-                <InputLabel id="demo-simple-select-label">{label}</InputLabel>
+                <InputLabel
+                    sx={{
+                        color: labelColorNormal,
+                        '&.Mui-focused': {
+                        color: focusBorderColor, // Color cuando el label está flotando (focus o con valor)
+                        },
+                    }}
+                    id="demo-simple-select-label"
+                    >
+                    {label}
+                    </InputLabel>
                 <Select
                     name={name}
                     labelId="demo-simple-select-label"
@@ -68,6 +85,20 @@ const SelectMui = ({
                     fullWidth
                     inputProps={{ 
                         readOnly: readOnly,
+                    }}
+                    sx={{
+                        backgroundColor: backgroundColor,
+                        color: color,
+                        fontSize: fontSize,
+                        "& .MuiOutlinedInput-notchedOutline": {
+                            borderColor: borderColor, // Borde por defecto
+                        },
+                        "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: hoverBorderColor, // Borde al hacer hover
+                        },
+                        "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            borderColor: focusBorderColor, // Borde al enfocar
+                        },
                     }}
                     MenuProps={{
                         PaperProps: {
