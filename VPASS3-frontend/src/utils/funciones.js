@@ -289,5 +289,31 @@ export function filtrarUsosCompartidosFinalizados(usos) {
     });
 }
 
+/**
+ * Filtra el listado de encomiendas entregadas (retiradas).
+ * Esta función recibe un arreglo de encomiendas y devuelve solo aquellas
+ * cuyo atributo `deliveredAt` no es nulo ni undefined, es decir, ya han sido retiradas.
+ *
+ * @param {Array<Object>} encomiendas - Arreglo de objetos de encomiendas.
+ * @returns {Array<Object>} - Arreglo filtrado de encomiendas retiradas.
+ */
+export function filtrarEncomiendasRetiradas(encomiendas) {
+  // Se filtran las encomiendas que tienen una fecha de entrega válida (no nula ni undefined)
+  return encomiendas.filter(encomienda => encomienda.deliveredAt !== null && encomienda.deliveredAt !== undefined);
+}
+
+/**
+ * Filtra el listado de encomiendas pendientes de retiro.
+ * Esta función recibe un arreglo de encomiendas y devuelve solo aquellas
+ * cuyo atributo `deliveredAt` es nulo o undefined, es decir, aún no han sido retiradas.
+ *
+ * @param {Array<Object>} encomiendas - Arreglo de objetos de encomiendas.
+ * @returns {Array<Object>} - Arreglo filtrado de encomiendas pendientes de retiro.
+ */
+export function filtrarEncomiendasPendientes(encomiendas) {
+  // Se filtran las encomiendas que no tienen una fecha de entrega registrada (nula o undefined)
+  return encomiendas.filter(encomienda => encomienda.deliveredAt === null || encomienda.deliveredAt === undefined);
+}
+
 
 
