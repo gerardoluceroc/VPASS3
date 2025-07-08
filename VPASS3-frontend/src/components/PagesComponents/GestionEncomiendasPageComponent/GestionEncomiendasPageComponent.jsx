@@ -15,6 +15,7 @@ import ModalRegistarEncomienda from "../../Modal/ModalRegistrarEncomienda/ModalR
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import ModalRetirarEncomienda from "../../Modal/ModalRetirarEncomienda/ModalRetirarEncomienda";
 import SelectMui from "../../Select/SelectMui/SelectMui";
+import ModalDescargarCsvEncomiendas from "../../Modal/ModalDescargarCsvEncomiendas/ModalDescargarCsvEncomiendas";
 
 const GestionEncomiendasPageComponent = () => {
 
@@ -45,7 +46,7 @@ const GestionEncomiendasPageComponent = () => {
     // Se utiliza para ordenar las encomiendas por fecha de llegada
     const [rowsModificables, setRowsModificables] = useState();
     useEffect(() => {
-        console.log("rows originales: ", JSON.stringify(rowsOriginales));
+        // console.log("rows originales: ", JSON.stringify(rowsOriginales));
         if (!Array.isArray(rowsOriginales)) return;
     
         const encomiendasOrdenadasPorFecha = [...rowsOriginales].sort((a, b) =>
@@ -84,7 +85,7 @@ const GestionEncomiendasPageComponent = () => {
     const [encomiendaSeleccionada, setEncomiendaSeleccionada] = useState({});
 
     useEffect(() => {
-    // En cuanto cambie la encomienda seleccionada, se cambia el departamento seleccionado
+        // En cuanto cambie la encomienda seleccionada, se cambia el departamento seleccionado
         const departamento = departamentos?.find((departamento) => departamento.id === encomiendaSeleccionada.idApartment);
         setDepartamentoSeleccionado(departamento || {});
     }, [encomiendaSeleccionada]);
@@ -103,7 +104,7 @@ const GestionEncomiendasPageComponent = () => {
         const destino = departamentos?.find((departamento) => departamento.id === encomienda.idApartment) || "Desconocido";
         const {zoneName: zonaDestino, name: nombreDepartamento} = destino;
         return[
-            `${zonaDestino} - ${nombreDepartamento}`,
+            `${zonaDestino} - Departamento ${nombreDepartamento}`,
             cambiarFormatoHoraFecha(receivedAt) || "Sin datos",
             deliveredAt ? <Chip label="Retirada" color="success" /> : <Chip label="Pendiente" color="error" />,
             <Box id="BoxAccionesTablaUltimosRegistros">
@@ -163,83 +164,85 @@ const GestionEncomiendasPageComponent = () => {
             setRowsModificables(encomiendasPendientes);
         }
     }
-  return (
-    <Box id="ContainerGestionEncomiendasPageComponent">
-        <Box id= "HeaderGestionEncomiendasPageComponent">
-            <Box id="ItemHeaderGestionEncomiendasPage">
-                <ButtonTypeOne
-                    defaultText="Registrar nueva encomienda"
-                    handleClick={()=>{handleOpenModalRegistrarEncomienda()}}
-                />
+
+    // Estado y funciones para abrir el modal para descargar el csv con las encomiendas de la tabla
+    const [openModal, setOpenModal] = useState(false);
+    const handleOpenModalDescargarCsv = () =>{setOpenModal(true)}
+    const handleCloseModalDescargarCsv = ()=>{setOpenModal(false)}
+
+    return (
+        <Box id="ContainerGestionEncomiendasPageComponent">
+            <Box id= "HeaderGestionEncomiendasPageComponent">
+                <Box id="ItemHeaderGestionEncomiendasPage">
+                    <ButtonTypeOne
+                        defaultText="Registrar nueva encomienda"
+                        handleClick={()=>{handleOpenModalRegistrarEncomienda()}}
+                    />
+                </Box>
+                <Box id="ItemHeaderGestionEncomiendasPage">
+                    <SelectMui
+                        label = "Ver"
+                        width={"100%"}
+                        listadoElementos={opcionesSelectVerTablaEncomiendas || []}
+                        keyListadoElementos={"id"}
+                        mostrarElemento={(option)=> option["nombre"]}
+                        handleChange = {(e)=>{handleChangeSelectVerTablaEncomiendas(e.target.value)}}
+                        elementoSeleccionado = {idOpcionSeleccionadaSelectVerTablaEncomiendas}
+                        atributoValue={"id"}
+                        fontSize="18px"
+                        backgroundColor="#175676"
+                        color="white"
+                        borderColor="white"
+                        focusBorderColor="white"
+                        labelColorNormal="white"
+                    />
+                </Box>
             </Box>
-            <Box id="ItemHeaderGestionEncomiendasPage">
-                <SelectMui
-                    label = "Ver"
-                    width={"100%"}
-                    listadoElementos={opcionesSelectVerTablaEncomiendas || []}
-                    keyListadoElementos={"id"}
-                    mostrarElemento={(option)=> option["nombre"]}
-                    handleChange = {(e)=>{handleChangeSelectVerTablaEncomiendas(e.target.value)}}
-                    elementoSeleccionado = {idOpcionSeleccionadaSelectVerTablaEncomiendas}
-                    atributoValue={"id"}
-                    fontSize="18px"
-                    backgroundColor="#175676"
-                    color="white"
-                    borderColor="white"
-                    focusBorderColor="white"
-                    labelColorNormal="white"
-                />
-            </Box>
+            <Fade in={!(!Array.isArray(rowsOriginales))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+                <div>
+                    <DatagridResponsive 
+                        title="Encomiendas" 
+                        columns={columns} 
+                        data={data} 
+                        selectableRows="none" 
+                        downloadCsvButton={true} 
+                        handleDownloadCsvButton={handleOpenModalDescargarCsv} />
+                    <ModalVerDetallesEncomienda
+                        open={openModalVerDetallesEncomienda}
+                        onClose={handleCloseModalVerDetallesEncomienda}
+                        encomiendaSeleccionada={encomiendaSeleccionada}
+                        departamentoSeleccionado={departamentoSeleccionado}
+                    />
+                    <ModalRegistarEncomienda
+                        open={openModalRegistrarEncomienda}
+                        onClose={handleCloseModalRegistrarEncomienda}
+                        setRows={setRowsOriginales}
+                        departamentos={departamentos}
+                    />
+
+                    <ModalRetirarEncomienda
+                        open={openModalRetirarEncomienda}
+                        onClose={handleCloseModalRetirarEncomienda}
+                        setRows={setRowsOriginales}
+                        encomiendaSeleccionada={encomiendaSeleccionada}
+                        setEncomiendaSeleccionada={setEncomiendaSeleccionada}
+                        departamentoSeleccionado={departamentoSeleccionado}
+                    />
+
+                    <ModalDescargarCsvEncomiendas
+                        open={openModal}
+                        onClose={handleCloseModalDescargarCsv}
+                    />
+                </div>
+            </Fade>
+
+            <Fade in={!Array.isArray(rowsOriginales)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
+                <div>
+                    <TableSkeleton columnCount={3} rowCount={7} />
+                </div>
+            </Fade>
         </Box>
-        <Fade in={!(!Array.isArray(rowsOriginales))} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
-            <div>
-                <DatagridResponsive title="Encomiendas" columns={columns} data={data} selectableRows="none" downloadCsvButton={false} />
-                <ModalVerDetallesEncomienda
-                    open={openModalVerDetallesEncomienda}
-                    onClose={handleCloseModalVerDetallesEncomienda}
-                    encomiendaSeleccionada={encomiendaSeleccionada}
-                    departamentoSeleccionado={departamentoSeleccionado}
-                />
-                <ModalRegistarEncomienda
-                    open={openModalRegistrarEncomienda}
-                    onClose={handleCloseModalRegistrarEncomienda}
-                    setRows={setRowsOriginales}
-                    departamentos={departamentos}
-                />
-
-                <ModalRetirarEncomienda
-                    open={openModalRetirarEncomienda}
-                    onClose={handleCloseModalRetirarEncomienda}
-                    setRows={setRowsOriginales}
-                    encomiendaSeleccionada={encomiendaSeleccionada}
-                    setEncomiendaSeleccionada={setEncomiendaSeleccionada}
-                    departamentoSeleccionado={departamentoSeleccionado}
-                />
-                {/* {ConfirmDialogComponent}
-                <ModalLoadingMasRespuesta
-                    open={openLoadingRespuesta}
-                    loading={loadingEstacionamientos}
-                    message={messageLoadingRespuesta}
-                    loadingMessage="Cambiando disponibilidad de estacionamiento..."
-                    successfulProcess={operacionExitosa}
-                    accionPostCierre={accionPostCierreLoadingRespuesta}
-                /> */}
-{/* 
-                <ModalCrearEstacionamiento
-                    open={openModalCrearEstacionamiento}
-                    onClose={handleCloseModalCrearEstacionamiento}
-                    setRows={setRows}
-                /> */}
-            </div>
-        </Fade>
-
-        <Fade in={!Array.isArray(rowsOriginales)} timeout={{ enter: 500, exit: 300 }} unmountOnExit>
-            <div>
-                <TableSkeleton columnCount={3} rowCount={7} />
-            </div>
-        </Fade>
-    </Box>
-  )
+    )
 }
 
 export default GestionEncomiendasPageComponent;

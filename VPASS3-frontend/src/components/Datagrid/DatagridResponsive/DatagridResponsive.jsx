@@ -175,6 +175,7 @@ const DatagridResponsive = ({
   columns, 
   selectableRows = "none",
   downloadCsvButton = false,
+  handleDownloadCsvButton = () => {},
   searchButton = true,
   viewColumnsButton = true,
   width = "100%",
@@ -187,6 +188,7 @@ const DatagridResponsive = ({
     download: downloadCsvButton,
     onDownload: (buildHead, buildBody, columns, data) => {
         // console.log("Botón de descarga presionado");
+        handleDownloadCsvButton();
         
         // console.log("Columnas:", columns);
         // console.log("Datos:", data);

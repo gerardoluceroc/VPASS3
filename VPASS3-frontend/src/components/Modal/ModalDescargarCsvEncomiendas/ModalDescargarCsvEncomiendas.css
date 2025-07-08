@@ -1,0 +1,61 @@
+/* ModalDescargarCsvEncomiendas.css */
+#ContainerModalDescargarCsvEncomiendas{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 24;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 30%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 20px;
+    max-height: 95%;
+}
+
+#HeaderModalDescargarCsvEncomiendas {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0px 4px 0px 16px;
+  border-radius: inherit;
+}
+
+#CuerpoModalDescargarCsvEncomiendas{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    padding: 0px 15px 15px 15px;
+    overflow-y: auto;
+}
+
+@media (max-width: 1150px){
+    #ContainerModalDescargarCsvEncomiendas {
+        width: 60%;
+
+    }
+}
+
+@media (max-width: 650px){
+    #ContainerModalDescargarCsvEncomiendas {
+        width: 80%;
+
+    }
+}
+
+@media (max-width: 520px){
+    #ContainerModalDescargarCsvEncomiendas {
+        width: 95%;
+
+    }
+}

@@ -46,7 +46,7 @@ const ModalVerDetallesEncomienda = ({ open, onClose, encomiendaSeleccionada, dep
 
                     <TextFieldReadOnlyUno
                         label={"Lugar de destino"}
-                        value={`${zonaDestino} - ${nombreDepartamento}` || "Sin datos"}
+                        value={`${zonaDestino} - Departamento ${nombreDepartamento}` || "Sin datos"}
                     />
                 </Box>
 
