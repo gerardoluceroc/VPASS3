@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.DTOs.PackagesDtos;
+using VPASS3_backend.Services;
 
 namespace VPASS3_backend.Controllers
 {
@@ -43,6 +44,33 @@ namespace VPASS3_backend.Controllers
         {
             var resp = await _pkgService.GetByIdAsync(id);
             return StatusCode(resp.StatusCode, resp);
+        }
+
+        [Authorize(Policy = "ManageOwnProfile")]
+        [HttpGet("export/excel/all")]
+        public async Task<IActionResult> ExportAll()
+        {
+            var response = await _pkgService.ExportAllPackagesToExcelAsync();
+
+            if (response.StatusCode != 200)
+                return StatusCode(response.StatusCode, response);
+
+            var file = (dynamic)response.Data!;
+            return File((byte[])file.FileContent, file.ContentType, file.FileName);
+        }
+
+        [Authorize(Policy = "ManageOwnProfile")]
+        [HttpPost("export/excel/byDates")]
+        public async Task<IActionResult> ExportByDates([FromBody] GetPackagesByDatesDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResponseDto(400, message: "Parámetros inválidos."));
+
+            var response = await _pkgService.ExportPackagesToExcelByDatesAsync(dto);
+            if (response.StatusCode != 200) return StatusCode(response.StatusCode, response);
+
+            var file = (dynamic)response.Data!;
+            return File((byte[])file.FileContent, file.ContentType, file.FileName);
         }
 
         [Authorize(Policy = "ManageOwnProfile")]

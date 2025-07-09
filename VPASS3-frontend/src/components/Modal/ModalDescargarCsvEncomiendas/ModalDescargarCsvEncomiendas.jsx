@@ -1,11 +1,5 @@
 import './ModalDescargarCsvEncomiendas.css';
 import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
   Box,
   IconButton,
   Typography,
@@ -18,53 +12,32 @@ import { useEffect } from 'react';
 import RadioGroupMui from '../../RadioGroupMui/RadioGroupMui';
 import ButtonTypeOne from '../../Buttons/ButtonTypeOne/ButtonTypeOne';
 import { ValidationDescargarCsvEncomiendas } from './ValidationDescargarCsvEncomiendas';
+import UseEncomienda from '../../../hooks/useEncomienda/useEncomienda';
+import { idOpcionDescargarPorRangoFechas, idOpcionDescargarTodos, opcionesTiposDeDescarga } from './constantesDescargarCsvEncomiendas';
 
 const ModalDescargarCsvEncomiendas = ({ open, onClose }) => {
 
-  const opcionesTiposDeDescarga = 
-  [
-    {
-        id: 1,
-        label: "Descargar todos"
-    },
-    {
-        id: 2,
-        label: "Descargar por rango de fechas"
-    }
+    const {loading, exportarEncomiendasPorRangoDeFechas, exportarTodasLasEncomiendas} = UseEncomienda();
+        const formik = useFormik({
+            initialValues: {
+                fechaInicio: "",
+                fechaFinal: "",
+                idOpcionDescargaSeleccionada: idOpcionDescargarTodos,
+            },
+            validationSchema: ValidationDescargarCsvEncomiendas,
+            onSubmit: async (values) => {
 
-  ]
-  const idOpcionDescargarTodos = 1;
-  const idOpcionDescargarPorRangoFechas = 2;
+                if(values.idOpcionDescargaSeleccionada === idOpcionDescargarTodos){
+                    const respuesta = await exportarTodasLasEncomiendas();
+                }
 
-    const formik = useFormik({
-        initialValues: {
-            fechaInicio: "",
-            fechaFinal: "",
-            idOpcionDescargaSeleccionada: idOpcionDescargarTodos,
-        },
-        validationSchema: ValidationDescargarCsvEncomiendas,
-        onSubmit: async (values) => {
-            console.log("submit descargar csv encomiendas")
-            // setOpenLoadingRespuesta(true);
-            // try {
-            //     // Las fechas ya vienen en formato YYYY-MM-DD desde los inputs
-            //     const result = await getVisitasPorRangoDeFechas(values.fechaInicio, values.fechaFinal);
-                    
-            //     if (result.success) {
-            //         setOperacionExitosa(true);
-            //         setMessageLoadingRespuesta("Reporte descargado con éxito")
-            //     }
-            //     else{
-            //         setOperacionExitosa(false);
-            //         setMessageLoadingRespuesta("Error al descargar el reporte");
-            //     }
-            // } catch (error) {
-            //     setOperacionExitosa(false);
-            //     setMessageLoadingRespuesta("Error al descargar el reporte");
-            // }
-        }
+                else if(values.idOpcionDescargaSeleccionada === idOpcionDescargarPorRangoFechas){
+                    const respuesta = await exportarEncomiendasPorRangoDeFechas(values.fechaInicio, values.fechaFinal);
+                }
+            }
     });
-    useEffect(() => {console.log("📌 - formik => ",formik.values)}, [formik.values]);
+    // useEffect(() => {console.log("📌 - formik values => ",formik.values)}, [formik.values]);
+    // useEffect(() => {console.log("📌 - formik errors => ",formik.errors)}, [formik.errors]);
 
     const handleClose = () => {
         onClose();
@@ -75,8 +48,17 @@ const ModalDescargarCsvEncomiendas = ({ open, onClose }) => {
         formik.resetForm();
       }
     }, [open])
-    
 
+    // Si se cambia a la opcion para descargar todas las encomiendas
+    // Se debe resetear fechaInicio y fechaFinal para que no queden guardados valores anteriores
+    useEffect(() => {
+      if(formik.values.idOpcionDescargaSeleccionada === idOpcionDescargarTodos){
+        formik.setFieldValue("fechaInicio", "");
+        formik.setFieldValue("fechaFinal", "");
+      }
+    }, [formik.values.idOpcionDescargaSeleccionada])
+    
+    
   return (
     <Modal
       open={open}
@@ -136,7 +118,7 @@ const ModalDescargarCsvEncomiendas = ({ open, onClose }) => {
                 defaultText="Descargar reporte"
                 width="60%"
                 handleClick={formik.handleSubmit}
-                // loading={loading}
+                loading={loading}
                 loadingText="Descargando reporte..."
             />
         </Box>

@@ -5,6 +5,7 @@ using VPASS3_backend.Utils;
 using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Models;
 using VPASS3_backend.DTOs.PackagesDtos;
+using ClosedXML.Excel;
 
 namespace VPASS3_backend.Services
 {
@@ -97,6 +98,220 @@ namespace VPASS3_backend.Services
                 statusCode: 201
             );
             return new ResponseDto(201, package, "Encomienda registrada correctamente.");
+        }
+
+        public async Task<ResponseDto> ExportPackagesToExcelByDatesAsync(GetPackagesByDatesDto dto)
+        {
+            try
+            {
+                if (dto.StartDate > dto.EndDate)
+                    return new ResponseDto(400, message: "La fecha de inicio no puede ser posterior a la final.");
+
+                var startDate = dto.StartDate.ToDateTime(TimeOnly.MinValue);
+                var endDate = dto.EndDate.ToDateTime(TimeOnly.MaxValue);
+
+                var query = _dbContext.Packages
+                    .Include(p => p.Apartment).ThenInclude(a => a.Zone)
+                    .Include(p => p.Ownership).ThenInclude(o => o.Person)
+                    .Include(p => p.Receiver)
+                    .Where(p => p.ReceivedAt >= startDate && p.ReceivedAt <= endDate);
+
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message: "Establecimiento no asociado.");
+                    query = query.Where(p => p.Apartment.Zone.EstablishmentId == _userContext.EstablishmentId.Value);
+                }
+
+                var packages = await query.OrderByDescending(p => p.ReceivedAt).ToListAsync();
+
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Encomiendas");
+
+                var headers = new[] {
+                    "ID", "Código", "Destinatario", "Fecha de Recepción",
+                    "Destino", "Inquilino al Momento", "Fecha de Entrega", "Persona que Retiró"
+                };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, i + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+
+                if (packages.Any())
+                {
+                    int row = 2;
+                    foreach (var pkg in packages)
+                    {
+                        var depto = $"{pkg.Apartment.Zone?.Name} - Depto {pkg.Apartment?.Name}";
+                        var owner = $"{pkg.Ownership?.Person?.Names} {pkg.Ownership?.Person?.LastNames}";
+                        var recipient = pkg.Recipient;
+
+                        // Evaluar si existe persona que retira
+                        var personWhoReceived = pkg.Receiver != null
+                            ? $"{pkg.Receiver.Names} {pkg.Receiver.LastNames}"
+                            : "N/A";
+
+                        worksheet.Cell(row, 1).Value = pkg.Id;
+                        worksheet.Cell(row, 2).Value = pkg.Code ?? "Sin código";
+                        worksheet.Cell(row, 3).Value = recipient ?? "Sin destinatario";
+                        worksheet.Cell(row, 4).Value = pkg.ReceivedAt;
+                        worksheet.Cell(row, 5).Value = depto;
+                        worksheet.Cell(row, 6).Value = owner;
+                        worksheet.Cell(row, 7).Value = pkg.DeliveredAt?.ToString("dd/MM/yyyy HH:mm") ?? "Pendiente";
+                        worksheet.Cell(row, 8).Value = personWhoReceived;
+
+                        worksheet.Cell(row, 4).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
+                        row++;
+                    }
+                }
+                else
+                {
+                    worksheet.Cell(2, 1).Value = "No se encontraron encomiendas en el rango indicado.";
+                    worksheet.Range(2, 1, 2, headers.Length).Merge();
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+
+                string estName = _userContext.UserRole == "SUPERADMIN"
+                    ? "Todos_los_Establecimientos"
+                    : (await _dbContext.Establishments.FindAsync(_userContext.EstablishmentId))?.Name ?? "Indeterminado";
+
+                string fileName = $"Encomiendas_{estName}_{dto.StartDate:yyyyMMdd}_al_{dto.EndDate:yyyyMMdd}.xlsx";
+
+                await _auditLog.LogManualAsync(
+                    action: $"Exportó encomiendas del establecimiento {estName} entre {dto.StartDate:dd/MM/yyyy} y {dto.EndDate:dd/MM/yyyy}",
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/package/export/excel/byDates",
+                    httpMethod: "POST",
+                    statusCode: 200
+                );
+
+                return new ResponseDto(200, new
+                {
+                    FileContent = content,
+                    ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    FileName = fileName
+                }, "Archivo generado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al exportar Excel de encomiendas: {ex.Message}");
+                return new ResponseDto(500, message: "Error al generar el archivo Excel.");
+            }
+        }
+
+        public async Task<ResponseDto> ExportAllPackagesToExcelAsync()
+        {
+            try
+            {
+                var query = _dbContext.Packages
+                    .Include(p => p.Apartment)
+                        .ThenInclude(a => a.Zone)
+                    .Include(p => p.Ownership)
+                        .ThenInclude(o => o.Person)
+                    .Include(p => p.Receiver)
+                    .AsQueryable();
+
+                // Si no es SUPERADMIN, se filtra por establecimiento
+                if (_userContext.UserRole != "SUPERADMIN")
+                {
+                    if (!_userContext.EstablishmentId.HasValue)
+                        return new ResponseDto(403, message: "No tienes un establecimiento asociado.");
+
+                    query = query.Where(p => p.Apartment.Zone.EstablishmentId == _userContext.EstablishmentId.Value);
+                }
+
+                var packages = await query.OrderByDescending(p => p.ReceivedAt).ToListAsync();
+
+                using var workbook = new XLWorkbook();
+                var worksheet = workbook.Worksheets.Add("Encomiendas");
+
+                var headers = new[] {
+                    "ID", "Código", "Destinatario", "Fecha de Recepción",
+                    "Destino", "Inquilino al Momento", "Fecha de Entrega", "Persona que Retiró"
+                };
+                for (int i = 0; i < headers.Length; i++)
+                {
+                    worksheet.Cell(1, i + 1).Value = headers[i];
+                    worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+                    worksheet.Cell(1, i + 1).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                }
+
+                if (packages.Any())
+                {
+                    int row = 2;
+                    foreach (var pkg in packages)
+                    {
+                        var depto = $"{pkg.Apartment.Zone?.Name} - Depto {pkg.Apartment?.Name}";
+                        var owner = $"{pkg.Ownership?.Person?.Names} {pkg.Ownership?.Person?.LastNames}";
+                        var recipient = pkg.Recipient;
+
+                        // Evaluar si existe persona que retira
+                        var personWhoReceived = pkg.Receiver != null
+                            ? $"{pkg.Receiver.Names} {pkg.Receiver.LastNames}"
+                            : "N/A";
+
+                        worksheet.Cell(row, 1).Value = pkg.Id;
+                        worksheet.Cell(row, 2).Value = pkg.Code ?? "Sin código";
+                        worksheet.Cell(row, 3).Value = recipient ?? "Sin destinatario";
+                        worksheet.Cell(row, 4).Value = pkg.ReceivedAt;
+                        worksheet.Cell(row, 5).Value = depto;
+                        worksheet.Cell(row, 6).Value = owner;
+                        worksheet.Cell(row, 7).Value = pkg.DeliveredAt?.ToString("dd/MM/yyyy HH:mm") ?? "Pendiente";
+                        worksheet.Cell(row, 8).Value = personWhoReceived;
+
+                        worksheet.Cell(row, 4).Style.DateFormat.Format = "dd/MM/yyyy HH:mm";
+                        row++;
+                    }
+                }
+                else
+                {
+                    worksheet.Cell(2, 1).Value = "No se encontraron encomiendas en el rango indicado.";
+                    worksheet.Range(2, 1, 2, headers.Length).Merge();
+                }
+
+                worksheet.Columns().AdjustToContents();
+
+                using var stream = new MemoryStream();
+                workbook.SaveAs(stream);
+                var content = stream.ToArray();
+
+                var name = _userContext.UserRole == "SUPERADMIN"
+                    ? "Todos_los_Establecimientos"
+                    : (await _dbContext.Establishments.FirstOrDefaultAsync(e => e.Id == _userContext.EstablishmentId))?.Name ?? "Establecimiento";
+
+                var fileName = $"Encomiendas_{name}_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+
+                await _auditLog.LogManualAsync(
+                    action: $"Se ha descargado el reporte de todas las encomiendas del establecimiento {name}.",
+                    email: _userContext.UserEmail,
+                    role: _userContext.UserRole,
+                    userId: _userContext.UserId ?? 0,
+                    endpoint: "/package/export/excel/all",
+                    httpMethod: "GET",
+                    statusCode: 200
+                );
+
+                return new ResponseDto(200, new
+                {
+                    FileContent = content,
+                    ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    FileName = fileName
+                }, "Archivo generado correctamente.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error en ExportAllPackagesToExcelAsync: {ex.Message}");
+                return new ResponseDto(500, message: "Error al generar el archivo de encomiendas.");
+            }
         }
 
         public async Task<ResponseDto> MarkAsDeliveredAsync(ReceivePackageDto dto)

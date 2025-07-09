@@ -20,6 +20,8 @@ export const path_getAllEncomiendas = `${URL_SERVER}/Package/all`
 export const path_getEncomiendaById = `${URL_SERVER}/Package/` // + id
 export const path_createRegistroEncomienda = `${URL_SERVER}/Package/create`
 export const path_retirarEncomienda = `${URL_SERVER}/Package/receive`
+export const path_exportarEncomiendasPorRangoFechas = `${URL_SERVER}/Package/export/excel/byDates`
+export const path_exportarTodasLasEncomiendas = `${URL_SERVER}/Package/export/excel/all`
 
 /* Estacionamiento */
 export const path_getAllEstacionamientos = `${URL_SERVER}/ParkingSpot/all`
