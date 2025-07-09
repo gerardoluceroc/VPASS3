@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Models;
 using VPASS3_backend.DTOs.PackagesDtos;
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 namespace VPASS3_backend.Services
 {
@@ -185,10 +186,10 @@ namespace VPASS3_backend.Services
                 string fileName = $"Encomiendas_{estName}_{dto.StartDate:yyyyMMdd}_al_{dto.EndDate:yyyyMMdd}.xlsx";
 
                 await _auditLog.LogManualAsync(
-                    action: $"Exportó encomiendas del establecimiento {estName} entre {dto.StartDate:dd/MM/yyyy} y {dto.EndDate:dd/MM/yyyy}",
+                    action: $"Se ha descargado el reporte de las encomiendas del establecimiento {estName} entre el {dto.StartDate:dd/MM/yyyy} y {dto.EndDate:dd/MM/yyyy}",
                     email: _userContext.UserEmail,
                     role: _userContext.UserRole,
-                    userId: _userContext.UserId ?? 0,
+                userId: _userContext.UserId ?? 0,
                     endpoint: "/package/export/excel/byDates",
                     httpMethod: "POST",
                     statusCode: 200
