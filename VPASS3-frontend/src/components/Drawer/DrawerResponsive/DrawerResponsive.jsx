@@ -53,12 +53,12 @@ import { useConfirmDialog } from "../../../hooks/useConfirmDialog/useConfirmDial
       icono: <IconoLogs />,
       ruta: RUTA_BITACORA_INCIDENCIAS
     },
-    { 
-      id: 4,
-      nombre: "Gestion de zonas", 
-      icono: <LocationCityIcon sx={{color: "white"}} />,
-      ruta: RUTA_GESTION_ZONAS
-    },
+    // { 
+    //   id: 4,
+    //   nombre: "Gestion de zonas", 
+    //   icono: <LocationCityIcon sx={{color: "white"}} />,
+    //   ruta: RUTA_GESTION_ZONAS
+    // },
     { 
       id: 5,
       nombre: "Bitácora de uso de estacionamiento", 

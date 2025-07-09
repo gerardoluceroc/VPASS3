@@ -81,14 +81,14 @@ export const AppRoutes = () => (
       }
     />
 
-    <Route
+    {/* <Route
       path={RUTA_GESTION_ZONAS}
       element={
         <ProtectedRoute>
           <GestionZonasPage/>
         </ProtectedRoute>
       }
-    />
+    /> */}
 
     <Route
       path={RUTA_BITACORA_USO_ESTACIONAMIENTO}
