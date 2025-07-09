@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using VPASS3_backend.Models;
 using VPASS3_backend.DTOs.PackagesDtos;
 using ClosedXML.Excel;
-using DocumentFormat.OpenXml.Wordprocessing;
-
 namespace VPASS3_backend.Services
 {
     public class PackageService : IPackageService

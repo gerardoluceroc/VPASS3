@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using VPASS3_backend.DTOs;
 using VPASS3_backend.Interfaces;
 using VPASS3_backend.DTOs.PackagesDtos;
-using VPASS3_backend.Services;
 
 namespace VPASS3_backend.Controllers
 {
