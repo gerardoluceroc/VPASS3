@@ -60,7 +60,7 @@ const Dashboard = () => {
                         <Typography className="TituloItemDashboard">Descargar Registros</Typography>
                     </ButtonBase>
 
-                    <ButtonBase className="ItemDashboard" onClick={() => {}}>
+                    {/* <ButtonBase className="ItemDashboard" onClick={() => {}}>
                         <Box
                         component="img"
                         src={ContactanosImage}
@@ -78,7 +78,7 @@ const Dashboard = () => {
                         className="ImagenNuevaVisitaDashboard"
                         />
                         <Typography className="TituloItemDashboard">Ajustes</Typography>
-                    </ButtonBase>
+                    </ButtonBase> */}
                 </Box>
 
         </Box>
