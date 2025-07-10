@@ -7,5 +7,4 @@
         Usable = 1 << 0,
         Reservable = 1 << 1,
     }
-
 }

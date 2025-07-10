@@ -204,16 +204,16 @@ namespace VPASS3_backend.Services
                     .FirstOrDefaultAsync(zs => zs.Id == id && !zs.IsDeleted);
 
                 if (apartment == null)
-                    return new ResponseDto(404, message: "Subzona no encontrada.");
+                    return new ResponseDto(404, message: "Departamento no encontrado.");
 
                 if (!_userContext.CanAccessApartment(apartment))
-                    return new ResponseDto(403, message: "No tienes permiso para eliminar esta subzona.");
+                    return new ResponseDto(403, message: "No tienes permiso para eliminar este departamento.");
 
                 // Borrado lógico
                 apartment.IsDeleted = true;
                 await _context.SaveChangesAsync();
 
-                var message = $"Se marcó como eliminado el departamento '{apartment.Name}' que pertenecía a la zona '{apartment.Zone?.Name}'";
+                var message = $"Se marcó como eliminado el departamento '{apartment.Name}' con ID {apartment.Zone.Id} que pertenecía a la zona {apartment.Zone?.Name}";
 
                 await _auditLogService.LogManualAsync(
                     action: message,

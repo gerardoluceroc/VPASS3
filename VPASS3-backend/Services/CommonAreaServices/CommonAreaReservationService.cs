@@ -192,9 +192,6 @@ namespace VPASS3_backend.Services.CommonAreaServices
             return new ResponseDto(200, r, "Reserva actualizada.");
         }
 
-
-
-
         public async Task<ResponseDto> DeleteAsync(int id)
         {
             var r = await _ctx.CommonAreaReservations

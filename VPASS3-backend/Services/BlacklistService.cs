@@ -246,7 +246,7 @@ namespace VPASS3_backend.Services
                 // Registrar en AuditLog
                 var message = $"La persona {person.Names} {person.LastNames} " +
                               $"(Rut/Pasaporte: {person.IdentificationNumber}) fue eliminada de la lista negra " +
-                              $"del establecimiento con ID: {entry.IdEstablishment}";
+                              $"del establecimiento {entry.Establishment.Name} con ID: {entry.IdEstablishment}";
 
                 await _auditLogService.LogManualAsync(
                     action: message,

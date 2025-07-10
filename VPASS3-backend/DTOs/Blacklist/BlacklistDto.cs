@@ -4,9 +4,6 @@ namespace VPASS3_backend.DTOs.Blacklist
 {
     public class BlacklistDto
     {
-        //[Required]
-        //public int IdVisitor { get; set; }
-
         [Required]
         public int IdPerson { get; set; }
 
