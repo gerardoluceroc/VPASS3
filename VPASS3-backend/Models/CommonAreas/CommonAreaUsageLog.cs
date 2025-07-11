@@ -42,4 +42,3 @@ namespace VPASS3_backend.Models.CommonAreas
         public CommonArea CommonArea { get; set; }
     }
 }
-

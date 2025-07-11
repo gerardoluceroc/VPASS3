@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace VPASS3_backend.Models
@@ -26,7 +25,5 @@ namespace VPASS3_backend.Models
 
         [JsonIgnore]
         public ICollection<ParkingSpotUsageLog> UsageLogs { get; set; } = new List<ParkingSpotUsageLog>();
-
-
     }
 }
