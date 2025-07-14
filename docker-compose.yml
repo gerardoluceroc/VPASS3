@@ -1,0 +1,55 @@
+version: '3.8' # Versión del formato de Docker Compose
+
+services:
+  # Servicio para el backend de .NET
+  vpass3-backend:
+    build:
+      context: ./VPASS3-backend # Ruta a la carpeta del proyecto de backend
+      dockerfile: Dockerfile    # Nombre del Dockerfile dentro de esa carpeta
+    container_name: contenedor-vpass3-backend # Nombre personalizado para el contenedor
+    ports:
+      - "5113:5113" # Mapeo de puertos: HOST_PORT:CONTAINER_PORT
+    environment:
+      # Configura la URL para que ASP.NET Core escuche en todas las interfaces dentro del contenedor
+      ASPNETCORE_URLS: http://+:5113
+      # Cadena de conexión a la base de datos, usando el nombre del servicio de SQL Server
+      # ¡IMPORTANTE! Aquí se usa el nombre del servicio Docker Compose (sqlserver-vpass3) y su puerto INTERNO (1433).
+      # NO se usa el puerto mapeado del host (14000) aquí.
+      ConnectionStrings__Connection: "Server=sqlserver-vpass3;Database=VPASS3_DB;User ID=SA;Password=Root12345.;MultipleActiveResultSets=true;Encrypt=False"
+      # Si tienes la clave JWT en variables de entorno para Docker (recomendado en producción)
+      Jwt__Key: "e3c4bde1e9f47c2193a4b8d914b1d7898cd1f58d79e5a3a6f0f747b65e6d3ea9"
+    depends_on:
+      - sqlserver-vpass3 # Asegura que el servicio de SQL Server se inicie antes que el backend
+
+  # Servicio para el SQL Server
+  sqlserver-vpass3:
+    image: mcr.microsoft.com/mssql/server:2022-latest # Imagen oficial de SQL Server 2022
+    container_name: sqlserver-vpass3 # Nombre personalizado para el contenedor de SQL Server
+    environment:
+      ACCEPT_EULA: "Y" # Acepta el EULA de Microsoft SQL Server
+      SA_PASSWORD: "Root12345." # ¡IMPORTANTE: Cambia esto por una contraseña fuerte y segura!
+    ports:
+      - "14000:1433" # ¡CAMBIADO! Mapea el puerto 14000 de tu máquina host al puerto 1433 del contenedor SQL Server.
+    volumes:
+      # Persiste los datos de la base de datos en un volumen nombrado para que no se pierdan al detener/eliminar el contenedor
+      - sqlserver_data:/var/opt/mssql
+
+  # Servicio para el frontend de React
+  vpass3-frontend:
+    build:
+      context: ./VPASS3-frontend # Ruta a la carpeta de tu proyecto de frontend
+      dockerfile: Dockerfile      # Nombre del Dockerfile dentro de esa carpeta
+    container_name: contenedor-vpass3-frontend # Nombre personalizado para el contenedor
+    ports:
+      - "80:4173" # Mapeo de puertos: HOST_PORT:CONTAINER_PORT (80 para acceso directo, 4173 es el puerto de Vite preview)
+    environment:
+      # URL del backend para el frontend. Cuando el frontend corre en Docker en Windows,
+      # 'host.docker.internal' resuelve a la IP de tu máquina host.
+      # El backend está mapeado en el puerto 5113 de tu host.
+      REACT_APP_API_URL: "http://host.docker.internal:5113"
+    depends_on:
+      - vpass3-backend # Opcional: para asegurar que el backend esté listo antes que el frontend
+
+# Definición de volúmenes para persistencia de datos
+volumes:
+  sqlserver_data: # Volumen para los datos de SQL Server

@@ -1,0 +1,28 @@
+# Ignorar directorios de compilación y objetos
+bin/
+obj/
+
+# Ignorar directorios de Visual Studio
+.vs/
+.vscode/
+
+# Ignorar archivos de usuario y de solución
+*.user
+*.suo
+*.log
+
+# Ignorar archivos de configuración de desarrollo local (opcional, pero recomendado para producción)
+appsettings.Development.json
+Properties/launchSettings.json
+
+# Ignorar archivos de Git
+.git/
+.gitignore
+
+# Ignorar cualquier archivo de caché o temporal
+*.tmp
+*.bak
+*.swp
+
+# Ignorar node_modules si hay algún frontend mezclado en la misma carpeta
+node_modules/
