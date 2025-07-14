@@ -362,7 +362,6 @@ namespace VPASS3_backend.Services
             }
         }
 
-
         public async Task<ResponseDto> DeleteVisitAsync(int id)
         {
             try
