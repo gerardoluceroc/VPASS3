@@ -17,7 +17,7 @@ using VPASS3_backend.Services.CommonAreaServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Conexión a la base de datos
+// Conexiï¿½n a la base de datos
 var connectionString = builder.Configuration.GetConnectionString("Connection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -34,31 +34,31 @@ builder.Services.AddIdentity<User, Role>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Configuración de la autenticación JWT
+// Configuraciï¿½n de la autenticaciï¿½n JWT
 builder.Services.AddAuthentication(options =>
 {
-    // Se configura el esquema predeterminado de autenticación como JWT
+    // Se configura el esquema predeterminado de autenticaciï¿½n como JWT
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
-    // Desactivar la validación de HTTPS en el entorno local (para pruebas, en producción siempre debe estar en true)
+    // Desactivar la validaciï¿½n de HTTPS en el entorno local (para pruebas, en producciï¿½n siempre debe estar en true)
     options.RequireHttpsMetadata = false;
 
     // Indicar que se debe guardar el token en la respuesta
     options.SaveToken = true;
 
-    // Configuración de los parámetros de validación del token
+    // Configuraciï¿½n de los parï¿½metros de validaciï¿½n del token
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        // No se valida el emisor del token (idealmente en producción se debería validar)
+        // No se valida el emisor del token (idealmente en producciï¿½n se deberï¿½a validar)
         ValidateIssuer = false,
 
-        // No se valida el público (audience) del token (en producción, sí se debería hacer)
+        // No se valida el pï¿½blico (audience) del token (en producciï¿½n, sï¿½ se deberï¿½a hacer)
         ValidateAudience = false,
 
-        // Se valida la fecha de expiración del token
+        // Se valida la fecha de expiraciï¿½n del token
         ValidateLifetime = true,
 
         // Se valida la clave con la que fue firmado el token
@@ -66,24 +66,24 @@ builder.Services.AddAuthentication(options =>
 
         // Se especifica la clave secreta utilizada para firmar el token (debe estar segura)
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // Aquí se toma la clave de la configuración
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])) // Aquï¿½ se toma la clave de la configuraciï¿½n
     };
 
-    // Aquí se configuran los eventos relacionados con el proceso de autenticación
+    // Aquï¿½ se configuran los eventos relacionados con el proceso de autenticaciï¿½n
     options.Events = new JwtBearerEvents
     {
-        // Este evento se ejecuta cuando el token no es válido o no está presente
+        // Este evento se ejecuta cuando el token no es vï¿½lido o no estï¿½ presente
         OnChallenge = async context =>
         {
-            // Se maneja la respuesta y se impide que la respuesta predeterminada de 401 se envíe
+            // Se maneja la respuesta y se impide que la respuesta predeterminada de 401 se envï¿½e
             context.HandleResponse();
 
-            // Se establece el código de estado HTTP como 401 (No autorizado)
+            // Se establece el cï¿½digo de estado HTTP como 401 (No autorizado)
             context.Response.StatusCode = 401;
             context.Response.ContentType = "application/json"; // Se especifica el tipo de respuesta como JSON
 
             // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
-            var response = new ResponseDto(401, message: "No autorizado. El token es inválido o no fue proporcionado.");
+            var response = new ResponseDto(401, message: "No autorizado. El token es invï¿½lido o no fue proporcionado.");
 
             // Se definen opciones para que las propiedades se serialicen en camelCase
             var jsonOptions = new JsonSerializerOptions
@@ -93,18 +93,18 @@ builder.Services.AddAuthentication(options =>
 
             // Se convierte el objeto a JSON utilizando las opciones definidas
             var json = JsonSerializer.Serialize(response, jsonOptions);
-            await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
+            await context.Response.WriteAsync(json); // Se envï¿½a la respuesta personalizada al cliente
         },
 
         // Este evento se ejecuta cuando se recibe una solicitud con un token, pero no tiene los permisos suficientes
         OnForbidden = async context =>
         {
-            // Se establece el código de estado HTTP como 403 (Prohibido)
+            // Se establece el cï¿½digo de estado HTTP como 403 (Prohibido)
             context.Response.StatusCode = 403;
             context.Response.ContentType = "application/json"; // Se especifica el tipo de respuesta como JSON
 
             // Se crea una respuesta personalizada con un objeto ResponseDto para el mensaje de error
-            var response = new ResponseDto(403, message: "Acceso denegado. No tienes permiso para realizar esta acción.");
+            var response = new ResponseDto(403, message: "Acceso denegado. No tienes permiso para realizar esta acciï¿½n.");
 
             // Se definen opciones para que las propiedades se serialicen en camelCase
             var jsonOptions = new JsonSerializerOptions
@@ -114,7 +114,7 @@ builder.Services.AddAuthentication(options =>
 
             // Se convierte el objeto a JSON utilizando las opciones definidas
             var json = JsonSerializer.Serialize(response, jsonOptions);
-            await context.Response.WriteAsync(json); // Se envía la respuesta personalizada al cliente
+            await context.Response.WriteAsync(json); // Se envï¿½a la respuesta personalizada al cliente
         }
     };
 
@@ -124,7 +124,7 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-// Configuración de Swagger
+// Configuraciï¿½n de Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
@@ -134,7 +134,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Sistema de control de visitas",
         Contact = new OpenApiContact()
         {
-            Name = "Gerardo Lucero Córdova",
+            Name = "Gerardo Lucero Cï¿½rdova",
             Email = "gerardoluceroc@gmail.com",
             Url = new Uri("https://github.com/gerardoluceroc")
         }
@@ -172,18 +172,21 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
-//Configuracion de politica CORS
+// Configuracion de politica CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") // Cambia esto por la URL de tu React app
+        policy.WithOrigins(
+                  "http://localhost:5173",       // Para desarrollo local en Windows (VS)
+                  "http://localhost"             // Para el frontend cuando se accede desde el navegador via Docker Compose (puerto 80)
+              )
               .AllowAnyHeader()
               .AllowAnyMethod(); // Permite GET, POST, PUT, DELETE, etc.
     });
 });
 
-// Registrar el UserService para inyección de dependencias
+// Registrar el UserService para inyecciï¿½n de dependencias
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<AuthService>();
@@ -205,7 +208,7 @@ builder.Services.AddScoped<ICommonAreaUsageLogService, CommonAreaUsageLogService
 builder.Services.AddScoped<IApartmentOwnershipService, ApartmentOwnershipService>();
 builder.Services.AddScoped<IPackageService, PackageService>();
 
-// Aquí puedes agregar otros servicios si los tienes (como RoleService, etc.)
+// Aquï¿½ puedes agregar otros servicios si los tienes (como RoleService, etc.)
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("ReadOnlyOwnProfile", policy =>
@@ -236,7 +239,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Esto se encargará de atrapar cualquier excepción global que no se haya podido capturar dentro de un controlador.
+// Esto se encargarï¿½ de atrapar cualquier excepciï¿½n global que no se haya podido capturar dentro de un controlador.
 app.UseExceptionHandler(errorApp =>
 {
     errorApp.Run(async context =>
@@ -247,7 +250,7 @@ app.UseExceptionHandler(errorApp =>
         var response = new
         {
             StatusCode = 500,
-            Message = "Ocurrió un error inesperado en el servidor."
+            Message = "Ocurriï¿½ un error inesperado en el servidor."
         };
 
         await context.Response.WriteAsJsonAsync(response);
@@ -256,7 +259,7 @@ app.UseExceptionHandler(errorApp =>
 
 
 // --- INICIO DEL BLOQUE DE SIEMBRA DE DATOS ESENCIALES ---
-// Se ejecuta siempre, para datos básicos de la aplicación (roles, superadmin, direcciones).
+// Se ejecuta siempre, para datos bï¿½sicos de la aplicaciï¿½n (roles, superadmin, direcciones).
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -269,8 +272,8 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Ocurrió un error al sembrar la base de datos con datos esenciales.");
-        // Se considera relanzar la excepción para detener el inicio de la aplicación si los datos esenciales son críticos.
+        logger.LogError(ex, "Ocurriï¿½ un error al sembrar la base de datos con datos esenciales.");
+        // Se considera relanzar la excepciï¿½n para detener el inicio de la aplicaciï¿½n si los datos esenciales son crï¿½ticos.
         // throw;
     }
 }
@@ -278,9 +281,9 @@ using (var scope = app.Services.CreateScope())
 
 
 // --- INICIO DEL BLOQUE DE SIEMBRA DE DATOS DE DESARROLLO/PRUEBA ---
-// Este bloque solo se ejecuta cuando la aplicación se está ejecutando en el entorno de desarrollo.
-if (app.Environment.IsDevelopment())
-{
+// Este bloque solo se ejecuta cuando la aplicaciï¿½n se estï¿½ ejecutando en el entorno de desarrollo.
+//if (app.Environment.IsDevelopment())
+//{
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;
@@ -293,19 +296,19 @@ if (app.Environment.IsDevelopment())
         catch (Exception ex)
         {
             var logger = services.GetRequiredService<ILogger<Program>>();
-            logger.LogError(ex, "Ocurrió un error al sembrar la base de datos con datos de desarrollo.");
+            logger.LogError(ex, "Ocurriï¿½ un error al sembrar la base de datos con datos de desarrollo.");
         }
     }
-}
+//}
 // --- FIN DEL BLOQUE DE SIEMBRA DE DATOS DE DESARROLLO/PRUEBA ---
 
 app.UseHttpsRedirection();
 
 app.UseCors("PermitirFrontend");
 
-// Importante: primero autenticación, luego autorización
+// Importante: primero autenticaciï¿½n, luego autorizaciï¿½n
 app.UseAuthentication();
-//app.UseMiddleware<CustomUnauthorizedMiddleware>(); //Se agregan el middleware para las peticiones a rutas protegidas que se hagan sin token de autorización
+//app.UseMiddleware<CustomUnauthorizedMiddleware>(); //Se agregan el middleware para las peticiones a rutas protegidas que se hagan sin token de autorizaciï¿½n
 app.UseAuthorization();
 
 app.MapControllers();
