@@ -29,26 +29,24 @@ services:
       ACCEPT_EULA: "Y" # Acepta el EULA de Microsoft SQL Server
       SA_PASSWORD: "Root12345." # ¡IMPORTANTE: Cambia esto por una contraseña fuerte y segura!
     ports:
-      - "14000:1433" # ¡CAMBIADO! Mapea el puerto 14000 de tu máquina host al puerto 1433 del contenedor SQL Server.
+      - "14000:1433" # Mapea el puerto 14000 de tu máquina host al puerto 1433 del contenedor SQL Server. Esto se hace con el objetivo de no usar el mismo puerto que usa sql server en caso de tenerlo instalado en la maquina local.
     volumes:
-      # Persiste los datos de la base de datos en un volumen nombrado para que no se pierdan al detener/eliminar el contenedor
       - sqlserver_data:/var/opt/mssql
 
   # Servicio para el frontend de React
   vpass3-frontend:
     build:
-      context: ./VPASS3-frontend # Ruta a la carpeta de tu proyecto de frontend
-      dockerfile: Dockerfile      # Nombre del Dockerfile dentro de esa carpeta
-    container_name: contenedor-vpass3-frontend # Nombre personalizado para el contenedor
+      context: ./VPASS3-frontend
+      dockerfile: Dockerfile
+      args:
+        # ¡IMPORTANTE! Esta URL es para cuando el frontend se ejecuta en un contenedor en cualquier entorno Docker.
+        # 'vpass3-backend' es el nombre del servicio del backend en Docker Compose.
+        VITE_APP_API_URL: "http://vpass3-backend:5113"
+    container_name: contenedor-vpass3-frontend
     ports:
-      - "80:4173" # Mapeo de puertos: HOST_PORT:CONTAINER_PORT (80 para acceso directo, 4173 es el puerto de Vite preview)
-    environment:
-      # URL del backend para el frontend. Cuando el frontend corre en Docker en Windows,
-      # 'host.docker.internal' resuelve a la IP de tu máquina host.
-      # El backend está mapeado en el puerto 5113 de tu host.
-      REACT_APP_API_URL: "http://host.docker.internal:5113"
+      - "80:4173"
     depends_on:
-      - vpass3-backend # Opcional: para asegurar que el backend esté listo antes que el frontend
+      - vpass3-backend
 
 # Definición de volúmenes para persistencia de datos
 volumes:
