@@ -1,4 +1,6 @@
-export const URL_SERVER = "http://localhost:5113"
+// export const URL_SERVER = "http://localhost:5113"
+
+export const URL_SERVER  = import.meta.env.VITE_APP_API_URL;
 
 export const url_loginSession = `${URL_SERVER}/auth/login`
 export const url_logoutSession = `${URL_SERVER}/auth/logout`
