@@ -1,53 +1,54 @@
-version: '3.8' # Versión del formato de Docker Compose
+version: '3.8' # Se especifica la versión del formato de Docker Compose.
 
 services:
   # Servicio para el backend de .NET
   vpass3-backend:
     build:
-      context: ./VPASS3-backend # Ruta a la carpeta del proyecto de backend
-      dockerfile: Dockerfile    # Nombre del Dockerfile dentro de esa carpeta
-    container_name: contenedor-vpass3-backend # Nombre personalizado para el contenedor
+      context: ./VPASS3-backend # Se define la ruta a la carpeta del proyecto de backend.
+      dockerfile: Dockerfile    # Se especifica el nombre del Dockerfile dentro de esa carpeta.
+    container_name: contenedor-vpass3-backend # Se asigna un nombre personalizado para el contenedor.
     ports:
-      - "5113:5113" # Mapeo de puertos: HOST_PORT:CONTAINER_PORT
+      - "5113:5113" # Se mapea el puerto 5113 del host al puerto 5113 del contenedor.
     environment:
-      # Configura la URL para que ASP.NET Core escuche en todas las interfaces dentro del contenedor
+      # Se configura la URL para que ASP.NET Core escuche en todas las interfaces dentro del contenedor.
       ASPNETCORE_URLS: http://+:5113
-      # Cadena de conexión a la base de datos, usando el nombre del servicio de SQL Server
-      # ¡IMPORTANTE! Aquí se usa el nombre del servicio Docker Compose (sqlserver-vpass3) y su puerto INTERNO (1433).
-      # NO se usa el puerto mapeado del host (14000) aquí.
-      ConnectionStrings__Connection: "Server=sqlserver-vpass3;Database=VPASS3_DB;User ID=SA;Password=Root12345.;MultipleActiveResultSets=true;Encrypt=False"
-      # Si tienes la clave JWT en variables de entorno para Docker (recomendado en producción)
+      # Se define la cadena de conexión a la base de datos, utilizando el nombre del servicio de SQL Server.
+      # La sintaxis ConnectionStrings__Connection mapea a ConnectionStrings:Connection en appsettings.json.
+      # Se utiliza la variable de entorno SQL_SA_PASSWORD definida en el archivo .env.
+      ConnectionStrings__Connection: "Server=sqlserver-vpass3;Database=VPASS3_DB;User ID=SA;Password=${SQL_SA_PASSWORD};MultipleActiveResultSets=true;Encrypt=False"
+      # Si se tiene la clave JWT en variables de entorno para Docker (recomendado en producción), se puede añadir aquí.
       Jwt__Key: "e3c4bde1e9f47c2193a4b8d914b1d7898cd1f58d79e5a3a6f0f747b65e6d3ea9"
     depends_on:
-      - sqlserver-vpass3 # Asegura que el servicio de SQL Server se inicie antes que el backend
+      - sqlserver-vpass3 # Se asegura que el servicio de SQL Server se inicie antes que el backend.
 
   # Servicio para el SQL Server
   sqlserver-vpass3:
-    image: mcr.microsoft.com/mssql/server:2022-latest # Imagen oficial de SQL Server 2022
-    container_name: sqlserver-vpass3 # Nombre personalizado para el contenedor de SQL Server
+    image: mcr.microsoft.com/mssql/server:2022-latest # Se utiliza la imagen oficial de SQL Server 2022.
+    container_name: sqlserver-vpass3 # Se asigna un nombre personalizado para el contenedor de SQL Server.
     environment:
-      ACCEPT_EULA: "Y" # Acepta el EULA de Microsoft SQL Server
-      SA_PASSWORD: "Root12345." # ¡IMPORTANTE: Cambia esto por una contraseña fuerte y segura!
+      ACCEPT_EULA: "Y" # Se acepta el EULA (End-User License Agreement) de Microsoft SQL Server.
+      SA_PASSWORD: "${SQL_SA_PASSWORD}" # Se utiliza la contraseña para el usuario SA definida en el archivo .env.
     ports:
-      - "14000:1433" # Mapea el puerto 14000 de tu máquina host al puerto 1433 del contenedor SQL Server. Esto se hace con el objetivo de no usar el mismo puerto que usa sql server en caso de tenerlo instalado en la maquina local.
+      - "14000:1433" # Se mapea el puerto 14000 del host al puerto 1433 del contenedor SQL Server, para evitar conflictos con instalaciones locales.
     volumes:
+      # Se persiste los datos de la base de datos en un volumen nombrado para que no se pierdan al detener o eliminar el contenedor.
       - sqlserver_data:/var/opt/mssql
 
   # Servicio para el frontend de React
   vpass3-frontend:
     build:
-      context: ./VPASS3-frontend
-      dockerfile: Dockerfile
+      context: ./VPASS3-frontend # Se define la ruta a la carpeta del proyecto de frontend.
+      dockerfile: Dockerfile      # Se especifica el nombre del Dockerfile dentro de esa carpeta.
       args:
-        # ¡IMPORTANTE! Esta URL es para cuando el frontend se ejecuta en un contenedor en cualquier entorno Docker.
-        # 'vpass3-backend' es el nombre del servicio del backend en Docker Compose.
-        VITE_APP_API_URL: "http://vpass3-backend:5113"
-    container_name: contenedor-vpass3-frontend
+        # Se pasa la URL del backend al proceso de construcción del frontend, leyéndola del archivo .env de Docker Compose.
+        # Esta URL será la que el navegador del usuario final utilizará para comunicarse con el backend.
+        VITE_APP_API_URL: "${FRONTEND_API_URL}"
+    container_name: contenedor-vpass3-frontend # Se asigna un nombre personalizado para el contenedor.
     ports:
       - "80:4173"
     depends_on:
-      - vpass3-backend
+      - vpass3-backend # Se asegura que el servicio de backend se inicie antes que el frontend.
 
 # Definición de volúmenes para persistencia de datos
 volumes:
-  sqlserver_data: # Volumen para los datos de SQL Server
+  sqlserver_data: # Se define un volumen para la persistencia de los datos de SQL Server.

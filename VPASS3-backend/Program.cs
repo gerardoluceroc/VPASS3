@@ -179,7 +179,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins(
                   "http://localhost:5173",       // Para desarrollo local en Windows (VS)
-                  "http://localhost"             // Para el frontend cuando se accede desde el navegador via Docker Compose (puerto 80)
+                  "http://localhost",             // Para el frontend cuando se accede desde el navegador via Docker Compose (puerto 80)
+                  "http://143.198.64.45"
               )
               .AllowAnyHeader()
               .AllowAnyMethod(); // Permite GET, POST, PUT, DELETE, etc.
