@@ -134,7 +134,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Sistema de control de visitas",
         Contact = new OpenApiContact()
         {
-            Name = "Gerardo Lucero C�rdova",
+            Name = "Gerardo Lucero Córdova",
             Email = "gerardoluceroc@gmail.com",
             Url = new Uri("https://github.com/gerardoluceroc")
         }
@@ -172,18 +172,31 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Se obtiene la lista de orígenes permitidos desde la configuración (ahora leerá de launchSettings.json).
+var allowedOriginsString = builder.Configuration["CORS_ALLOWED_ORIGINS"];
+var allowedOrigins = allowedOriginsString?.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(o => o.Trim())
+                                        .ToArray();
+
 // Configuracion de politica CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("PermitirFrontend", policy =>
     {
-        policy.WithOrigins(
-                  "http://localhost:5173",       // Para desarrollo local en Windows (VS)
-                  "http://localhost",             // Para el frontend cuando se accede desde el navegador via Docker Compose (puerto 80)
-                  "http://143.198.64.45"
-              )
-              .AllowAnyHeader()
-              .AllowAnyMethod(); // Permite GET, POST, PUT, DELETE, etc.
+        if (allowedOrigins != null && allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        }
+        else
+        {
+            // Opcional: Si no se configuran orígenes, se podría optar por permitir ninguno o loguear una advertencia.
+            // Para producción, NUNCA se debe usar AllowAnyOrigin() sin control.
+            // En desarrollo, a veces se usa para depuración temporal.
+            // policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // ¡Precaución: No para producción!
+            Console.WriteLine("Advertencia: No se han configurado orígenes CORS permitidos.");
+        }
     });
 });
 
