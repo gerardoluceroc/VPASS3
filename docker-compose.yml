@@ -47,10 +47,10 @@ services:
       args:
         # Se pasa la URL del backend al proceso de construcción del frontend, leyéndola del archivo .env de Docker Compose.
         # Esta URL será la que el navegador del usuario final utilizará para comunicarse con el backend.
-        VITE_APP_API_URL: "${FRONTEND_API_URL}"
+        VITE_APP_API_URL: "${URL_API_BACKEND}"
     container_name: contenedor-vpass3-frontend # Se asigna un nombre personalizado para el contenedor.
     ports:
-      - "80:4173"
+      - "5173:4173"
     depends_on:
       - vpass3-backend # Se asegura que el servicio de backend se inicie antes que el frontend.
 

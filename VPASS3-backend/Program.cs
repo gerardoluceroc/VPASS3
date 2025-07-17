@@ -181,23 +181,24 @@ var allowedOrigins = allowedOriginsString?.Split(',', StringSplitOptions.RemoveE
 // Configuracion de politica CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PermitirFrontend", policy =>
-    {
-        if (allowedOrigins != null && allowedOrigins.Length > 0)
-        {
-            policy.WithOrigins(allowedOrigins)
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        }
-        else
-        {
-            // Opcional: Si no se configuran orígenes, se podría optar por permitir ninguno o loguear una advertencia.
-            // Para producción, NUNCA se debe usar AllowAnyOrigin() sin control.
-            // En desarrollo, a veces se usa para depuración temporal.
-            // policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // ¡Precaución: No para producción!
-            Console.WriteLine("Advertencia: No se han configurado orígenes CORS permitidos.");
-        }
-    });
+   options.AddPolicy("PermitirFrontend", policy =>
+   {
+       Console.WriteLine("Configurando CORS con los siguientes orígenes permitidos: " + string.Join(", ", allowedOrigins ?? new string[] { "Ninguno" }));
+       if (allowedOrigins != null && allowedOrigins.Length > 0)
+       {
+           policy.WithOrigins(allowedOrigins)
+                 .AllowAnyHeader()
+                 .AllowAnyMethod();
+       }
+       else
+       {
+           // Opcional: Si no se configuran orígenes, se podría optar por permitir ninguno o loguear una advertencia.
+           // Para producción, NUNCA se debe usar AllowAnyOrigin() sin control.
+           // En desarrollo, a veces se usa para depuración temporal.
+           // policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // ¡Precaución: No para producción!
+           Console.WriteLine("Advertencia: No se han configurado orígenes CORS permitidos.");
+       }
+   });
 });
 
 // Registrar el UserService para inyecci�n de dependencias
