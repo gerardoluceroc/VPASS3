@@ -1,14 +1,8 @@
 ﻿// VPASS3_backend/Data/DevelopmentSeedData.cs
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using VPASS3_backend.Models;
 using VPASS3_backend.Context;
-using VPASS3_backend.Data;
-using System.Collections.Generic;
 using VPASS3_backend.Enums;
 using VPASS3_backend.Models.CommonAreas;
 using VPASS3_backend.Utils;
@@ -20,9 +14,13 @@ namespace VPASS3_backend.Data
         // --- Variables de Configuración para Desarrollo ---
         private static readonly string _adminRoleName = SeedData._adminRoleName;
 
-        private const string _adminEmail = "gerardoluceroc@gmail.com";
+        private const string _adminEmail = "admin1@edificiotest.com";
         private const string _adminPassword = "Clave123.";
         private const string _adminUserName = "ADMIN_EXAMPLE";
+
+        private const string _admin2Email = "admin2@edificiotest.com";
+        private const string _admin2Password = "Clave321.";
+        private const string _admin2UserName = "ADMIN2_EXAMPLE";
 
         private const string _establishmentName = "Condominio de Prueba VPASS3";
 
@@ -57,9 +55,9 @@ namespace VPASS3_backend.Data
 
         private static readonly List<(string Names, string LastNames, string IdentificationNumber)> _personDetails = new List<(string Names, string LastNames, string IdentificationNumber)>
         {
-            ("Juanito Andres", "Silva Gomez", "17766627-0"),
-            ("Antonio Momo", "Margarette Gonzalez", "15370138-5"),
-            ("Valentina Andre", "Perez Olguin", "17765744-1")
+            ("Juan Andres", "Silva Gomez", "17766627-0"),
+            ("Antonio Esteban", "Margarette Gonzalez", "15370138-5"),
+            ("Valentina Andrea", "Perez Olguin", "17765744-1")
         };
 
         // Nueva variable: Definición de las relaciones de propiedad de apartamentos
@@ -135,7 +133,58 @@ namespace VPASS3_backend.Data
                 }
                 Console.WriteLine("Usuario ADMIN de ejemplo sembrado.");
 
+                // Se crea el otro administrador del edificio de prueba para probar las funcionalidades del software con multiples usuarios
 
+                if (await userManager.FindByEmailAsync(_admin2Email) == null)
+                {
+                    var admin2User = new User
+                    {
+                        UserName = _admin2UserName,
+                        Email = _admin2Email,
+                        EmailConfirmed = true,
+                        EstablishmentId = null
+                    };
+
+                    var result = await userManager.CreateAsync(admin2User, _admin2Password);
+
+                    if (result.Succeeded)
+                    {
+                        if (await roleManager.RoleExistsAsync(_adminRoleName))
+                        {
+                            await userManager.AddToRoleAsync(admin2User, _adminRoleName);
+                            Console.WriteLine($"- Usuario '{_admin2Email}' ({_admin2UserName}) creado y rol '{_adminRoleName}' asignado.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Advertencia: El rol '{_adminRoleName}' no existe, no se pudo asignar al usuario '{_admin2Email}'.");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Error al crear usuario '{_admin2Email}':");
+                        foreach (var error in result.Errors)
+                        {
+                            Console.WriteLine($"- {error.Description}");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"- Usuario '{_admin2Email}' ({_admin2UserName}) ya existe.");
+
+                    var existingAdmin2User = await userManager.FindByEmailAsync(_admin2Email);
+                    if (existingAdmin2User != null && !await userManager.IsInRoleAsync(existingAdmin2User, _adminRoleName))
+                    {
+                        if (await roleManager.RoleExistsAsync(_adminRoleName))
+                        {
+                            await userManager.AddToRoleAsync(existingAdmin2User, _adminRoleName);
+                            Console.WriteLine($"- Rol '{_adminRoleName}' asignado a usuario existente '{_admin2Email}'.");
+                        }
+                    }
+                }
+                Console.WriteLine("Usuario ADMIN 2 de ejemplo sembrado.");
+
+                
                 // --- 2. Sembrar Establecimiento de Ejemplo y Asignarlo al usuario ADMIN ---
                 Console.WriteLine("Sembrando establecimiento de ejemplo...");
                 var existingEstablishment = await context.Establishments.FirstOrDefaultAsync(e => e.Name == _establishmentName);
@@ -185,6 +234,34 @@ namespace VPASS3_backend.Data
                         Console.WriteLine($"- Usuario '{_adminEmail}' ya está asignado al establecimiento '{createdOrExistingEstablishment.Name}'.");
                     }
                 }
+
+                // Se asigna el EstablishmentId al usuario ADMIN 2 de ejemplo.
+                var admin2UserToUpdate = await userManager.FindByEmailAsync(_admin2Email);
+                if (admin2UserToUpdate != null && createdOrExistingEstablishment != null)
+                {
+                    if (admin2UserToUpdate.EstablishmentId == null || admin2UserToUpdate.EstablishmentId != createdOrExistingEstablishment.Id)
+                    {
+                        admin2UserToUpdate.EstablishmentId = createdOrExistingEstablishment.Id;
+                        var updateResult = await userManager.UpdateAsync(admin2UserToUpdate);
+                        if (updateResult.Succeeded)
+                        {
+                            Console.WriteLine($"- Usuario '{_admin2Email}' asignado al establecimiento '{createdOrExistingEstablishment.Name}'.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Error al asignar establecimiento al usuario '{_admin2Email}':");
+                            foreach (var error in updateResult.Errors)
+                            {
+                                Console.WriteLine($"- {error.Description}");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"- Usuario '{_admin2Email}' ya está asignado al establecimiento '{createdOrExistingEstablishment.Name}'.");
+                    }
+                }
+                
                 Console.WriteLine("Establecimiento de ejemplo sembrado y asignado.");
 
                 // --- 3. Sembrar Estacionamientos de Prueba ---
