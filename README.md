@@ -77,7 +77,7 @@ Se recomienda seguir las instrucciones oficiales de la documentación de Docker 
     * Cree el directorio clave para Docker y descargue la clave GPG oficial de Docker:
         ```bash
         sudo install -m 0755 -d /etc/apt/keyrings
-        sudo curl -fsSL [https://download.docker.com/linux/ubuntu/gpg](https://download.docker.com/linux/ubuntu/gpg) -o /etc/apt/keyrings/docker.asc
+        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
         sudo chmod a+r /etc/apt/keyrings/docker.asc
         ```
     * Agregue el repositorio de Docker a las fuentes de `apt`:
