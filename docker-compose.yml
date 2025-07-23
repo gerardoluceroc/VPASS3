@@ -1,5 +1,3 @@
-version: '3.8' # Se especifica la versión del formato de Docker Compose.
-
 services:
   # Servicio para el backend de .NET
   vpass3-backend:
@@ -15,8 +13,7 @@ services:
       # Se define la cadena de conexión a la base de datos, utilizando el nombre del servicio de SQL Server.
       # La sintaxis ConnectionStrings__Connection mapea a ConnectionStrings:Connection en appsettings.json.
       # Se utiliza la variable de entorno SQL_SA_PASSWORD definida en el archivo .env.
-      ConnectionStrings__Connection: "Server=sqlserver-vpass3;Database=VPASS3_DB;User ID=SA;Password=${SQL_SA_PASSWORD};MultipleActiveResultSets=true;Encrypt=False"
-
+      ConnectionStrings__Connection: "Server=${URL_DATABASE};Database=${DATABASE_NAME};User ID=SA;Password=${SQL_SA_PASSWORD};MultipleActiveResultSets=true;Encrypt=False"
       # Si se tiene la clave JWT en variables de entorno para Docker (recomendado en producción), se puede añadir aquí.
       Jwt__Key: "e3c4bde1e9f47c2193a4b8d914b1d7898cd1f58d79e5a3a6f0f747b65e6d3ea9"
 
