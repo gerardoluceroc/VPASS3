@@ -25,7 +25,7 @@ services:
 
   # Servicio para el SQL Server
   sqlserver-vpass3:
-    image: mcr.microsoft.com/mssql/server:2022-latest # Se utiliza la imagen oficial de SQL Server 2022.
+    image: mcr.microsoft.com/mssql/server:2019-latest # Se utiliza la imagen oficial de SQL Server 2019.
     container_name: sqlserver-vpass3 # Se asigna un nombre personalizado para el contenedor de SQL Server.
     environment:
       ACCEPT_EULA: "Y" # Se acepta el EULA (End-User License Agreement) de Microsoft SQL Server.
@@ -35,6 +35,10 @@ services:
     volumes:
       # Se persiste los datos de la base de datos en un volumen nombrado para que no se pierdan al detener o eliminar el contenedor.
       - sqlserver_data:/var/opt/mssql
+
+      # AÑADE ESTA LÍNEA PARA TENER ACCESO A LOS BACKUPS DESDE TU MAQUINA WINDOWS
+      # - C:/sql_backups:/var/opt/mssql/backup
+      # Asegúrate de que la carpeta C:\sql_backups exista en tu máquina Windows.
 
   # Servicio para el frontend de React
   vpass3-frontend:
