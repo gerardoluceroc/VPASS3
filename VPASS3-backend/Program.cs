@@ -195,7 +195,7 @@ builder.Services.AddCors(options =>
            // Opcional: Si no se configuran orígenes, se podría optar por permitir ninguno o loguear una advertencia.
            // Para producción, NUNCA se debe usar AllowAnyOrigin() sin control.
            // En desarrollo, a veces se usa para depuración temporal.
-           // policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // ¡Precaución: No para producción!
+           policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod(); // ¡Precaución: No para producción!
            Console.WriteLine("Advertencia: No se han configurado orígenes CORS permitidos.");
        }
    });
