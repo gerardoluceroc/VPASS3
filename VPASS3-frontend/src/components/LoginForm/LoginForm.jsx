@@ -55,7 +55,7 @@ const LoginForm = () => {
       <Box id="ContainerLogin">
         <Box id="BoxLogin">
           <Box id="HeaderLogin">
-            <Typography variant="h4">Iniciar sesión</Typography>
+            <Typography variant="h4" color="black">Iniciar sesión</Typography>
             <Typography variant="h6" color="gray">Ingresa tus datos para iniciar sesión</Typography>
           </Box>
   
@@ -82,7 +82,7 @@ const LoginForm = () => {
               helperText={formik.touched.password && formik.errors.password}
             />
   
-            <FormControlLabel control={<Checkbox defaultChecked />} label="Recuerdame" sx={{marginLeft: "5px", marginTop: "-15px"}} />
+            <FormControlLabel control={<Checkbox defaultChecked />} label="Recuerdame" sx={{marginLeft: "5px", marginTop: "-15px", color: "black"}} />
   
           </Box>
   
